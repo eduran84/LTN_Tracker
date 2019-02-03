@@ -33,10 +33,7 @@ gcInvTab:add{
 gcInvTab:add{
   name = "spane",
   parent_name = "flow",
-  params = {
-    type = "scroll-pane",
-    horizontal_scroll_policy = "never"
-  },
+  params = {type = "scroll-pane", style = "ltnc_scrollpane"},
 }
 
 -- add item tables

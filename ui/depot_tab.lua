@@ -53,11 +53,7 @@ end
 gcDepotTab:add{
   name = "pane_l",
   parent_name = "frame_l",
-  params = {
-    type = "scroll-pane",
-    horizontal_scroll_policy = "never",
-    vertical_scroll_policy = "auto-and-reserve-space",
-  }
+  params = {type = "scroll-pane", style = "ltnc_scrollpane"},
 }
 gcDepotTab:add{
   name = "table_l",
@@ -114,11 +110,7 @@ for i = 1,N_COLS_RIGHT do
 gcDepotTab:add{
   name = "pane_r",
   parent_name = "frame_r",
-  params = {
-    type = "scroll-pane",
-    horizontal_scroll_policy = "never",
-    vertical_scroll_policy = "auto-and-reserve-space",
-  }
+  params = {type = "scroll-pane", style = "ltnc_scrollpane"},
 }
 gcDepotTab:add{
   name = "table_r",
