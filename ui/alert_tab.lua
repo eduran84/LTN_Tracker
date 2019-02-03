@@ -23,7 +23,7 @@ gcAlertTab:add{
 gcAlertTab:add{
   name = "header_tb_l",
   parent_name = "frame_l",
-  params =  {type = "table", column_count = N_COLS[1]},
+  params =  {type = "table", column_count = N_COLS[1], cell_padding = 2},
 }
 for i = 1,N_COLS[1] do
   gcAlertTab:add{
@@ -40,7 +40,7 @@ end
 gcAlertTab:add{
   name = "table_l",
   parent_name = "frame_l",
-  params =  {type = "table", column_count = N_COLS[1], draw_horizontal_lines = true},
+  params =  {type = "table", column_count = N_COLS[1], draw_horizontal_lines = true, cell_padding = 2},
 }
 -- right side: table with trains
 gcAlertTab:add{
@@ -77,7 +77,7 @@ gcAlertTab:element_by_name("header_r3").style.width = COL_WIDTH_R[3]+30
 gcAlertTab:add{
   name = "table_r",
   parent_name = "frame_r",
-  params =  {type = "table", column_count = N_COLS[2], draw_horizontal_lines = true},
+  params =  {type = "table", column_count = N_COLS[2], draw_horizontal_lines = true, cell_padding = 2},
 }
 
 -- additional functions

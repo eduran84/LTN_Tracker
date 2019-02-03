@@ -33,7 +33,7 @@ gcDepotTab:add{
     column_count = N_COLS_LEFT,
     style = "table_with_selection",
   },
-  style = {vertical_align = "center"},
+  style = {vertical_align = "center", horizontal_spacing = 0},
 }
 for i = 1,N_COLS_LEFT do  
   gcDepotTab:add{
@@ -45,7 +45,7 @@ for i = 1,N_COLS_LEFT do
         tooltip={"depot.header-col-"..i.."-tt"},
       style="ltnc_column_header",
       },    
-    style = {width = DEPOT_CONST.col_width_left[i]},
+    style = {width = DEPOT_CONST.col_width_header_left[i]},
   }
 end
   
@@ -56,7 +56,7 @@ gcDepotTab:add{
   params = {
     type = "scroll-pane",
     horizontal_scroll_policy = "never",
-    vertical_scroll_policy = "auto-and-reserve-space",
+    vertical_scroll_policy = "auto",---and-reserve-space",
   }
 }
 gcDepotTab:add{
@@ -120,6 +120,7 @@ gcDepotTab:add{
     vertical_scroll_policy = "auto-and-reserve-space",
   }
 }
+
 gcDepotTab:add{
   name = "table_r",
   parent_name = "pane_r",
@@ -131,7 +132,12 @@ gcDepotTab:add{
   },
   style = {vertical_align = "center"},
 }
-
+gcDepotTab:add{
+  name = "desc",
+  parent_name = "table_r",
+  params = {type = "label", caption = {"depot.init-note"}, style = "ltnc_label_default"},
+  style = {single_line = false, width = DEPOT_CONST.pane_width_right - 50},
+}
 
 -- overloaded methods
 function gcDepotTab:on_init(storage_tb)
