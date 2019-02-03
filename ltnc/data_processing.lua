@@ -179,7 +179,7 @@ local function update_depots(raw, depot_name, train_index) -- state 3
         counter = counter + 1
         local train
         train_index, train = next(depot.all_trains, train_index) -- train_index ~= train_id
-        if train then
+        if train.valid then
           depot.n_all_trains = depot.n_all_trains + 1
           local train_id = train.id
           depot.at[train_id] = train
