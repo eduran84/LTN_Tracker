@@ -91,7 +91,11 @@ gcDetails:add{
 gcDetails:add{
   name = "scroll",
   parent_name = "root",
-  params = {type = "scroll-pane", style = "ltnc_scrollpane"},
+  params = {
+    type = "scroll-pane",
+    vertical_scroll_policy = "auto",
+    horizontal_scroll_policy = "never",
+  },
 }  
 
 -- table with label listing stops

@@ -307,7 +307,7 @@ default_gui["ltnc_scrollpane"] =
 {
   type = "scroll_pane_style",
   parent = "scroll_pane",
-  vertical_scroll_policy = "auto-and-reserve-space",
+  vertical_scroll_policy = "auto",
   horizontal_scroll_policy = "never",
 }
 

@@ -76,7 +76,7 @@ end
 gcStopTab:add{
   name = "scrollpane",
   parent_name = "root",
-  params = {type = "scroll-pane", style = "ltnc_scrollpane"},
+  params = {type = "scroll-pane", horizontal_scroll_policy = "never"},
 }
 gcStopTab:add{
   name = "table",
