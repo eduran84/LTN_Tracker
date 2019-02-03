@@ -35,6 +35,7 @@ gcDepotTab:add{
   },
   style = {vertical_align = "center"},
 }
+
 for i = 1,N_COLS_LEFT do  
   gcDepotTab:add{
     name = "table_head_l_"..i,
@@ -53,7 +54,8 @@ end
 gcDepotTab:add{
   name = "pane_l",
   parent_name = "frame_l",
-  params = {type = "scroll-pane", style = "ltnc_scrollpane"},
+  params = {type = "scroll-pane", vertical_scroll_policy = "auto"},
+  
 }
 gcDepotTab:add{
   name = "table_l",
