@@ -179,16 +179,18 @@ local function update_depots(raw, depot_name, train_index) -- state 3
         counter = counter + 1
         local train
         train_index, train = next(depot.all_trains, train_index) -- train_index ~= train_id
-        if train.valid then
-          depot.n_all_trains = depot.n_all_trains + 1
-          local train_id = train.id
-          depot.at[train_id] = train
-          if av_trains[train_id] then
-            depot.parked_trains[train_id] = av_trains[train_id]
-            depot.n_parked = depot.n_parked + 1
-            depot.cap = depot.cap + av_trains[train_id].capacity
-            depot.fcap = depot.fcap + av_trains[train_id].fluid_capacity
-          end          
+        if train then 
+          if train.valid then
+            depot.n_all_trains = depot.n_all_trains + 1
+            local train_id = train.id
+            depot.at[train_id] = train
+            if av_trains[train_id] then
+              depot.parked_trains[train_id] = av_trains[train_id]
+              depot.n_parked = depot.n_parked + 1
+              depot.cap = depot.cap + av_trains[train_id].capacity
+              depot.fcap = depot.fcap + av_trains[train_id].fluid_capacity
+            end 
+          end
         else
           depot_name = next_depot_name
           depot.all_trains = nil

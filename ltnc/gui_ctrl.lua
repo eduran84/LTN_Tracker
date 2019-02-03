@@ -266,13 +266,15 @@ function handlers.check_trains(event, data_string)
   end  
   for depot_name, depot_data in pairs(global.data.depots) do
     for train_id, train in pairs(depot_data.at) do
-      local state = state_dict[train.state]
-      if state.code == -1 then
-        trains_error[train_id] = trains_error[train_id] or {}
-        trains_error[train_id].train = train
-        trains_error[train_id].state = state.msg
-        trains_error[train_id].depot = depot_name
-      end
+      if train.valid then
+        local state = state_dict[train.state]
+        if state.code == -1 then
+          trains_error[train_id] = trains_error[train_id] or {}
+          trains_error[train_id].train = train
+          trains_error[train_id].state = state.msg
+          trains_error[train_id].depot = depot_name
+        end
+      end      
     end
   end
   update_tab(event.player_index)
