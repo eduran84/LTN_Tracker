@@ -24,7 +24,7 @@ gcHistTab:add{
     style = "table_with_selection"
   }
 }
-for i = 1,N_COLS do
+for i = 1,N_COLS+1 do
   gcHistTab:add{
     name = "header"..i,
     parent_name = "header_table",
@@ -69,7 +69,8 @@ function gcHistTab:update(pind, index)
 
     ---- repopulate table ----
     local offset = global.data.newest_history_index
-    for i = -1, -99, -1 do
+    local max = global.data.history_limit
+    for i = -1, (-max+1), -1 do
       -- start at (offset - 1), counting down
       -- on reaching 0, jump back up to HISTORY_LIMIT
       -- this allows reuse of the array without table inserts or deletions

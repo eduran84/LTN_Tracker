@@ -13,6 +13,14 @@ data:extend({
 		minimum_value = 500,
 		maximum_value = 2000,
 	},
+  {
+		name = "ltnc-history-limit",
+    setting_type = "runtime-global",
+		type = "int-setting",
+		default_value = 50,
+		minimum_value = 5,
+		maximum_value = 100,
+	},
 	{
 		name = "ltnc-debug-level",
     setting_type = "runtime-global",

@@ -83,9 +83,9 @@ local function on_settings_changed(event)
   if debug_level > 0 then
     out.info("control.lua", "Player", player.name, "changed setting", setting)
   end
-  if setting == "ltn-dispatcher-delivery-timeout" then
+  if setting == "ltn-dispatcher-delivery-timeout" or setting == "ltnc-history-limit" then
     -- LTN delivery timeout is used in processor
-    prc.on_settings_changed()
+    prc.on_settings_changed(event)
   end
   if setting == "ltnc-window-height" or setting == "ltnc-show-button" then
     ui.setting_changed(pind, setting)

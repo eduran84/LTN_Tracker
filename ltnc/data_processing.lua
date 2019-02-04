@@ -74,12 +74,13 @@ local data
 local events -- custom event ids
 
 -- constants
-local HISTORY_LIMIT = require("ltnc.const").proc.history_limit
+--local HISTORY_LIMIT = require("ltnc.const").proc.history_limit
 local STOPS_PER_TICK = require("ltnc.const").proc.stops_per_tick
 local DELIVERIES_PER_TICK = require("ltnc.const").proc.deliveries_per_tick
 local TRAINS_PER_TICK = require("ltnc.const").proc.trains_per_tick
 local ITEMS_PER_TICK = require("ltnc.const").proc.items_per_tick
 local LTN_CONSTANTS = require("ltnc.const").ltn
+local HISTORY_LIMIT = settings.global["ltnc-history-limit"].value
 local FILENAME = "data.log"
 
 local out = out -- <DEBUG>
@@ -552,11 +553,18 @@ local function on_init(event_id)
   global.data.name2id = global.data.name2id or {}
   global.data.item2stop = global.data.item2stop or {}
   global.data.item2delivery = global.data.item2delivery or {}
+  global.data.history_limit = HISTORY_LIMIT
 
   on_load(event_id)
 end
 
-local function on_settings_changed()
+local function on_settings_changed(event)
+  if event.setting == "ltnc-history-limit" then
+    HISTORY_LIMIT = settings.global["ltnc-history-limit"].value
+    global.data.history_limit = HISTORY_LIMIT
+    global.data.newest_history_index = 1
+    global.data.delivery_hist = {}
+  end
   delivery_timeout = settings.global["ltn-dispatcher-delivery-timeout"].value
 end
 
