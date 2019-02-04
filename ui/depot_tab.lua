@@ -240,23 +240,43 @@ function gcDepotTab:show_details(pind)
       label.style.height = 38
 
       -- figure out train status
-      local status = train_state_dict[train.state]
-      local current_record = train.schedule.current
-      local label_txt_1, label_txt_2, color
-      -- the indexing here is a mess, as are the if statements !TODO: clean up
-      if status.code == -1 or current_record > 3 then -- thats an error
-        label_txt_1 = current_record >3 and "not LTN controlled" or status.msg
+      local label_txt_1, label_txt_2, state, color
+      local train_id = train.id
+      if depot_data.parked_trains[train_id] then
+        label_txt_1 = {"depot.parked"}
+        color = DEPOT_CONST.color_dict[1]
+        state = 0
+      elseif data.deliveries[train_id] then
+        if train.schedule.current  == 1 then
+          -- assigned for delivery, but has not left yet
+          label_txt_1 = {"depot.parked"}
+          color = DEPOT_CONST.color_dict[3]
+        else
+          -- display current delivery status
+          local delivery = data.deliveries[train_id]
+          if delivery.pickupDone then
+            label_txt_1 = (train.state == defines.train_state.wait_station) and {"depot.unloading"} or {"depot.dropping-off"}
+            label_txt_2 = delivery.to
+          else
+            label_txt_1 = (train.state == defines.train_state.wait_station) and {"depot.loading"} or {"depot.picking-up"}
+            label_txt_2 = delivery.from
+          end
+          color = DEPOT_CONST.color_dict[3]
+        end
+        state = 1
+      elseif data.trains_error[train_id] then
+        --display errors state
+        state = data.trains_error[train_id].state
+        label_txt_1 = train_state_dict[state]
         color = DEPOT_CONST.color_dict[2]
-      elseif  current_record == 1 then -- returning to or parking at depot
-        label_txt_1 = DEPOT_CONST.depot_msg_dict[status.code]
-        color = DEPOT_CONST.color_dict[status.code+1]
-      else -- on delivery
-        label_txt_1 = DEPOT_CONST.delivery_msg_dict[status.code+current_record-1]
-        label_txt_2 = train.schedule.records[current_record].station
+      else
+        -- train returning to depot is the only option left
+        label_txt_1 = {"depot.returning"}
         color = DEPOT_CONST.color_dict[3]
+        state = 0
       end
-      label.style.font_color = color -- update color for first column
 
+      label.style.font_color = color -- update color for first column
       -- second column: train status / current route
       local flow = tb.add{type = "table", column_count = 1}
       flow.style.align = "center"
@@ -280,8 +300,17 @@ function gcDepotTab:show_details(pind)
       end
 
       -- third column: shipment or residual items
-      if data.trains_error[train.id] and data.trains_error[train.id].last_delivery then
-        local residuals = data.trains_error[train.id].last_delivery.residuals
+      if state == 0 then
+        -- empty label, otherwise table is misaligned
+        label = tb.add{
+          type = "label",
+          caption = "",
+          style = "ltnc_label_default",
+        }
+      elseif state == 1 then
+        build_item_table{parent = tb, provided = data.deliveries[train.id].shipment, columns = 5}
+      elseif state == -100 then
+        local residuals = data.trains_error[train_id].cargo
         if residuals and next(residuals) then
           label = build_item_table{
             parent = tb,
@@ -293,13 +322,11 @@ function gcDepotTab:show_details(pind)
           label.style.vertical_align = "top"
           label.style.horizontally_stretchable = false
         end
-      elseif data.deliveries[train.id] then
-        build_item_table{parent = tb, provided = data.deliveries[train.id].shipment, columns = 5}
       else
         -- empty label, otherwise table is misaligned
         label = tb.add{
           type = "label",
-          caption = "",
+          caption = train_state_dict[state],
           style = "ltnc_label_default",
         }
       end

@@ -43,9 +43,9 @@ CONST.depot_tab = {
 	col_width_right = {140, 160, 101},
   -- parked / error / on delivery
   color_dict = {{r=0,g=1,b=0}, {r=1,g=0,b=0}, {r=1,g=1,b=1}},
-  depot_msg_dict = {[0] = "parked at depot", [2] = "returning to depot"},
+--  depot_msg_dict = {[0] = "parked at depot", [2] = "returning to depot"},
   --loading / unloading / moving to pick up / moving to drop off
-  delivery_msg_dict = {"Loading at:", "Unloading at:", "Fetching from:", "Delivering to:"},
+--  delivery_msg_dict = {"Loading at:", "Unloading at:", "Fetching from:", "Delivering to:"},
 }
 
 CONST.station_tab = {
@@ -84,7 +84,18 @@ CONST.is_train_error_state = {
   [defines.train_state.manual_control_stop] = true,
   [defines.train_state.manual_control] = true,
 }
-CONST.train_state_dict = { -- dont't ask why +1 is missing...
+CONST.train_state_dict = {
+  [defines.train_state.path_lost]       = {"error.train-no-path"},
+  [defines.train_state.no_schedule]     = {"error.train-no-schedule"},
+  [defines.train_state.no_path]         = {"error.train-no-path"},
+  [defines.train_state.manual_control_stop] = {"error.train-manual"},
+  [defines.train_state.manual_control]  = {"error.train-manual"},
+  [-100]                                = {"error.train-residual-cargo"},
+  [-101]                                = {"error.train-timeout"},
+}
+
+
+CONST.train_state_dict2 = { -- dont't ask why +1 is missing...
   [defines.train_state.wait_station]    = {code = 0, msg = "parked at station"},
   [defines.train_state.on_the_path]     = {code = 2, msg = "running"},
   [defines.train_state.arrive_signal]   = {code = 2, msg = "running"},

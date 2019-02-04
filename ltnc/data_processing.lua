@@ -193,7 +193,7 @@ local function update_depots(raw, depot_name, train_index) -- state 3
             local train_id = train.id
             if is_train_error_state[train.state] then
               local loco = get_main_loco(train)
-              data.trains_error[loco.unit_number] = {
+              data.trains_error[train_id] = {
                 type = "generic",
                 loco = loco,
                 route = {next_depot_name},
@@ -467,13 +467,14 @@ local function history_tracker(event)
 
     if history.timed_out then
       local loco = get_main_loco(train)
-      data.trains_error[loco.unit_number] = {
+      data.trains_error[train.id] = {
         type = "timeout",
         loco = loco,
         route = {history.depot, history.from, history.to},
         depot = history.depot,
+        state = -101
       }
-      script.raise_event(events.on_train_alert, data.trains_error[loco.unit_number])
+      script.raise_event(events.on_train_alert, data.trains_error[train.id])
     else
       -- check train for residual content
       -- if a train has fluid and items, only item residue is logged
@@ -486,14 +487,15 @@ local function history_tracker(event)
           history.residuals = {"fluid", fres}
         end
         local loco = get_main_loco(train)
-        data.trains_error[loco.unit_number ] = {
+        data.trains_error[train.id] = {
           type = "residuals",
           loco = loco,
           route = {history.depot, history.from, history.to},
           depot = history.depot,
           cargo = history.residuals,
+          state = -100
         }
-        script.raise_event(events.on_train_alert, data.trains_error[loco.unit_number])
+        script.raise_event(events.on_train_alert, data.trains_error[train.id])
       end
     end
   else
