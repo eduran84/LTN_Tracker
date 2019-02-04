@@ -41,7 +41,6 @@ end
 -----------------------------
 -- do not change any of the variables defined above from this point onward
 -- enforced by desync
-
 local function on_load()
   for _,gc in pairs(GC) do
     -- restore local references to objects' global storage tables
@@ -137,6 +136,7 @@ local function update_tab(pind)
 end
 
 local function on_toggle_button_click(event)
+  player_init(1)
   if GC.outer_frame:toggle(event.player_index) then
     GC.toggle_button:clear_alert(event.player_index)
     update_tab(event.player_index)

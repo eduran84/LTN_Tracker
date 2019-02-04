@@ -107,7 +107,7 @@ gcDetails:add{
 gcDetails:add{
   name = "stoptb",
   parent_name = "scroll",
-  params = {type = "table", column_count = 3, style = "table_with_selection"},
+  params = {type = "table", column_count = 1},
   style = {vertical_align = "center", cell_spacing = 0},
 }
 gcDetails:add{
@@ -126,7 +126,7 @@ gcDetails:add{
 gcDetails:add{
   name = "deltb",
   parent_name = "scroll",
-  params = {type = "table", column_count = 2, style = "table_with_selection"},
+  params = {type = "table", column_count = 1},
   style = {vertical_align = "center", cell_spacing = 0},
 }
 
@@ -182,16 +182,17 @@ function gcDetails:set_item(pind, ltn_item)
 		for _,stop_id in pairs(data.item2stop[ltn_item]) do
       local stop = data.stops[stop_id]
       index = index + 1
-			local label = tb.add{
+      local outer_flow = tb.add{type = "flow"}
+			local label = outer_flow.add{
 				type = "label",
 				caption = stop.name,
-				style = "ltnc_hoverable_label",
+				style = "ltnc_hover_bold_label",
         name = create_name(self, index, stop_id)
 			}
       index = index + 1
 			label.style.width = COL_WIDTH[1]
-			label.style.single_line = false
-			label = tb.add{
+			--label.style.single_line = false
+			label = outer_flow.add{
 				type = "label",
 				caption = "ID: " ..stop.network_id,
 				style = "ltnc_hoverable_label",
@@ -202,7 +203,7 @@ function gcDetails:set_item(pind, ltn_item)
         parent = tb,
         provided = stop.provided,
         requested = stop.requested,
-        columns = 3,
+        columns = 8,
       }
 		end
 	end
@@ -213,29 +214,31 @@ function gcDetails:set_item(pind, ltn_item)
   if data.item2delivery[ltn_item] then
 		for _,delivery_id in pairs(data.item2delivery[ltn_item]) do
       local delivery = data.deliveries[delivery_id]
-			local flow = tb.add{type = "flow", direction = "vertical"}
-      flow.style.vertical_align = "center"
+			local flow = tb.add{type = "flow"}
       index = index + 1
       local label = flow.add{
 				type = "label",
 				caption = delivery.from,
-				style = "ltnc_hoverable_label",
+				style = "ltnc_hover_bold_label",
         name = create_name(self, index, delivery.from_id)
 			}
-			label.style.width = COL_WIDTH_1_2
+      label = flow.add{
+				type = "label",
+				caption = " >> ",
+				style = "ltnc_label_default",
+			}
       index = index + 1
       label = flow.add{
 				type = "label",
 				caption = delivery.to,
-				style = "ltnc_hoverable_label",
+				style = "ltnc_hover_bold_label",
         name = create_name(self, index, delivery.to_id)
 			}
-			label.style.width = COL_WIDTH_1_2
 
       build_item_table{
         parent = tb,
         provided = delivery.shipment,
-        columns = 3,
+        columns = 8,
       }
 		end
 	end

@@ -162,6 +162,7 @@ function gcAlertTab:update(pind, index)
     tb = self:get_el(pind, "table_r")
     tb.clear()
     for train_id, error_data in pairs(global.data.trains_error) do
+      if not error_data.route then out.error("global.data.trains_error:", global.data.trains_error) end
       build_route_labels(tb, error_data.route)
       if error_data.type == "residuals" then
         -- residual item overview

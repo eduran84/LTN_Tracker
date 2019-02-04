@@ -117,7 +117,7 @@ gcDepotTab:add{
   params = {
     type = "scroll-pane",
     horizontal_scroll_policy = "never",
-    vertical_scroll_policy = "auto-and-reserve-space",
+    vertical_scroll_policy = "auto",
   }
 }
 

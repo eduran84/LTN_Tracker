@@ -306,7 +306,6 @@ local function add_new_deliveries(raw, delivery_id) -- state 7
       delivery.from_id = raw.name2id[delivery.from]
       delivery.to_id = raw.name2id[delivery.to]
       delivery.depot = delivery.train.valid and delivery.train.schedule.records[1] and delivery.train.schedule.records[1].station
-
       -- add items to in_transit list and incoming/outgoing
       update_in_transit(delivery_id, delivery, raw)
     else
@@ -333,7 +332,7 @@ end
 -- data_processor starts running on_tick when new data arrives and stops when processing is finished
 data_processor = function(event)
   local proc = global.proc
-  if debug_level > 1 then
+  if debug_level >= 2 then
     out.info("data_processor", "Processing data on tick:", game.tick, "\nCurrent processor state:", proc)
     --[[if debug_level > 2 then
       out.info("data_processor", "Raw data follows:\n", global.raw)
@@ -365,7 +364,7 @@ data_processor = function(event)
     proc.next_depot_name = nil
 
     proc.state = 1 -- set next state
-    if debug_level > 2 then
+    if debug_level >= 3 then
       out.info("data_processor", "Raw data follows:\n", global.raw)
     end
 
@@ -446,7 +445,7 @@ data_processor = function(event)
     script.on_event(defines.events.on_tick, nil)
 
     proc.state = 0
-    if debug_level > 2 then
+    if debug_level >= 3 then
       out.info("data_processor", "Processed data follows:\n", global.data)
     end
   end
@@ -457,7 +456,7 @@ local delivery_timeout = settings.global["ltn-dispatcher-delivery-timeout"].valu
 local function history_tracker(event)
   local history = event.data
   local train = history.train
-  if debug_level > 1 then
+  if debug_level >= 2 then
     out.info("delivery_tracker", "data received:", history, history.train)
   end
   if train.valid then -- probably not necessary, train should be valid on the tick the event is received
@@ -530,7 +529,7 @@ local function on_load(custom_events)
     script.on_event(defines.events.on_tick, data_processor)
   end
   script.on_event(events.on_delivery_complete_event, history_tracker)
-  if debug_level > 0 then
+  if debug_level >= 1 then
     out.info("data_processing.lua", "data processor status after on_load:", global.proc)
   end
 end

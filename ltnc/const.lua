@@ -58,7 +58,7 @@ CONST.station_tab = {
 CONST.inventory_tab = {
 	tab_index = 3,
   details_width = 327,
-  details_tb_col_width = {107, 40, 150},
+  details_tb_col_width = {200, 60, 150},
 }
 
 CONST.history_tab = {
