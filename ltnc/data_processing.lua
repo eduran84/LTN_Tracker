@@ -194,6 +194,7 @@ local function update_depots(raw, depot_name, train_index) -- state 3
         else
           depot_name = next_depot_name
           depot.all_trains = nil
+          train_index = nil
           break
         end -- if train
       end  -- inner while       
@@ -261,12 +262,12 @@ local function update_requested(raw, rq_idx) -- state 5
       end
     else
       return nil
-    end
-    return rq_idx     
-  end    
+    end   
+  end  
+  return rq_idx    
 end
 
-local function update_in_transit(delivery_id, delivery, raw) -- helper function for state 6 + 7   
+local function update_in_transit(delivery_id, delivery, raw) -- helper function for state 7   
   if raw.stops[delivery.to_id] and raw.stops[delivery.from_id] then
     local inc = raw.stops[delivery.to_id] and raw.stops[delivery.to_id].incoming or {}
     -- only add to outgoing if pickup is not done yet
@@ -281,90 +282,24 @@ local function update_in_transit(delivery_id, delivery, raw) -- helper function 
   end  
 end
 
-local delivery_timeout = settings.global["ltn-dispatcher-delivery-timeout"].value
-local function update_current_deliveries(raw, delivery_id) -- state 6
-  -- check current deliveries for newly added ones and add finished deliveries to history  
-  -- delivery_id is identical to train_id
-  
-  local tick = game.tick
-  local history = data.delivery_hist
-  local deliveries_data = data.deliveries
-  local deliveries_raw = raw.dispatch.Deliveries  
+local function add_new_deliveries(raw, delivery_id) -- state 7
   local counter = 0  
-  
-  while counter < DELIVERIES_PER_TICK do -- process only a limited amount of deliveries per tick
+  while counter < DELIVERIES_PER_TICK do 
+    counter = counter + 1
     local delivery
-    delivery_id, delivery = next(deliveries_data, delivery_id)
-    if delivery then
-      if deliveries_raw[delivery_id] then  
-        -- delivery already listed and still active, only update items in transit
-        update_in_transit(delivery_id, delivery, raw)
-        deliveries_raw[delivery_id] = nil
-        counter = counter + 1
-      else      
-        -- delivery was active last update, but does no longer exist
-        -- create history entry
-        local new_hist_entry = {
-          from = delivery.from,
-          to = delivery.to,
-          depot = delivery.depot,
-          runtime = tick - delivery.started,
-          finished = tick,
-          shipment = delivery.shipment,
-          timed_out = (tick - delivery.started) >= delivery_timeout,
-        }
-        local train = deliveries_data[delivery_id].train
-        if train.valid then
-          -- check train for residual content
-          -- if a train has fluid and items, only item residue is logged
-          local res = train.get_contents()
-          local fres = train.get_fluid_contents()
-          if next(res) or next(fres) then
-            if next(res) then
-              new_hist_entry.residuals = {"item", res}
-            else
-              new_hist_entry.residuals = {"fluid", fres}
-            end  
-            data.trains_error[delivery_id] = {train = train, last_delivery = new_hist_entry} 
-            script.raise_event(events.on_train_alert, {type = "residuals", data = {train = train, last_delivery = new_hist_entry} })
-          end
-        end
-        -- add history to list      
-        -- to avoid table insertions/removals and keeping the array sorted, history is used as circular array
-        history[data.newest_history_index] = new_hist_entry
-        data.newest_history_index = (data.newest_history_index % HISTORY_LIMIT) + 1   
-        deliveries_data[delivery_id] = nil        
-        counter = counter + 2 -- removing delivery, adding history, checking train -> counts as two updates
-      end -- if deliveries_raw[train_id] then
+    delivery_id, delivery = next(raw.dispatch.Deliveries, delivery_id)
+    if delivery then 
+      delivery.from_id = raw.name2id[delivery.from]
+      delivery.to_id = raw.name2id[delivery.to]
+      delivery.depot = delivery.train.valid and delivery.train.schedule.records[1] and delivery.train.schedule.records[1].station
+      
+      -- add items to in_transit list and incoming/outgoing
+      update_in_transit(delivery_id, delivery, raw)
     else
-      return nil -- all deliveries done      
-    end
-  end --  while counter < DELIVERIES_PER_TICK do
-  return delivery_id
-end
-
-local function add_new_deliveries(raw) -- state 7
-  -- except for the very first update, number of new deliveries should be small enough
-  -- to process on one tick
-  for delivery_id, delivery in pairs(raw.dispatch.Deliveries) do
-    local depot = delivery.train.valid and delivery.train.schedule.records[1] and delivery.train.schedule.records[1].station
-    -- new delivery, add to list
-    local new_delivery = {
-      from = delivery.from,
-      from_id = raw.name2id[delivery.from],
-      to = delivery.to,
-      to_id = raw.name2id[delivery.to],
-      shipment = delivery.shipment,
-      pickup_done = delivery.pickupDone,
-      started = delivery.started,
-      train = delivery.train,
-      depot = depot,
-    }
-    data.deliveries[delivery_id] = new_delivery
-    
-    -- add items to in_transit list and incoming/outgoing
-    update_in_transit(delivery_id, new_delivery, raw)
-  end  
+      return nil
+    end    
+  end 
+  return delivery_id 
 end
 
 --------------------
@@ -420,7 +355,9 @@ data_processor = function(event)
   -- processing functions for each state can take multiple ticks to complete
   -- if those functions return a value, they will be called again next tick, with that value as input
   -- the returned value should allow the function to continue from where it stopped
-  -- they must return nil when their job is done, in which case proc.state is incremented
+  -- they must return nil when their job is done, in which case proc.state is incremented  
+  
+  ---- state 2 and 7 currently unsued ------
   elseif proc.state == 1 then
   -- processing stops first, information gathered here is required for other steps
     local stop_id = update_stops(raw, proc.next_stop_id)
@@ -430,7 +367,6 @@ data_processor = function(event)
       proc.state = 3 -- go to next state
     end
     
----- state 2 currently unsued ------
   elseif proc.state == 3 then
     -- sorting available trains by depot
     local depot_name, train_id = update_depots(raw, proc.next_depot_name, proc.next_train_id)
@@ -456,23 +392,17 @@ data_processor = function(event)
     if next_req then
       proc.next_req = next_req
     else
-      proc.state = 6
-    end  
-     
-  elseif proc.state == 6 then
-    -- remove finished deliveries, update history and update items in transit
-    local delivery_id = update_current_deliveries(raw, proc.next_delivery_id)  
-    if delivery_id then
-      proc.next_delivery_id = delivery_id   
-    else
       proc.state = 7
-    end 
+    end  
      
   elseif proc.state == 7 then
     -- add new deliveries and update items in transit
-    -- runs always on a single tick
-    add_new_deliveries(raw)  
+    local next_delivery_id = add_new_deliveries(raw, proc.next_delivery_id)  
+    if next_delivery_id then
+      proc.next_delivery_id = next_delivery_id
+    else
     proc.state = 100
+    end 
     
   elseif proc.state == 100 then -- update finished
     -- update globals and raise event
@@ -482,6 +412,7 @@ data_processor = function(event)
     data.provided =  raw.provided
     data.requested = raw.requested
     data.in_transit = raw.in_transit
+    data.deliveries = raw.dispatch.Deliveries
     data.name2id =  raw.name2id 
     data.item2stop =  raw.item2stop 
     data.item2delivery = raw.item2delivery
@@ -504,6 +435,49 @@ data_processor = function(event)
   end
 end
 
+local delivery_timeout = settings.global["ltn-dispatcher-delivery-timeout"].value
+local function history_tracker(event) 
+  local history = event.data
+  local train = history.train
+  out.info("delivery_tracker", "data received:", history, history.train)
+  
+  if train.valid then -- probably not necessary, train should be valid on the tick the event is received
+    history.runtime = game.tick - history.started
+    history.timed_out = history.runtime >= delivery_timeout
+    history.depot = train.schedule.records[1] and train.schedule.records[1].station 
+    
+    if history.timed_out then      
+      data.trains_error[train.id] = {type = "timeout", train = train, last_delivery = history} 
+      script.raise_event(events.on_train_alert, data.trains_error[train.id])
+    else      
+      -- check train for residual content
+      -- if a train has fluid and items, only item residue is logged
+      local res = train.get_contents() -- does return empty table when train is empty, not nil
+      local fres = train.get_fluid_contents()
+      if next(res) or next(fres) then
+        if next(res) then
+          history.residuals = {"item", res}
+        else
+          history.residuals = {"fluid", fres}
+        end  
+        data.trains_error[train.id] = {
+          type = "residuals",
+          train = train,
+          last_delivery = history,
+        }                  
+        script.raise_event(events.on_train_alert, data.trains_error[train.id])
+      end
+    end    
+  else
+    out.error("Tell eduran he did it wrong! Here is some info for him, so he can do better next time:\n history:", history)
+  end  
+  
+  -- insert history into circular array
+  data.delivery_hist[data.newest_history_index] = history
+  data.newest_history_index = (data.newest_history_index % HISTORY_LIMIT) + 1  
+end
+
+
 ----------------------
 -- PUBLIC FUNCTIONS --
 ----------------------
@@ -516,6 +490,7 @@ local function on_load(custom_events)
   events = custom_events
   events.on_stops_updated_event = remote.call("logistic-train-network", "get_on_stops_updated_event")
   events.on_dispatcher_updated_event = remote.call("logistic-train-network", "get_on_dispatcher_updated_event")
+  events.on_delivery_complete_event = remote.call("logistic-train-network", "get_on_delivery_complete_event")
   
   -- register for conditional events
   if global.proc.state == 0 then
@@ -523,7 +498,8 @@ local function on_load(custom_events)
     script.on_event(events.on_dispatcher_updated_event, on_dispatcher_updated) 
   else  
     script.on_event(defines.events.on_tick, data_processor)    
-  end  
+  end 
+  script.on_event(events.on_delivery_complete_event, history_tracker)
   if debug_level > 0 then
     out.info("data_processing.lua", "data processor status after on_load:", global.proc)
   end  
