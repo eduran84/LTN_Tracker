@@ -83,11 +83,11 @@ CONST.train_state_dict = { -- dont't ask why +1 is missing...
   [defines.train_state.arrive_signal]   = {code = 2, msg = "running"},
   [defines.train_state.wait_signal]     = {code = 2, msg = "running"},
   [defines.train_state.arrive_station]  = {code = 2, msg = "running"},
-  [defines.train_state.path_lost]       = {code =-1, msg = "no path"},
-  [defines.train_state.no_schedule]     = {code =-1, msg = "no schedule"},
-  [defines.train_state.no_path]         = {code =-1, msg = "no path"},
-  [defines.train_state.manual_control_stop]={code=-1,msg = "manual control"},
-  [defines.train_state.manual_control]  = {code =-1, msg = "manual control"},  
+  [defines.train_state.path_lost]       = {code =-1, msg = {"error.train-no-path"}},
+  [defines.train_state.no_schedule]     = {code =-1, msg = {"error.train-no-schedule"}},
+  [defines.train_state.no_path]         = {code =-1, msg = {"error.train-no-path"}},
+  [defines.train_state.manual_control_stop]={code=-1,msg = {"error.train-manual"}},
+  [defines.train_state.manual_control]  = {code =-1, msg = {"error.train-manual"}},  
 }
 
 -- LTN definitions, copied from LTN's control.lua
@@ -137,10 +137,10 @@ ltn.error_color_lookup = {
   [2] = "signal-pink",
 }
 ltn.error_string_lookup = {
-  [-1] = {"ltnc.error-no-init"},
-  [0] = {"ltnc.error-invalid"},
-  [1] = {"ltnc.error-disabled"},
-  [2] = {"ltnc.error-duplicate"},
+  [-1] = {"error.stop-no-init"},
+  [0] = {"error.stop-invalid"},
+  [1] = {"error.stop-disabled"},
+  [2] = {"error.stop-duplicate"},
 }
 CONST.ltn = ltn
 return CONST

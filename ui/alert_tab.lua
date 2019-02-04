@@ -50,12 +50,6 @@ gcAlertTab:add{
   style = {width = FRAME_WIDTH[2]}
 }
 gcAlertTab:add{
-  name = "button",
-  parent_name = "frame_r",
-  params =  {type = "button", caption = "Check all trains", tooltip = "EXPERIMENTAL: Search all trains assigned to LTN depots for no-path and other errors states."},
-  event = {id = defines.events.on_gui_click, handler = "check_trains"}
-}
-gcAlertTab:add{
   name = "header_tb_r",
   parent_name = "frame_r",
   params =  {type = "table", column_count = N_COLS[2]},
@@ -82,6 +76,7 @@ gcAlertTab:add{
 
 -- additional functions
 local error_string = require("ltnc.const").ltn.error_string_lookup
+local state_dict = require("ltnc.const").train_state_dict
 local build_item_table = require("ui.util").build_item_table
 local function build_route_label(parent, delivery) -- helper function for gcAlertTab:update
   if delivery then
@@ -112,9 +107,6 @@ local function build_route_label(parent, delivery) -- helper function for gcAler
 end
 function gcAlertTab:build_buttons(parent, index, train_id) -- helper function for gcAlertTab:update
   local inner_tb = parent.add{type = "table", column_count = 2, style = "slot_table"}
-  --inner_tb.style.align = "center"
-  --inner_tb.style.cell_spacing = 0
-  --inner_tb.style.horizontal_spacing = 0  
   local elem = inner_tb.add{
     type = "sprite-button",
     sprite = "ltnc_sprite_enter",
@@ -161,18 +153,18 @@ function gcAlertTab:update(pind, index)
     -- right side: table listing trains with residual items or error state
     tb = self:get_el(pind, "table_r")
     tb.clear()    
-    for train_id, traindata in pairs(global.data.trains_error) do
-      local delivery = traindata.last_delivery
-      if delivery then -- train with residual items from its last delivery        
-        build_route_label(tb, delivery)
-        -- depot name
-        local elem = tb.add{
-          type = "label",
-          caption = delivery.depot,
-          style = "ltnc_label_default",
-        } 
-        elem.style.vertical_align = "center"
-        elem.style.width = COL_WIDTH_R[2]      
+    for train_id, error_data in pairs(global.data.trains_error) do
+      local delivery = error_data.last_delivery     
+      build_route_label(tb, delivery)
+      -- depot name
+      local elem = tb.add{
+        type = "label",
+        caption = delivery.depot,
+        style = "ltnc_label_default",
+      } 
+      elem.style.vertical_align = "center"
+      elem.style.width = COL_WIDTH_R[2] 
+      if error_data.type == "residuals" then
         -- residual item overview
         build_item_table{
           parent = tb,
@@ -180,31 +172,46 @@ function gcAlertTab:update(pind, index)
           columns = 4,
           type = delivery.residuals[1],
           no_negate = true,
-        } 
-        self:build_buttons(tb, index, train_id)
-        index = index + 1  
-      else -- other errors
-        build_route_label(tb, global.data.deliveries[train_id])
-        local elem = tb.add{
-          type = "label",
-          caption = traindata.depot,
-          style = "ltnc_label_default",
-        } 
-        elem.style.vertical_align = "center"
-        elem.style.width = COL_WIDTH_R[2]     
+        }
+      else -- currently, the only other type is timeout
         elem = tb.add{
           type = "label",
-          caption = traindata.state,
-          style = "ltnc_label_default",
+          caption = {"error.train-timeout"},
+          style = "ltnc_error_label",
         } 
-        elem.style.font = "ltnc_font_bold"
         elem.style.width = COL_WIDTH_R[3]  
-        elem.style.font_color = {r = 1, g = 0, b = 0}
-        
-        self:build_buttons(tb, index, train_id)
-        index = index + 1  
-      end    
-    end    
+      end        
+      self:build_buttons(tb, index, train_id)     
+    end 
+    
+    -- !TODO this is a performance hog on large maps
+    local trains_error = global.data.trains_error
+    for depot_name, depot_data in pairs(global.data.depots) do
+      for train_id, train in pairs(depot_data.at) do        
+        if train.valid and not global.data.trains_error[train_id] then
+          local state = state_dict[train.state]
+          if state.code == -1 then
+            build_route_label(tb, global.data.deliveries[train_id])
+            local elem = tb.add{
+              type = "label",
+              caption = depot_name,
+              style = "ltnc_label_default",
+            } 
+            elem.style.vertical_align = "center"
+            elem.style.width = COL_WIDTH_R[2]     
+            elem = tb.add{
+              type = "label",
+              caption = state.msg,
+              style = "ltnc_error_label",
+            } 
+            elem.style.width = COL_WIDTH_R[3]  
+            
+            self:build_buttons(tb, index, train_id)
+          end
+        end      
+      end
+    end
+    index = index + 1      
   else
     self:hide(pind)
   end 

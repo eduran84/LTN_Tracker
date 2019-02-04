@@ -199,7 +199,7 @@ end
 
 -- handler for on_new_alert custom event
 local function on_new_alert(event)
-  if event and event.type and event.type == "residuals" then
+  if event and event.type then
     for pind, p in pairs(game.players) do
       GC.toggle_button:set_alert(pind)   
       GC.outer_frame:set_alert(pind)
@@ -253,31 +253,6 @@ function handlers.on_item_clicked(event, data_string)
   -- set item displayed on details tab
   -- item name and amount is encoded in data_string
   GC.inv_details:set_item(event.player_index, data_string)
-end
-
--- !TODO this does not belong here, integrate into data processing
-local state_dict = require("ltnc.const").train_state_dict
-function handlers.check_trains(event, data_string)
-  local trains_error = global.data.trains_error
-  for train_id, train_data in pairs(trains_error) do
-    if not train_data.last_delivery then
-      trains_error[train_id] = nil
-    end
-  end  
-  for depot_name, depot_data in pairs(global.data.depots) do
-    for train_id, train in pairs(depot_data.at) do
-      if train.valid then
-        local state = state_dict[train.state]
-        if state.code == -1 then
-          trains_error[train_id] = trains_error[train_id] or {}
-          trains_error[train_id].train = train
-          trains_error[train_id].state = state.msg
-          trains_error[train_id].depot = depot_name
-        end
-      end      
-    end
-  end
-  update_tab(event.player_index)
 end
 
 return {

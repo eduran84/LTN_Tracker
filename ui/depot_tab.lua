@@ -280,7 +280,7 @@ function gcDepotTab:show_details(pind)
       end
       
       -- third column: shipment or residual items
-      if data.trains_error[train.id] then
+      if data.trains_error[train.id] and data.trains_error[train.id].last_delivery then
         local residuals = data.trains_error[train.id].last_delivery.residuals
         if residuals and next(residuals) then
           label = build_item_table{
