@@ -1,9 +1,9 @@
 local function item2sprite(item, item_type)
   if item_type then
     return item_type .. "/" .. item
-  else    
+  else
     return string.gsub(item, ",", "/")
-  end  
+  end
 end
 -- display a shipment of items as icons
 local function build_item_table(args)
@@ -11,8 +11,8 @@ local function build_item_table(args)
   -- !TODO disable assert for release
   --required arguments: parent (without any of provided / requestd / signals an empty frame is produced)
   --optional arguments: provided, requested, signals, columns, enabled, name, type, no_negate
-  
-  out.assert(args.parent, "Parent not defined.\nArgs provided:", args) 
+
+  out.assert(args.parent, "Parent not defined.\nArgs provided:", args)
   -- parse arguments
   local columns, enabled, name
 	if args.columns then
@@ -39,7 +39,7 @@ local function build_item_table(args)
 	frame.style.vertically_stretchable = false
 	frame.style.horizontally_stretchable = false
 	frame.style.minimal_height = 36
-  
+
   -- table for item sprites
 	params.type = "table"
   params.column_count = columns
@@ -47,7 +47,7 @@ local function build_item_table(args)
 	local tble = frame.add(params)
 	tble.style.width = 34*columns
 	tble.style.vertically_stretchable = false
-  
+
   local count = 0
   -- add items to table
 	if args.provided then
@@ -67,11 +67,11 @@ local function build_item_table(args)
 		for item, amount in pairs(args.requested) do
       if not no_negate then
         amount = -amount -- default to numbers for requests
-      end      
+      end
 			local test = tble.add{
 				type = "sprite-button",
 				sprite = item2sprite(item, type),
-				number = amount, 
+				number = amount,
 				enabled = enabled,
         style = "ltnc_requested_button",
 			}
@@ -91,7 +91,7 @@ local function build_item_table(args)
       count = count + 1
 		end
 	end
-  
+
   while count == 0 or count % columns > 0  do
     local test = tble.add{
       type = "sprite-button",

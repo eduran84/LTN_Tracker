@@ -15,12 +15,12 @@ gcInvTab:add{
   name = "idSelector",
   parent_name = "root",
   gui_composition = require("ui.classes.TextFieldWithRange")(
-    "IDSinv", 
+    "IDSinv",
     {
       caption = {"inventory.id_selector-caption"},
       tooltip = {"inventory.id_selector-tt"},
     }
-  )  
+  )
 }
 
 -- flow for tab main body
@@ -83,7 +83,7 @@ gcInvTab.tab_index = require("ltnc.const").inventory_tab.tab_index
 gcInvTab:add{
   name = "details",
   parent_name = "flow",
-  gui_composition = require("ui.inventory_tab.details_pane"), 
+  gui_composition = require("ui.inventory_tab.details_pane"),
 }
 gcInvTab.tab_index = require("ltnc.const").inventory_tab.tab_index
 
@@ -99,22 +99,22 @@ function gcInvTab:update(pind, index)
     itemTables.requested:update_table(pind, get_items_in_network(data.requested, selected_network_id))
     itemTables.transit:update_table(pind, data.in_transit or {})
     itemTables.details:set_item(pind)
-    
+
     -- !DEBUG
     --[[
-    if self:get(pind).test then self:get(pind).test.destroy() end    
+    if self:get(pind).test then self:get(pind).test.destroy() end
     local testflow = self:get(pind).add{type = "flow", name ="test", direction = "horizontal"}
     local testtb = testflow.add{type = "table", name ="test", column_count = 2}
     local testlb = testtb.add{type = "label", caption = "LABEL"}
     testlb.style.height = 100
-    local testframe = testtb.add{type = "frame", caption = "frame in table"}    
+    local testframe = testtb.add{type = "frame", caption = "frame in table"}
     testframe.style.vertically_stretchable = false
-    testframe = testflow.add{type = "frame", caption = "frame outside of table"}     
+    testframe = testflow.add{type = "frame", caption = "frame outside of table"}
     testframe.style.vertically_stretchable = false
     --]]
   else
     self:hide(pind)
-  end 
+  end
 end
 
 

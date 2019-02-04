@@ -23,7 +23,7 @@ gcHistTab:add{
     column_count = N_COLS+1,
     style = "table_with_selection"
   }
-}   
+}
 for i = 1,N_COLS do
   gcHistTab:add{
     name = "header"..i,
@@ -35,13 +35,13 @@ for i = 1,N_COLS do
       style = "ltnc_column_header"
     },
     style = {width = H_COL_WIDTH[i]}
-  }    
-end	 
+  }
+end
 
 -- main table
 gcHistTab:add{name = "pane", parent_name = "root", params = {type = "scroll-pane"}}
 gcHistTab:add{
-  name = "table", 
+  name = "table",
   parent_name = "pane",
   params = {
     type = "table",
@@ -66,10 +66,10 @@ function gcHistTab:update(pind, index)
     local hist_table = self:get_el(pind, "table")
     local history_data = global.data.delivery_hist
     hist_table.clear()
-    
-    ---- repopulate table ----	
+
+    ---- repopulate table ----
     local offset = global.data.newest_history_index
-    for i = -1, -99, -1 do    
+    for i = -1, -99, -1 do
       -- start at (offset - 1), counting down
       -- on reaching 0, jump back up to HISTORY_LIMIT
       -- this allows reuse of the array without table inserts or deletions
@@ -94,10 +94,10 @@ function gcHistTab:update(pind, index)
           style = "ltnc_label_default"
         }
         label.style.width = COL_WIDTH[3]
-        
+
         -- runtime, possibly with time-out warning
         if delivery.timed_out then
-          local inner_tb = hist_table.add{type = "table", column_count = 1, style = "slot_table"}      
+          local inner_tb = hist_table.add{type = "table", column_count = 1, style = "slot_table"}
           label = inner_tb.add{
             type = "label",
             caption = tick2timestring(delivery.runtime),
@@ -111,40 +111,40 @@ function gcHistTab:update(pind, index)
           }
           label.style.width = COL_WIDTH[4]
           label.style.align = "right"
-          label.style.font_color = {r = 1, g = 0, b = 0}          
-          
-        else            
+          label.style.font_color = {r = 1, g = 0, b = 0}
+
+        else
           label = hist_table.add{
             type = "label",
             caption = tick2timestring(delivery.runtime),
           }
           label.style.width = COL_WIDTH[4]
           label.style.align = "right"
-        end      
-        
+        end
+
         -- shipement and residual items, if any
         if delivery.residuals then
           local tb = hist_table.add{type = "table", column_count = 1}
           tb.style.align = "center"
           tb.style.cell_spacing = 0
-          tb.style.vertical_spacing = 0 
-          
-          build_item_table{parent = tb, provided = delivery.shipment, columns = 5}        
+          tb.style.vertical_spacing = 0
+
+          build_item_table{parent = tb, provided = delivery.shipment, columns = 5}
           build_item_table{
             parent = tb,
             requested = delivery.residuals[2],
             columns = 5,
             type = delivery.residuals[1],
             no_negate = true,
-          }      
+          }
         else
           build_item_table{parent = hist_table, provided = delivery.shipment, columns = 5}
         end -- if delivery.residuals then
       end --if delivery then
-    end -- for i = -1, -99, -1 do  
+    end -- for i = -1, -99, -1 do
   else
     self:hide(pind)
-  end -- if index == self.tab_index then 
+  end -- if index == self.tab_index then
 end
 
 return gcHistTab

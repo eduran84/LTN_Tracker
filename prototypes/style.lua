@@ -90,15 +90,15 @@ data:extend({
 
 local SUMMARY_NUM_WIDTH = 100
 -- button styles
-do  
-default_gui["ltnc_button_default"] = 
+do
+default_gui["ltnc_button_default"] =
 {
     type = "button_style",
     font = "ltnc_font_default",
     align = "center",
     vertical_align = "center"
 }
-default_gui["ltnc_tab_button"] = 
+default_gui["ltnc_tab_button"] =
 {
   type = "button_style",
   font = "ltnc_font_tab_caption",
@@ -172,8 +172,8 @@ default_gui["ltnc_tab_button_highlight"]  =
     position = {0, 16}
   },
 }
-default_gui["ltnc_empty_button"] = 
-{ 
+default_gui["ltnc_empty_button"] =
+{
   type = "button_style",
   parent = "slot_button",
   disabled_graphical_set =
@@ -191,8 +191,8 @@ default_gui["ltnc_empty_button"] =
   }
 }
 
-default_gui["ltnc_provided_button"] = 
-{ 
+default_gui["ltnc_provided_button"] =
+{
   type = "button_style",
   parent = "green_slot_button",
   disabled_graphical_set =
@@ -211,11 +211,11 @@ default_gui["ltnc_provided_button"] =
   },
 }
 
-default_gui["ltnc_requested_button"] = 
-{ 
+default_gui["ltnc_requested_button"] =
+{
   type = "button_style",
   parent = "red_slot_button",
-  disabled_graphical_set = 
+  disabled_graphical_set =
   {
     type = "monolith",
     monolith_border = 1,
@@ -233,6 +233,7 @@ end
 
 -- label styles
 local default_orange_color = {r = 0.98, g = 0.66, b = 0.22}
+local bright_red = {r = 1, g = 0, b = 0}
 do
 default_gui["ltnc_label_default"] = {
   type = "label_style",
@@ -263,7 +264,7 @@ default_gui["ltnc_hoverable_label"] = {
     r = 0.5 * (1 + default_orange_color.r),
     g = 0.5 * (1 + default_orange_color.g),
     b = 0.5 * (1 + default_orange_color.b)
-  },  
+  },
   vertical_align = "center"
 }
 
@@ -274,7 +275,7 @@ default_gui["ltnc_hover_bold_label"] = {
     r = 0.5 * (1 + default_orange_color.r),
     g = 0.5 * (1 + default_orange_color.g),
     b = 0.5 * (1 + default_orange_color.b)
-  },  
+  },
   vertical_align = "center"
 }
 
@@ -282,6 +283,13 @@ default_gui["ltnc_column_header"] = {
 	type = "label_style",
 	parent = "caption_label",
   font = "ltnc_font_bold"
+}
+
+default_gui["ltnc_error_label"] = {
+	type = "label_style",
+	parent = "ltnc_label_default",
+  font = "ltnc_font_bold",
+  font_color = bright_red,
 }
 end
 
@@ -292,7 +300,7 @@ default_gui["ltnc_table_default"] = {
 	parent = "table_with_selection",
 }
 
-default_gui["ltnc_shipment_table"] = 
+default_gui["ltnc_shipment_table"] =
 {
   type = "table_style",
   parent = "slot_table",
@@ -303,7 +311,7 @@ default_gui["ltnc_shipment_table"] =
 end
 
 -- pane styles
-default_gui["ltnc_scrollpane"] = 
+default_gui["ltnc_scrollpane"] =
 {
   type = "scroll_pane_style",
   parent = "scroll_pane",
@@ -312,7 +320,7 @@ default_gui["ltnc_scrollpane"] =
 }
 
 -- frame styles
-default_gui["ltnc_slot_table_frame"] = 
+default_gui["ltnc_slot_table_frame"] =
 {
   type = "frame_style",
   parent = "frame",

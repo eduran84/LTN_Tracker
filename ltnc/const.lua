@@ -6,8 +6,8 @@ CONST.global = {
   mod_prefix = "ltnc",
   gui_events = {defines.events.on_gui_click, defines.events.on_gui_checked_state_changed, defines.events.on_gui_text_changed}, -- events handled by on_gui_event
   mod_name_ltn = "LogisticTrainNetwork",
-  minimal_version_ltn = "01.09.02",
-  current_version_ltn = "01.09.07",
+  minimal_version_ltn = "01.09.10",
+  current_version_ltn = "01.09.10",
 }
 
 -- ui_ctrl.lua
@@ -20,7 +20,7 @@ CONST.proc = {
   history_limit = 100, -- maximum number of entries in history table
   stops_per_tick = 20,
   deliveries_per_tick = 20,
-  trains_per_tick = 40,
+  trains_per_tick = 30,
   items_per_tick = 100
 }
 
@@ -39,12 +39,13 @@ CONST.depot_tab = {
   pane_width_left = 354,
   pane_width_right = 491,
 	col_width_left = {108, 30, 210},
+	col_width_header_left = {110, 65, 190},
 	col_width_right = {140, 160, 101},
   -- parked / error / on delivery
   color_dict = {{r=0,g=1,b=0}, {r=1,g=0,b=0}, {r=1,g=1,b=1}},
-  depot_msg_dict = {[0] = "parked at depot", [2] = "returning to depot"},
+--  depot_msg_dict = {[0] = "parked at depot", [2] = "returning to depot"},
   --loading / unloading / moving to pick up / moving to drop off
-  delivery_msg_dict = {"Loading at:", "Unloading at:", "Fetching from:", "Delivering to:"}, 
+--  delivery_msg_dict = {"Loading at:", "Unloading at:", "Fetching from:", "Delivering to:"},
 }
 
 CONST.station_tab = {
@@ -71,22 +72,40 @@ CONST.alert_tab = {
 	tab_index = 5,
   frame_width = {375, 470},
   n_columns = {3, 4},
-	col_width_l = {150, 20, 150},
-	col_width_r = {110, 110, 130, 0},
+	col_width_l = {150, 20, 149},
+	col_width_r = {110, 109, 130, 0},
 }
 
 -- misc stuff
-CONST.train_state_dict = { -- dont't ask why +1 is missing...
+CONST.is_train_error_state = {
+  [defines.train_state.path_lost] = true,
+  [defines.train_state.no_schedule] = true,
+  [defines.train_state.no_path] = true,
+  [defines.train_state.manual_control_stop] = true,
+  [defines.train_state.manual_control] = true,
+}
+CONST.train_state_dict = {
+  [defines.train_state.path_lost]       = {"error.train-no-path"},
+  [defines.train_state.no_schedule]     = {"error.train-no-schedule"},
+  [defines.train_state.no_path]         = {"error.train-no-path"},
+  [defines.train_state.manual_control_stop] = {"error.train-manual"},
+  [defines.train_state.manual_control]  = {"error.train-manual"},
+  [-100]                                = {"error.train-residual-cargo"},
+  [-101]                                = {"error.train-timeout"},
+}
+
+
+CONST.train_state_dict2 = { -- dont't ask why +1 is missing...
   [defines.train_state.wait_station]    = {code = 0, msg = "parked at station"},
   [defines.train_state.on_the_path]     = {code = 2, msg = "running"},
   [defines.train_state.arrive_signal]   = {code = 2, msg = "running"},
   [defines.train_state.wait_signal]     = {code = 2, msg = "running"},
   [defines.train_state.arrive_station]  = {code = 2, msg = "running"},
-  [defines.train_state.path_lost]       = {code =-1, msg = "no path"},
-  [defines.train_state.no_schedule]     = {code =-1, msg = "no schedule"},
-  [defines.train_state.no_path]         = {code =-1, msg = "no path"},
-  [defines.train_state.manual_control_stop]={code=-1,msg = "manual control"},
-  [defines.train_state.manual_control]  = {code =-1, msg = "manual control"},  
+  [defines.train_state.path_lost]       = {code =-1, msg = {"error.train-no-path"}},
+  [defines.train_state.no_schedule]     = {code =-1, msg = {"error.train-no-schedule"}},
+  [defines.train_state.no_path]         = {code =-1, msg = {"error.train-no-path"}},
+  [defines.train_state.manual_control_stop]={code=-1,msg = {"error.train-manual"}},
+  [defines.train_state.manual_control]  = {code =-1, msg = {"error.train-manual"}},
 }
 
 -- LTN definitions, copied from LTN's control.lua
@@ -115,7 +134,7 @@ ltn.is_control_signal = {
   [ltn.MINPROVIDED] = true,
   [ltn.PROVPRIORITY] = true,
   [ltn.LOCKEDSLOTS] = true,
-}  
+}
 ltn.ctrl_signal_var_name = {
   [ltn.ISDEPOT] = "isDepot",
   [ltn.NETWORKID] = "network_id",
@@ -136,10 +155,10 @@ ltn.error_color_lookup = {
   [2] = "signal-pink",
 }
 ltn.error_string_lookup = {
-  [-1] = {"ltnc.error-no-init"},
-  [0] = {"ltnc.error-invalid"},
-  [1] = {"ltnc.error-disabled"},
-  [2] = {"ltnc.error-duplicate"},
+  [-1] = {"error.stop-no-init"},
+  [0] = {"error.stop-invalid"},
+  [1] = {"error.stop-disabled"},
+  [2] = {"error.stop-duplicate"},
 }
 CONST.ltn = ltn
 return CONST
