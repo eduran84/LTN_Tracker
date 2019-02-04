@@ -326,6 +326,7 @@ default_gui["ltnc_slot_table_frame"] =
   parent = "frame",
   padding = 0,
   vertical_align = "center",
-  minimal_height = 34,
+  minimal_height = 38,
   vertically_stretchable = "off",
+	horizontally_stretchable = "off",
 }

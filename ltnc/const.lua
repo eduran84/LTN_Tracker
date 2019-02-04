@@ -50,9 +50,10 @@ CONST.depot_tab = {
 
 CONST.station_tab = {
 	tab_index = 2,
-  header_col_width = {137, 48, 34*5+7, 34*5+7, 34*7+6},
+  header_col_width = {150, 48, 34*6+7, 34*5+7, 34*6+6},
   station_col_width = 150,
-  item_table_col_count = {5, 5, 7},
+  item_table_col_count = {6, 5, 6},
+  item_table_max_rows = {4, 4, 1},
 }
 
 CONST.inventory_tab = {

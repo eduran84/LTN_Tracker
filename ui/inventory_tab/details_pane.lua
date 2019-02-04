@@ -196,7 +196,7 @@ function gcDetails:set_item(pind, ltn_item)
 				type = "label",
 				caption = "ID: " ..stop.network_id,
 				style = "ltnc_hoverable_label",
-        name = create_name(self, index, stop_id)
+        name = create_name(self, index, stop_id),
 			}
 			label.style.width = COL_WIDTH[2]
       build_item_table{
@@ -204,6 +204,7 @@ function gcDetails:set_item(pind, ltn_item)
         provided = stop.provided,
         requested = stop.requested,
         columns = 8,
+        max_rows = 2,
       }
 		end
 	end
@@ -239,6 +240,7 @@ function gcDetails:set_item(pind, ltn_item)
         parent = tb,
         provided = delivery.shipment,
         columns = 8,
+        max_rows = 2,
       }
 		end
 	end

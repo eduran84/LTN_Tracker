@@ -15,6 +15,7 @@ local N_COLS = 5
 local ROW_HEIGHT = 34
 local COL_WIDTH = require("ltnc.const").station_tab.header_col_width
 local STATION_WIDTH = require("ltnc.const").station_tab.station_col_width
+local MAX_ROWS = require("ltnc.const").station_tab.item_table_max_rows
 local COL_COUNTS = require("ltnc.const").station_tab.item_table_col_count
 local GC = require("ui.classes.GuiComposition")
 local gcStopTab= GC(NAME, {
@@ -158,6 +159,7 @@ function gcStopTab:update(pind, index)
           requested = data.stops[stop_id].requested,
           columns = COL_COUNTS[1],
           enabled = false,
+          max_rows = MAX_ROWS[1],
         }
         -- fourth column: current deliveries
         build_item_table{
@@ -165,6 +167,7 @@ function gcStopTab:update(pind, index)
           provided = stopdata.incoming,
           requested = stopdata.outgoing,
           columns = COL_COUNTS[2],
+          max_rows = MAX_ROWS[2],
           enabled = false,
         }
         -- fifth column: control signals
