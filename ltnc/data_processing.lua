@@ -555,6 +555,7 @@ local function on_init(event_id)
   global.data.item2delivery = global.data.item2delivery or {}
   global.data.history_limit = HISTORY_LIMIT
 
+
   on_load(event_id)
 end
 

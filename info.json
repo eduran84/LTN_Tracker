@@ -7,5 +7,5 @@
   "homepage": "<placeholder>",
   "description": "<placeholder>",
   "factorio_version": "0.16",
-	"dependencies": ["base >= 0.16.51", "LogisticTrainNetwork >= 1.9.2"]
+	"dependencies": ["base >= 0.16.51", "LogisticTrainNetwork >= 1.9.10"]
 }

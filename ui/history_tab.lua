@@ -48,6 +48,7 @@ gcHistTab:add{
   event = {id = defines.events.on_gui_click, handler = "clear_history"}
 }
 
+
 -- main table
 gcHistTab:add{name = "pane", parent_name = "root", params = {type = "scroll-pane"}}
 gcHistTab:add{
@@ -81,6 +82,7 @@ function gcHistTab:update(pind, index)
     local offset = global.data.newest_history_index
     local max = global.data.history_limit
     for i = -1, (-max+1), -1 do
+
       -- start at (offset - 1), counting down
       -- on reaching 0, jump back up to HISTORY_LIMIT
       -- this allows reuse of the array without table inserts or deletions
@@ -105,7 +107,6 @@ function gcHistTab:update(pind, index)
           style = "ltnc_label_default"
         }
         label.style.width = COL_WIDTH[3]
-
         -- runtime, possibly with time-out warning
         if delivery.timed_out then
           local inner_tb = hist_table.add{type = "table", column_count = 1, style = "slot_table"}

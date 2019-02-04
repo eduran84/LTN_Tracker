@@ -12,6 +12,7 @@ local function build_item_table(args)
   --required arguments: parent (without any of provided / requestd / signals an empty frame is produced)
   --optional arguments: provided, requested, signals, columns, enabled, type, no_negate, max_rows
 
+
   out.assert(args.parent, "Parent not defined.\nArgs provided:", args)
   -- parse arguments
   local columns, enabled, name
@@ -27,6 +28,7 @@ local function build_item_table(args)
 	end
   local type = args.type
   local no_negate = args.no_negate
+
   -- outer frame
 	local frame = args.parent.add{type = "frame", style = "ltnc_slot_table_frame"}
 
