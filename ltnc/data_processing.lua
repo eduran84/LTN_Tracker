@@ -167,6 +167,14 @@ local function update_stops(raw, stop_id) -- state 1
   return stop_id
 end
 
+local function prune_train_errors(raw)
+  for train_id, error_data in pairs(data.trains_error) do
+    if error_data.type == "generic" then
+      data.trains_error[train_id] = nil
+    end
+  end
+end
+
 local get_main_loco = require("ltnc.util").get_main_loco
 local is_train_error_state = require("ltnc.const").is_train_error_state
 local function update_depots(raw, depot_name, train_index) -- state 3
@@ -327,6 +335,12 @@ end
 -- data_processor starts running on_tick when new data arrives and stops when processing is finished
 data_processor = function(event)
   local proc = global.proc
+  if debug_level > 1 then
+    out.info("data_processor", "Processing data on tick:", game.tick, "\nCurrent processor state:", proc)
+    --[[if debug_level > 2 then
+      out.info("data_processor", "Raw data follows:\n", global.raw)
+    end  --]]
+  end
   if proc.state == 0 then -- new data arrived, init processing
     script.on_event(defines.events.on_tick, data_processor)
     -- suspend LTN interface during data processing
@@ -353,11 +367,8 @@ data_processor = function(event)
     proc.next_depot_name = nil
 
     proc.state = 1 -- set next state
-    if debug_level > 1 then
-      out.info("data_processor", "Data processing started. Current tick:", game.tick)
-      --[[if debug_level > 2 then
-        out.info("data_processor", "Raw data follows:\n", global.raw)
-      end  --]]
+    if debug_level > 2 then
+      out.info("data_processor", "Raw data follows:\n", global.raw)
     end
 
   -- processing functions for each state can take multiple ticks to complete
@@ -365,15 +376,20 @@ data_processor = function(event)
   -- the returned value should allow the function to continue from where it stopped
   -- they must return nil when their job is done, in which case proc.state is incremented
 
-  ---- state 2 and 7 currently unsued ------
+  ---- state 6 currently unused ------
   elseif proc.state == 1 then
   -- processing stops first, information gathered here is required for other steps
     local stop_id = update_stops(raw, proc.next_stop_id)
     if stop_id then
       proc.next_stop_id = stop_id -- store last processed id, so we know where to continue next tick
     else
-      proc.state = 3 -- go to next state
+      proc.state = 2 -- go to next state
     end
+
+  elseif proc.state == 2 then
+    -- check trains on error list and remove if needed
+    prune_train_errors(raw)
+    proc.state = 3
 
   elseif proc.state == 3 then
     -- sorting available trains by depot
@@ -432,13 +448,8 @@ data_processor = function(event)
     script.on_event(defines.events.on_tick, nil)
 
     proc.state = 0
-    if debug_level > 1 then
-      out.info("data_processor", "Data processing finished. Current tick:", game.tick)
-      --[[
-      if debug_level > 2 then
+    if debug_level > 2 then
       out.info("data_processor", "Processed data follows:\n", global.data)
-      end
-      --]]
     end
   end
 end
@@ -448,8 +459,9 @@ local delivery_timeout = settings.global["ltn-dispatcher-delivery-timeout"].valu
 local function history_tracker(event)
   local history = event.data
   local train = history.train
-  out.info("delivery_tracker", "data received:", history, history.train)
-
+  if debug_level > 1 then
+    out.info("delivery_tracker", "data received:", history, history.train)
+  end
   if train.valid then -- probably not necessary, train should be valid on the tick the event is received
     history.runtime = game.tick - history.started
     history.timed_out = history.runtime >= delivery_timeout

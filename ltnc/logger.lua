@@ -177,9 +177,10 @@ local function _log(msg_type, tag, pargs)
     game.print(message)
   end
   if debug_level > 0 then
-    log(message)
     if game then
-      game.write_file(filename, message.."\n", true, 1)
+      game.write_file(filename, message.."\n", true)
+    else
+      log(message)
     end
   end
   return message

@@ -163,7 +163,6 @@ function gcAlertTab:update(pind, index)
     tb.clear()
     for loco_id, error_data in pairs(global.data.trains_error) do
       build_route_labels(tb, error_data.route)
-
       if error_data.type == "residuals" then
         -- residual item overview
         build_item_table{
@@ -173,6 +172,7 @@ function gcAlertTab:update(pind, index)
           type = error_data.cargo[1],
           no_negate = true,
         }
+        self:build_buttons(tb, index, loco_id)
       elseif error_data.type == "timeout" then
         local elem = tb.add{
           type = "label",
@@ -180,6 +180,7 @@ function gcAlertTab:update(pind, index)
           style = "ltnc_error_label",
         }
         elem.style.width = COL_WIDTH_R[3]
+        self:build_buttons(tb, index, loco_id)
       else
         local elem = tb.add{
           type = "label",
@@ -187,8 +188,13 @@ function gcAlertTab:update(pind, index)
           style = "ltnc_error_label",
         }
         elem.style.width = COL_WIDTH_R[3]
+        elem = tb.add{
+          type = "sprite-button",
+          sprite = "ltnc_sprite_enter",
+          tooltip = {"alert.select-tt"},
+          name = self:_create_name(index, "s" .. loco_id),
+        }
       end
-      self:build_buttons(tb, index, loco_id)
     end
     index = index + 1
   else
