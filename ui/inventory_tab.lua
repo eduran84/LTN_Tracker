@@ -4,6 +4,7 @@ local get_items_in_network = require("ltnc.util").get_items_in_network
 -- set/get constants
 local NAME = "inv_tab"
 local N_SUBPANES = 4
+local IT_COL_COUNT = require("ltnc.const").inventory_tab.item_table_column_count
 
 local gcInvTab= require("ui.classes.GuiComposition")(NAME, {
   params = {type = "flow", direction = "vertical"},
@@ -45,39 +46,40 @@ gcInvTab:add{
   name = "provided",
   parent_name = "spane",
   gui_composition = IT("inv_provided", {
-    column_count = 15,
+    column_count = IT_COL_COUNT,
     enabled = true,
     caption = {"inventory.provide-caption"},
     button_style = 1, --green background
-    use_placeholders = 29,
+    use_placeholders = IT_COL_COUNT*2-1,
   })
 }
 gcInvTab:add{
   name = "requested",
   parent_name = "spane",
   gui_composition = IT("inv_requested", {
-    column_count = 15,
+    column_count = IT_COL_COUNT,
     enabled = true,
     caption = {"inventory.request-caption"},
     button_style = 2, --red background
-    use_placeholders = 29,
+    use_placeholders = IT_COL_COUNT*2-1,
   })
 }
 gcInvTab:add{
   name = "transit",
   parent_name = "spane",
   gui_composition = IT("inv_transit", {
-    column_count = 15,
+    column_count = IT_COL_COUNT,
     enabled = true,
     caption = {"inventory.transit-caption"},
-    use_placeholders = 29,
+    use_placeholders = IT_COL_COUNT*2-1,
   })
 }
+--[[
 gcInvTab:add{
   name = "spacer_flow",
   parent_name = "flow",
   params = {type = "flow", horizontally_stretchable = "true"}
-}
+}--]]
 gcInvTab.tab_index = require("ltnc.const").inventory_tab.tab_index
 -- details pane on the right side
 gcInvTab:add{

@@ -15,8 +15,9 @@ Layout:
 
 -- set/get constants
 local TOTAL_WIDTH = require("ltnc.const").inventory_tab.details_width
-local COL_WIDTH = require("ltnc.const").inventory_tab.details_tb_col_width
-local COL_WIDTH_1_2 = COL_WIDTH[1] + COL_WIDTH[2] + 20
+local COL_COUNT =  require("ltnc.const").inventory_tab.details_item_tb_col_count
+local COL_WIDTH_STN = require("ltnc.const").inventory_tab.details_tb_col_width_stations
+local COL_WIDTH_DEL = require("ltnc.const").inventory_tab.details_tb_col_width_deliveries
 local SUM_LABEL_WIDTH =  TOTAL_WIDTH - 150
 local NAME = "inv_details"
 
@@ -28,8 +29,9 @@ local gcDetails = GC(NAME, {
     caption = {"inventory.detail-caption"},
     style = "tool_bar_frame"
   },
+  style = {width = TOTAL_WIDTH, left_padding = 3, right_padding = 3}
 })
-do -- add elements for layout
+
 -- header line with item name and icon
 gcDetails:add{
   name = "header_flow",
@@ -116,7 +118,7 @@ gcDetails:add{
   params = {type = "label", caption = {"inventory.detail_label"}, style = "ltnc_label_default"},
   style = {single_line = false, width = TOTAL_WIDTH - 30},
 }
-end
+
 -- table with label listing deliveries
 gcDetails:add{
   name = "deltb_label",
@@ -189,8 +191,9 @@ function gcDetails:set_item(pind, ltn_item)
 				style = "ltnc_hover_bold_label",
         name = create_name(self, index, stop_id)
 			}
+      label.style.single_line = false
       index = index + 1
-			label.style.width = COL_WIDTH[1]
+			label.style.width = COL_WIDTH_STN[1]
 			--label.style.single_line = false
 			label = outer_flow.add{
 				type = "label",
@@ -198,12 +201,12 @@ function gcDetails:set_item(pind, ltn_item)
 				style = "ltnc_hoverable_label",
         name = create_name(self, index, stop_id),
 			}
-			label.style.width = COL_WIDTH[2]
+			label.style.width = COL_WIDTH_STN[2]
       build_item_table{
         parent = tb,
         provided = stop.provided,
         requested = stop.requested,
-        columns = 8,
+        columns = COL_COUNT,
         max_rows = 2,
       }
 		end
@@ -216,6 +219,7 @@ function gcDetails:set_item(pind, ltn_item)
 		for _,delivery_id in pairs(data.item2delivery[ltn_item]) do
       local delivery = data.deliveries[delivery_id]
 			local flow = tb.add{type = "flow"}
+			flow.style.vertical_align = "center"
       index = index + 1
       local label = flow.add{
 				type = "label",
@@ -223,11 +227,14 @@ function gcDetails:set_item(pind, ltn_item)
 				style = "ltnc_hover_bold_label",
         name = create_name(self, index, delivery.from_id)
 			}
+			label.style.width = COL_WIDTH_DEL[1]
+      label.style.single_line = false
       label = flow.add{
 				type = "label",
 				caption = " >> ",
 				style = "ltnc_label_default",
 			}
+			label.style.width = COL_WIDTH_DEL[2]
       index = index + 1
       label = flow.add{
 				type = "label",
@@ -235,13 +242,16 @@ function gcDetails:set_item(pind, ltn_item)
 				style = "ltnc_hover_bold_label",
         name = create_name(self, index, delivery.to_id)
 			}
-
+			label.style.width = COL_WIDTH_DEL[3]
+      label.style.single_line = false
+      flow = tb.add{type = "flow"}
       build_item_table{
-        parent = tb,
+        parent = flow,
         provided = delivery.shipment,
-        columns = 8,
+        columns = COL_COUNT,
         max_rows = 2,
       }
+      flow.add{type = "flow", horizontally_stretchable = true}
 		end
 	end
 end

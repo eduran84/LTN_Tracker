@@ -31,6 +31,7 @@ local function build_item_table(args)
 
   -- outer frame
 	local frame = args.parent.add{type = "frame", style = "ltnc_slot_table_frame"}
+  frame.style.vertically_stretchable = false
 
   if args.max_rows then
     frame.style.maximal_height = args.max_rows * 38
