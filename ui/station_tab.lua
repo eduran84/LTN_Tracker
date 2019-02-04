@@ -5,7 +5,7 @@ Layout:
 | <label> [textbox][checkbox] |  -- inside a flow
 | ------ scroll-pane -------- |
 | |<col1>   ......   <col5> | | > 5 column table listing stops
-| |                         | | > col1 = name, col2 = networkID; 
+| |                         | | > col1 = name, col2 = networkID;
 | |                         | | > col3 = items provided / requested
 ------------------------------- > col4 = control signals, col5 = current deliveries
 
@@ -26,24 +26,24 @@ gcStopTab:add{
   name = "button_flow",
   parent_name = "root",
   params = {type = "flow", direction = "horizontal"},
-  style = {vertical_align = "center"},  
+  style = {vertical_align = "center"},
 }
 gcStopTab:add{
   name = "idSelector",
   parent_name = "button_flow",
   gui_composition = require("ui.classes.TextFieldWithRange")(
-    "IDSstop", 
+    "IDSstop",
     {
       caption = {"inventory.id_selector-caption"},
       tooltip = {"inventory.id_selector-tt"},
     }
-  )  
+  )
 }
 gcStopTab:add{
   name = "checkbox",
   parent_name = "button_flow",
   params = {
-    type = "checkbox", 
+    type = "checkbox",
     state = false,
     caption = {"station.check-box-cap"},
     tooltip = {"station.check-box-tt"},
@@ -57,20 +57,20 @@ gcStopTab:add{
   parent_name = "root",
   params = {type = "table", column_count = N_COLS, draw_horizontal_lines = true},
   style = {vertical_align = "bottom"}
-}   
+}
 for i = 1,N_COLS do
   gcStopTab:add{
     name = "header"..i,
     parent_name = "header_table",
     params = {
-      type = "label", 
+      type = "label",
       caption={"station.header-col-"..i},
       tooltip={"station.header-col-"..i.."-tt"},
       style="ltnc_column_header"
     },
     style = {width = COL_WIDTH[i]}
-  }    
-end	
+  }
+end
 
 -- table for stations inside scroll-pane
 gcStopTab:add{
@@ -115,10 +115,10 @@ function gcStopTab:update(pind, index)
   if index == self.tab_index then
     self:show(pind)
     global.gui.active_tab[pind] = index
-    
+
     local tb = self:get_el(pind, "table")
-    tb.clear() 
-  
+    tb.clear()
+
     -- table main body
     local selected_network_id = tonumber(self.sub_gc.idSelector:get_current_value(pind))
     local testfun
@@ -127,7 +127,7 @@ function gcStopTab:update(pind, index)
     else
       testfun = btest
     end
-    local data = global.data  
+    local data = global.data
     local n = #self.elem
     local index = n + 1
     for stop_id,stopdata in pairs(data.stops) do
@@ -139,7 +139,7 @@ function gcStopTab:update(pind, index)
           caption = stopdata.name,
           style = "ltnc_hoverable_label",
           name = self:_create_name(index, stop_id),
-        }        
+        }
         label.style.vertical_align = "center"
         label.style.width = STATION_WIDTH
         index = index + 1
@@ -150,7 +150,7 @@ function gcStopTab:update(pind, index)
 				number = stopdata.signals[1].count,
 				enabled = false,
         style = "ltnc_empty_button",
-        }                
+        }
         -- third column: provided and requested items
         build_item_table{
           parent = tb,
@@ -159,21 +159,21 @@ function gcStopTab:update(pind, index)
           columns = COL_COUNTS[1],
           enabled = false,
         }
-        -- fourth column: current deliveries   
+        -- fourth column: current deliveries
         build_item_table{
           parent = tb,
           provided = stopdata.incoming,
           requested = stopdata.outgoing,
           columns = COL_COUNTS[2],
           enabled = false,
-        }        
+        }
         -- fifth column: control signals
-        build_item_table{parent = tb, signals = stopdata.signals[2], columns = COL_COUNTS[3], enabled = false}        
-      end           
+        build_item_table{parent = tb, signals = stopdata.signals[2], columns = COL_COUNTS[3], enabled = false}
+      end
     end
    else
     self:hide(pind)
-  end 
+  end
 end
 
 function gcStopTab:event_handler(event, index, data_string)

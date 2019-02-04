@@ -13,13 +13,13 @@ local gc_pathes = {   -- list of GUIComposition objects to load
   "ui.toggle_button",
   "ui.outer_frame",
   "ui.depot_tab",
-  "ui.history_tab", 
+  "ui.history_tab",
   "ui.inventory_tab",
   "ui.station_tab",
   "ui.alert_tab",
 }
 -- load and store GuiComposition objects
-local GC = {} 
+local GC = {}
 local tab_list = {}
 for _,path in pairs(gc_pathes) do
   local gc = require(path)
@@ -46,49 +46,49 @@ local function on_load()
   for _,gc in pairs(GC) do
     -- restore local references to objects' global storage tables
     gc:on_load(global.gui)
-  end  
+  end
 end
 
 local function player_init(pind)
   local player = game.players[pind]
   local frame_flow = mod_gui.get_frame_flow(player)
-  local button_flow = mod_gui.get_button_flow(player)  
+  local button_flow = mod_gui.get_button_flow(player)
   if debug_level > 0 then
     out.info("gui_ctrl.lua", "Preparing UI for player", player.name)
   end
-  
+
   -- set UI state globals
   global.gui.active_tab[pind] = 1 -- even if ui is closed, active tab persists and is restored when UI opens
   global.gui.is_gui_open[pind] = false
   global.gui.last_refresh_tick[pind] = 0
-  
+
   -- build UI
   GC.toggle_button:build(button_flow, pind)
   if not settings.get_player_settings(player)["ltnc-show-button"] then
     GC.toggle_button:hide(player)
-  end  
+  end
   GC.outer_frame:build(frame_flow, pind)
   GC.outer_frame:hide(pind) -- UI is always closed on init
-  
+
   -- add tabs to outer_frame
   local outer_frame = GC.outer_frame:get(pind)
   GC.depot_tab:build(outer_frame, pind)
   GC.stop_tab:build(outer_frame, pind)
-  GC.inv_tab:build(outer_frame, pind) 
-  GC.hist_tab:build(outer_frame, pind) 
+  GC.inv_tab:build(outer_frame, pind)
+  GC.hist_tab:build(outer_frame, pind)
   GC.alert_tab:build(outer_frame, pind)
   if debug_level > 0 then
     out.info("gui_ctrl.lua", "UI is ready.")
   end
 end
 
-local function on_init() 
+local function on_init()
   -- global storage for UI state
-  global.gui = {is_gui_open = {}, active_tab = {}, last_refresh_tick = {}, alerts_enabled = {}} 
+  global.gui = {is_gui_open = {}, active_tab = {}, last_refresh_tick = {}, alerts_enabled = {}}
   for _,gc in pairs(GC) do
     -- creates and populates global.gui[gc.name]
     gc:on_init(global.gui)
-  end  
+  end
   -- initialize present players, they dont trigger on_player_created event
   for pind,_ in pairs(game.players) do
     player_init(pind)
@@ -100,8 +100,8 @@ local function on_configuration_changed()
   for pind,_ in pairs(game.players) do
     for name, gc in pairs(GC) do
       gc:destroy(pind)
-    end        
-  end   
+    end
+  end
   global.gui = nil
   -- ... and rebuild
   on_init()
@@ -115,31 +115,31 @@ local function setting_changed(pind, setting)
   local player = game.players[pind]
   if setting == "ltnc-window-height" then
     player_init(pind) -- rebuild entire ui for player
-  elseif setting == "ltnc-show-button" then 
+  elseif setting == "ltnc-show-button" then
     -- show or hide toggle button
     if settings.get_player_settings(player)["ltnc-show-button"].value then
       GC.toggle_button:show(pind)
     else
       GC.toggle_button:hide(pind)
-    end    
+    end
   end
 end
 
 -- basic UI functions
 local function update_tab(pind)
-  -- updates the currently selected tab for one player, if that player has the UI open  
+  -- updates the currently selected tab for one player, if that player has the UI open
   local tab_index = global.gui.is_gui_open[pind] and global.gui.active_tab[pind]
   if tab_index then
     for i = 1,N_TABS do
       tab_list[i]:update(pind, tab_index)
     end
-  end  
+  end
 end
 
 local function on_toggle_button_click(event)
   if GC.outer_frame:toggle(event.player_index) then
-    GC.toggle_button:clear_alert(event.player_index)  
-    update_tab(event.player_index)	    
+    GC.toggle_button:clear_alert(event.player_index)
+    update_tab(event.player_index)
   end
 end
 
@@ -160,31 +160,31 @@ local function ui_event_handler(event)
   local gc_name, elem_index, data_string = match(event.element.name, match_string)
   if gc_name then -- this element belongs to ltnc, so continue (or some other mod with the same prefix xX)
     if debug_level > 1 then
-      out.info("ui_event_handler", "Gui event received. Event:", event, "\ngc_name =", gc_name, "elem_index =", elem_index, "data_string=", data_string) 
-    end    
+      out.info("ui_event_handler", "Gui event received. Event:", event, "\ngc_name =", gc_name, "elem_index =", elem_index, "data_string=", data_string)
+    end
     if GC[gc_name] then -- should not be necessary, but let's be extra safe in case another mod uses exactly the same naming pattern
-      local handler, data = GC[gc_name]:get_event_handler(event, s2n(elem_index), data_string)      
+      local handler, data = GC[gc_name]:get_event_handler(event, s2n(elem_index), data_string)
       if debug_level > 2 then -- !DEBUG
-        out.info("ui_event_handler", "handler:", handler, "data:", data, "\nfull GC object state:\n", GC[gc_name]) 
-      end  
-      if type(handler) == "string" then 
+        out.info("ui_event_handler", "handler:", handler, "data:", data, "\nfull GC object state:\n", GC[gc_name])
+      end
+      if type(handler) == "string" then
         if data then
           handlers[handler](event, data)
-        else          
+        else
           handlers[handler](event, data_string)
         end
       end
     else
       if debug_level > 0 then
         out.warn("Gui event registerd for UI element with name", event.element.name, ", but corresponding GC object was not found.\nCurrent state of GC:\n", GC, "\nTriggering event:", event)
-      end      
-    end    
+      end
+    end
   end
 end
 
 -- handler for on_data_updated event
 local function update_ui(event)
-  for i in pairs(game.players) do    
+  for i in pairs(game.players) do
     update_tab(i)
   end
 end
@@ -201,9 +201,9 @@ end
 local function on_new_alert(event)
   if event and event.type then
     for pind, p in pairs(game.players) do
-      GC.toggle_button:set_alert(pind)   
+      GC.toggle_button:set_alert(pind)
       GC.outer_frame:set_alert(pind)
-    end    
+    end
   end
 end
 
@@ -219,7 +219,7 @@ function handlers.on_refresh_bt_click(event, data_string)
   local pind = event.player_index
   if global.gui.last_refresh_tick[pind] + MINIMAL_REFRESH_DELAY < game.tick then
     update_tab(event.player_index)
-  end  
+  end
 end
 
 -- and even more helper functions
@@ -231,7 +231,7 @@ function handlers.on_stop_name_clicked(event, data_string)
   if stop and stop.entity and stop. entity.valid then
     close_gui(event.player_index)
     select_entity(event.player_index, global.data.stops[s2n(data_string)].entity)
-  end  
+  end
 end
 
 function handlers.on_error_stop_clicked(event, data_string)
@@ -245,15 +245,15 @@ end
 function handlers.on_entity_clicked(event, entity)
   if entity and entity.valid then
     close_gui(event.player_index)
-    select_entity(event.player_index, entity)	
-  end 
+    select_entity(event.player_index, entity)
+  end
 end
 
 function handlers.on_train_clicked(event, train)
   if train and train.valid then
     close_gui(event.player_index)
-    select_train(event.player_index, train)	
-  end  
+    select_train(event.player_index, train)
+  end
 end
 
 function handlers.on_item_clicked(event, data_string)

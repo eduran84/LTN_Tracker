@@ -45,7 +45,7 @@ CONST.depot_tab = {
   color_dict = {{r=0,g=1,b=0}, {r=1,g=0,b=0}, {r=1,g=1,b=1}},
   depot_msg_dict = {[0] = "parked at depot", [2] = "returning to depot"},
   --loading / unloading / moving to pick up / moving to drop off
-  delivery_msg_dict = {"Loading at:", "Unloading at:", "Fetching from:", "Delivering to:"}, 
+  delivery_msg_dict = {"Loading at:", "Unloading at:", "Fetching from:", "Delivering to:"},
 }
 
 CONST.station_tab = {
@@ -82,7 +82,7 @@ CONST.is_train_error_state = {
   [defines.train_state.no_schedule] = true,
   [defines.train_state.no_path] = true,
   [defines.train_state.manual_control_stop] = true,
-  [defines.train_state.manual_control] = true, 
+  [defines.train_state.manual_control] = true,
 }
 CONST.train_state_dict = { -- dont't ask why +1 is missing...
   [defines.train_state.wait_station]    = {code = 0, msg = "parked at station"},
@@ -94,7 +94,7 @@ CONST.train_state_dict = { -- dont't ask why +1 is missing...
   [defines.train_state.no_schedule]     = {code =-1, msg = {"error.train-no-schedule"}},
   [defines.train_state.no_path]         = {code =-1, msg = {"error.train-no-path"}},
   [defines.train_state.manual_control_stop]={code=-1,msg = {"error.train-manual"}},
-  [defines.train_state.manual_control]  = {code =-1, msg = {"error.train-manual"}},  
+  [defines.train_state.manual_control]  = {code =-1, msg = {"error.train-manual"}},
 }
 
 -- LTN definitions, copied from LTN's control.lua
@@ -123,7 +123,7 @@ ltn.is_control_signal = {
   [ltn.MINPROVIDED] = true,
   [ltn.PROVPRIORITY] = true,
   [ltn.LOCKEDSLOTS] = true,
-}  
+}
 ltn.ctrl_signal_var_name = {
   [ltn.ISDEPOT] = "isDepot",
   [ltn.NETWORKID] = "network_id",

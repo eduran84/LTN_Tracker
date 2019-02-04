@@ -15,8 +15,8 @@ local gcTB = GC(NAME, {
 
 function gcTB:set_alert(pind)
   if global.gui.is_gui_open[pind] == false then
-    self:get(pind).sprite = TB_WITH_ALERT_SPRITE  
-  end 
+    self:get(pind).sprite = TB_WITH_ALERT_SPRITE
+  end
 end
 function gcTB:clear_alert(pind)
   self:get(pind).sprite = TB_WITHOUT_ALERT_SPRITE

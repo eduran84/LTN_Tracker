@@ -30,13 +30,13 @@ for i = 1,N_COLS[1] do
     name = "header_l"..i,
     parent_name = "header_tb_l",
     params = {
-      type = "label", 
+      type = "label",
       caption={"alert.header-col-l-"..i},
       style="ltnc_column_header"
     },
     style = {width = COL_WIDTH_L[i]}
-  }    
-end	
+  }
+end
 gcAlertTab:add{
   name = "table_l",
   parent_name = "frame_l",
@@ -59,13 +59,13 @@ for i = 1,N_COLS[2] do
     name = "header_r"..i,
     parent_name = "header_tb_r",
     params = {
-      type = "label", 
+      type = "label",
       caption={"alert.header-col-r-"..i},
       style="ltnc_column_header"
     },
     style = {width = COL_WIDTH_R[i]}
-  }    
-end	
+  }
+end
 gcAlertTab:element_by_name("header_r3").params.tooltip = {"alert.header-col-r-3-tt"}
 gcAlertTab:element_by_name("header_r3").style.width = COL_WIDTH_R[3]+30
 gcAlertTab:add{
@@ -83,35 +83,35 @@ local function build_route_labels(parent, route) -- helper function for gcAlertT
     local inner_tb = parent.add{type = "table", column_count = 1}
     inner_tb.style.align = "center"
     inner_tb.style.cell_spacing = 0
-    inner_tb.style.vertical_spacing = 0 
+    inner_tb.style.vertical_spacing = 0
     local elem = inner_tb.add{
       type = "label",
       caption = route[2],
       style = "ltnc_label_default",
-    } 
+    }
     elem.style.width = COL_WIDTH_R[1]
     elem = inner_tb.add{
       type = "label",
       caption = route[3],
       style = "ltnc_label_default",
-    } 
-    elem.style.width = COL_WIDTH_R[1]    
-  else        
+    }
+    elem.style.width = COL_WIDTH_R[1]
+  else
     local elem = parent.add{
     type = "label",
     caption = "unknown",
     style = "ltnc_label_default",
-    } 
-    elem.style.width = COL_WIDTH_R[1]         
-  end   
+    }
+    elem.style.width = COL_WIDTH_R[1]
+  end
   -- depot name
   local elem = parent.add{
     type = "label",
     caption = route[1],
     style = "ltnc_label_default",
-  } 
+  }
   elem.style.vertical_align = "center"
-  elem.style.width = COL_WIDTH_R[2]    
+  elem.style.width = COL_WIDTH_R[2]
 end
 function gcAlertTab:build_buttons(parent, index, loco_id) -- helper function for gcAlertTab:update
   local inner_tb = parent.add{type = "table", column_count = 2, style = "slot_table"}
@@ -120,7 +120,7 @@ function gcAlertTab:build_buttons(parent, index, loco_id) -- helper function for
     sprite = "ltnc_sprite_enter",
     tooltip = {"alert.select-tt"},
     name = self:_create_name(index, "s" .. loco_id),
-  } 
+  }
   elem = inner_tb.add{
     type = "sprite-button",
     sprite = "ltnc_sprite_delete",
@@ -133,10 +133,10 @@ function gcAlertTab:update(pind, index)
   if index == self.tab_index then
     self:show(pind)
     global.gui.active_tab[pind] = index
-    
+
     -- left side: table listing stops with error state
     local tb = self:get_el(pind, "table_l")
-    tb.clear() 
+    tb.clear()
     local index = #self.elem + 1
     for stop_id, stopdata in pairs(global.data.stops_error) do
       local elem = tb.add{
@@ -144,7 +144,7 @@ function gcAlertTab:update(pind, index)
         caption = stopdata.name,
         style = "ltnc_hoverable_label",
         name = self:_create_name(index, stop_id),
-      }        
+      }
       elem.style.vertical_align = "center"
       elem.style.width = COL_WIDTH_L[1]
       index = index + 1
@@ -153,17 +153,17 @@ function gcAlertTab:update(pind, index)
         sprite = stopdata.signals.name,
         count = 1,
         enabled = false,
-      }  
-      elem = tb.add{type = "label", caption = error_string[stopdata.errorCode], style = "ltnc_label_default"} 
+      }
+      elem = tb.add{type = "label", caption = error_string[stopdata.errorCode], style = "ltnc_label_default"}
       elem.style.width = COL_WIDTH_L[3]
     end
-    
+
     -- right side: table listing trains with residual items or error state
     tb = self:get_el(pind, "table_r")
-    tb.clear()    
-    for loco_id, error_data in pairs(global.data.trains_error) do  
+    tb.clear()
+    for loco_id, error_data in pairs(global.data.trains_error) do
       build_route_labels(tb, error_data.route)
-      
+
       if error_data.type == "residuals" then
         -- residual item overview
         build_item_table{
@@ -178,23 +178,22 @@ function gcAlertTab:update(pind, index)
           type = "label",
           caption = {"error.train-timeout"},
           style = "ltnc_error_label",
-        } 
-        elem.style.width = COL_WIDTH_R[3] 
+        }
+        elem.style.width = COL_WIDTH_R[3]
       else
         local elem = tb.add{
           type = "label",
           caption = state_dict[error_data.state].msg,
           style = "ltnc_error_label",
-        } 
-        elem.style.width = COL_WIDTH_R[3] 
-      end 
-      
+        }
+        elem.style.width = COL_WIDTH_R[3]
+      end
       self:build_buttons(tb, index, loco_id)
-    end 
-    index = index + 1      
+    end
+    index = index + 1
   else
     self:hide(pind)
-  end 
+  end
 end
 
 function gcAlertTab:event_handler(event, index, data_string)
@@ -210,5 +209,5 @@ function gcAlertTab:event_handler(event, index, data_string)
     return "on_error_stop_clicked"
   end
 end
-
+--test
 return gcAlertTab

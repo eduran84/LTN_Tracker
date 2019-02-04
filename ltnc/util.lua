@@ -12,7 +12,7 @@ function util.select_train(pind, train)
     if loco and loco.valid then
       game.players[pind].opened = loco
     end
-  end  
+  end
 end
 
 -- build string describing train composition
@@ -34,7 +34,7 @@ function util.build_train_composition_string(train)
 				comp_string = comp_string.."<L<"
 			else
 				comp_string = comp_string..">L>"
-			end			
+			end
 		elseif carriage.type == "cargo-wagon" then
 			comp_string = comp_string.."C"
 		elseif carriage.type == "fluid-wagon" then
@@ -64,8 +64,8 @@ function util.get_main_loco(train)
   end
 end
 -- copy/paste from Optera's LTN-Content-Reader
-local btest = bit32.btest 
-function util.get_items_in_network(ltn_item_list, selected_networkID)  
+local btest = bit32.btest
+function util.get_items_in_network(ltn_item_list, selected_networkID)
 	local items = {}
 	for networkID, item_data in pairs(ltn_item_list) do
 		if btest(selected_networkID, networkID) then

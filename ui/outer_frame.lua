@@ -6,7 +6,7 @@ local DEFAULT_STYLE = require("ltnc.const").main_frame.button_default_style
 local name = "outer_frame"
 
 local gcOuterFrame = GC(name)
-do -- for code folding 
+do -- for code folding
 
 gcOuterFrame:add{
   name = "root",
@@ -16,7 +16,7 @@ gcOuterFrame:add{
     name = "ltnc_main_frame"
 	},
 	style = {height = 500, top_padding = 10},
-}  
+}
 
 -- flow for title and refresh button
 gcOuterFrame:add{
@@ -34,7 +34,7 @@ gcOuterFrame:add{
   name = "spacer_flow",
   parent_name = "title_flow",
   params = {type = "flow", direction = "horizontal"},
-  style = {horizontally_stretchable = true},  
+  style = {horizontally_stretchable = true},
 }
 gcOuterFrame:add{
   name = "refresh_bt",
@@ -46,7 +46,7 @@ gcOuterFrame:add{
   },
   event = {id = defines.events.on_gui_click, handler = "on_refresh_bt_click"},
 }
-  
+
 -- flow for tab selector buttons
 gcOuterFrame:add{
   name = "button_flow",
@@ -71,7 +71,7 @@ for i = 1, N_TABS do
       data = i,
       handler = "on_tab_changed",
     }
-  } 
+  }
 end
 gcOuterFrame:element_by_name("tabbutton_1").params.enabled = false
 --[[gcOuterFrame:add{
@@ -93,7 +93,7 @@ function gcOuterFrame:toggle(pind)
 	if new_state then
 		game.players[pind].opened = self:get(pind)
   else
-		game.players[pind].opened = nil   
+		game.players[pind].opened = nil
 	end
   global.gui.is_gui_open[pind] = new_state
 	return new_state
@@ -136,11 +136,11 @@ function gcOuterFrame:update_buttons(pind, new_tab)
   global.gui.active_tab[pind] = new_tab
   if new_tab == 5 then
     self:clear_alert(pind)
-  end  
+  end
 end
 
 function gcOuterFrame:get_buttons(pind)
-	local buttons = {}  
+	local buttons = {}
 	for i = 1, N_TABS do
 		buttons[i] = self:get_el(pind, "tabbutton_"..i)
 	end

@@ -8,7 +8,7 @@ Layout:
 | <transit>         <NUBMER>  |  >
 | <table caption>             |
 | <col1>   <col2>   <col3>    | > table listing stations
-| <col1>   <col2>   <col3>    | > col1 = name col2 = networkID; 
+| <col1>   <col2>   <col3>    | > col1 = name col2 = networkID;
 | .....                       | > col3 = items provided / requested
 -------------------------------
 --]]
@@ -27,7 +27,7 @@ local gcDetails = GC(NAME, {
     direction = "vertical",
     caption = {"inventory.detail-caption"},
     style = "tool_bar_frame"
-  },  
+  },
 })
 do -- add elements for layout
 -- header line with item name and icon
@@ -96,13 +96,13 @@ gcDetails:add{
     vertical_scroll_policy = "auto",
     horizontal_scroll_policy = "never",
   },
-}  
+}
 
 -- table with label listing stops
 gcDetails:add{
   name = "stoptb_label",
   parent_name = "scroll",
-  params = {type = "label", style = "ltnc_column_header", caption = {"inventory.stop_header_p"}} 
+  params = {type = "label", style = "ltnc_column_header", caption = {"inventory.stop_header_p"}}
 }
 gcDetails:add{
   name = "stoptb",
@@ -121,7 +121,7 @@ end
 gcDetails:add{
   name = "deltb_label",
   parent_name = "scroll",
-  params = {type = "label", style = "ltnc_column_header", caption = {"inventory.del_header"}} 
+  params = {type = "label", style = "ltnc_column_header", caption = {"inventory.del_header"}}
 }
 gcDetails:add{
   name = "deltb",
@@ -166,12 +166,12 @@ function gcDetails:set_item(pind, ltn_item)
   get(self, pind, "item_icon").sprite = spritepath
   -- update totals
   local provided_items = get_items_in_network(data.provided, -1)
-	get(self, pind, "tprov_num").caption = provided_items[ltn_item] or 0	
+	get(self, pind, "tprov_num").caption = provided_items[ltn_item] or 0
 	local requested_items = get_items_in_network(data.requested, -1)
 	get(self, pind, "treq_num").caption = requested_items[ltn_item] or 0
 	get(self, pind, "ttr_num").caption = data.in_transit[ltn_item] or 0
-	
-  
+
+
   -- update stop table with relevant stops
   local tb = get(self, pind, "stoptb")
   local create_name = self._create_name
@@ -181,14 +181,14 @@ function gcDetails:set_item(pind, ltn_item)
   if data.item2stop[ltn_item] then
 		for _,stop_id in pairs(data.item2stop[ltn_item]) do
       local stop = data.stops[stop_id]
-      index = index + 1 
+      index = index + 1
 			local label = tb.add{
 				type = "label",
 				caption = stop.name,
 				style = "ltnc_hoverable_label",
         name = create_name(self, index, stop_id)
 			}
-      index = index + 1 
+      index = index + 1
 			label.style.width = COL_WIDTH[1]
 			label.style.single_line = false
 			label = tb.add{
@@ -203,10 +203,10 @@ function gcDetails:set_item(pind, ltn_item)
         provided = stop.provided,
         requested = stop.requested,
         columns = 3,
-      }      
+      }
 		end
 	end
-  
+
   -- update delivery table
   tb = get(self, pind, "deltb")
   tb.clear()
@@ -215,7 +215,7 @@ function gcDetails:set_item(pind, ltn_item)
       local delivery = data.deliveries[delivery_id]
 			local flow = tb.add{type = "flow", direction = "vertical"}
       flow.style.vertical_align = "center"
-      index = index + 1 
+      index = index + 1
       local label = flow.add{
 				type = "label",
 				caption = delivery.from,
@@ -223,7 +223,7 @@ function gcDetails:set_item(pind, ltn_item)
         name = create_name(self, index, delivery.from_id)
 			}
 			label.style.width = COL_WIDTH_1_2
-      index = index + 1 
+      index = index + 1
       label = flow.add{
 				type = "label",
 				caption = delivery.to,
@@ -231,12 +231,12 @@ function gcDetails:set_item(pind, ltn_item)
         name = create_name(self, index, delivery.to_id)
 			}
 			label.style.width = COL_WIDTH_1_2
-      
+
       build_item_table{
         parent = tb,
         provided = delivery.shipment,
         columns = 3,
-      }      
+      }
 		end
 	end
 end

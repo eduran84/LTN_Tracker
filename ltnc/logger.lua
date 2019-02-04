@@ -46,16 +46,16 @@ local function serpb(arg)  -- custom formatting for serpent.block output when ha
     arg, {
       sortkeys = false,
       custom = (function(tag,head,body,tail)
-        if tag:find('^FOBJ_') then    
+        if tag:find('^FOBJ_') then
           --body = body:gsub("\n%s+", "")
           tag = tag:gsub("^FOBJ_", "")
           tag = tag:gsub("[%s=]", "")
           return tag..head..body..tail
-        else          
+        else
           return tag..head..body..tail
         end
       end)
-    }    
+    }
   )
 end
 
@@ -72,10 +72,10 @@ end
 local function is_object(tb)
   -- !ISSUE if the object does not have a help method (LuaBootstrap, LuaRemote, probably others) checking existence of .help will throw an error
   if tb["__self"] and type(tb["__self"]) == "userdata" and tb.help then
-    return true    
+    return true
   else
     return false
-  end  
+  end
 end
 
 local function function_to_string(func)
@@ -86,7 +86,7 @@ end
 local function factorio_obj_to_table(obj)
   local class_name = help2name(obj.help())
   local tb = nil
-  if class_dict[class_name] then      
+  if class_dict[class_name] then
     tb = {}
     for k,v in pairs(class_dict[class_name]) do
       local value = obj
@@ -97,8 +97,8 @@ local function factorio_obj_to_table(obj)
         end
       end
       tb[k] = value
-    end    
-  end  
+    end
+  end
   return {["FOBJ_"..class_name] = tb} -- prefix for formatting with serpent.block
 end
 
@@ -106,24 +106,24 @@ local function table_to_string(tb, level)
   level = (level or 0) + 1
   -- check for stuff that serpent does not convert to my liking and do the conversion here
   local log_tb = {} -- copy table, otherwise logger would modify the original input table
-  for k,v in pairs(tb) do        
+  for k,v in pairs(tb) do
     if type(v) == "table" and is_object(v) then
       log_tb[k] = table_to_string(factorio_obj_to_table(v), level) -- yay, recursion
-    elseif type(v) == "table" and level < max_depth then --regular table   
+    elseif type(v) == "table" and level < max_depth then --regular table
       log_tb[k] = table_to_string(v, level) -- more recursion
-    elseif type(v) == "function" then          
+    elseif type(v) == "function" then
       v = function_to_string(v)
-    else      
-      log_tb[k] = v  
+    else
+      log_tb[k] = v
     end
   end
   if level == 1 then
     return serpb(log_tb) -- format converted table with serpent
   else
     return log_tb
-  end  
+  end
 end
-  
+
 -- convert any type of argument into a human-readable string
 local function _tostring(arg)
   if arg == nil then
@@ -137,7 +137,7 @@ local function _tostring(arg)
   elseif t == "table" then
     if is_object(arg) then
       return table_to_string(factorio_obj_to_table(arg))
-    else      
+    else
       return table_to_string(arg)
     end
   elseif t == "userdata" then
@@ -150,7 +150,7 @@ end
 -- main function to generate output
 local function _log(msg_type, tag, pargs)
   local message = ""
-  
+
   if msg_type == "ERROR" or msg_type == "WARN" then
     local info = getinfo(3, "Sl")
     tag = format("%s:%d", info.short_src, info.currentline)
@@ -159,15 +159,15 @@ local function _log(msg_type, tag, pargs)
   if tag and type(tag) == "string" then
     message = mod_tag .. "[".. msg_type .."]<" .. tag .. "> "
   else
-    message = mod_tag .. "[".. msg_type .."]" .. _tostring(tag) 
+    message = mod_tag .. "[".. msg_type .."]" .. _tostring(tag)
   end
   -- convert all arguments to strings and concatenate
   local string_tb = {}
   for i = 1, pargs.n do
-    string_tb[i] = _tostring(pargs[i])    
+    string_tb[i] = _tostring(pargs[i])
   end
   message = message .. table.concat(string_tb, " ")
-  
+
   -- add a traceback if it is an error
   if msg_type == "ERROR" then
     message = message.."\n"..debug.traceback(nil, 3)
@@ -181,14 +181,14 @@ local function _log(msg_type, tag, pargs)
     if game then
       game.write_file(filename, message.."\n", true, 1)
     end
-  end    
+  end
   return message
 end
 
 -- public module functions
 -- wrappers for _log
 local function _error(...)
-  local message = _log(ERROR, "", pack_varargs(...))  
+  local message = _log(ERROR, "", pack_varargs(...))
   error(message)
 end
 local function warn(...)
@@ -196,16 +196,16 @@ local function warn(...)
 end
 local function info(tag, ...)
   _log(INFO, tag, pack_varargs(...))
-end 
+end
 -- custom assert
 local function _assert(arg, ...)
   if not arg then
-    local message = _log("ERROR", "", pack_varargs(...))  
+    local message = _log("ERROR", "", pack_varargs(...))
     error(message)
   else
     return arg
-  end  
-end 
+  end
+end
 
 local function on_debug_settings_changed(event)
   debug_print = settings.global["ltnc-debug-print"].value
