@@ -242,6 +242,13 @@ function handlers.on_error_stop_clicked(event, data_string)
   end
 end
 
+function handlers.on_entity_clicked(event, entity)
+  if entity and entity.valid then
+    close_gui(event.player_index)
+    select_entity(event.player_index, entity)	
+  end 
+end
+
 function handlers.on_train_clicked(event, train)
   if train and train.valid then
     close_gui(event.player_index)

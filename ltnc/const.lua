@@ -6,8 +6,8 @@ CONST.global = {
   mod_prefix = "ltnc",
   gui_events = {defines.events.on_gui_click, defines.events.on_gui_checked_state_changed, defines.events.on_gui_text_changed}, -- events handled by on_gui_event
   mod_name_ltn = "LogisticTrainNetwork",
-  minimal_version_ltn = "01.09.02",
-  current_version_ltn = "01.09.07",
+  minimal_version_ltn = "01.09.10",
+  current_version_ltn = "01.09.10",
 }
 
 -- ui_ctrl.lua
@@ -20,7 +20,7 @@ CONST.proc = {
   history_limit = 100, -- maximum number of entries in history table
   stops_per_tick = 20,
   deliveries_per_tick = 20,
-  trains_per_tick = 40,
+  trains_per_tick = 30,
   items_per_tick = 100
 }
 
@@ -77,6 +77,13 @@ CONST.alert_tab = {
 }
 
 -- misc stuff
+CONST.is_train_error_state = {
+  [defines.train_state.path_lost] = true,
+  [defines.train_state.no_schedule] = true,
+  [defines.train_state.no_path] = true,
+  [defines.train_state.manual_control_stop] = true,
+  [defines.train_state.manual_control] = true, 
+}
 CONST.train_state_dict = { -- dont't ask why +1 is missing...
   [defines.train_state.wait_station]    = {code = 0, msg = "parked at station"},
   [defines.train_state.on_the_path]     = {code = 2, msg = "running"},

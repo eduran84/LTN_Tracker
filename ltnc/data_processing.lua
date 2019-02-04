@@ -37,12 +37,12 @@ global.proc  >> stores the current state of processing
     parkedTrain: LuaTrain,
     parkedTrainID: int,
    -- up to here as received from LTN, following entries created during processing 
-    stop.name: string,
-    stop.provided: table,
-    stop.requested: table,
-    stop.incoming: table,
-    stop.outgoing: table,
-    stop.signals: table,
+    name: string,
+    provided: table,
+    requested: table,
+    incoming: table,
+    outgoing: table,
+    signals: table,
   }   
 .dispatch >> table as received from on_dispatcher_updated
 
@@ -55,6 +55,7 @@ global.proc  >> stores the current state of processing
 .stops_error    >> key = stop_id,     value = stopdata, as for stops
 .depots         >> key = depot_name,  value = table with stopsdata for each depot stop
 .provided       >> keys= network_id>item,  value = total amount provided of item in network_id
+.deliveries     >> key = train_id,    value = table listing delviery data
 .trains_error   >> key = train_id,    value = table with trains ins error state
 .requested      >> same as above, but for requested items
 .in_transit     >> key = item,        value = amount of item currently transported by trains
@@ -63,10 +64,7 @@ after processing finishes, all global.raw tables are moved to global.data, with 
 ------------------------------------------------------------------------------------------------------------------
 
 -- additional tables in global.data --
-.deliveryies    >> key = train ID,    value = table with data for running deliveries
-.delivery_hist  >> same as above, but for finished deliveries
-
-these tables are updated in-place
+.delivery_hist  >> lsits finished deliveries, received from LTN's on_delivery_completed event
 
 --]]
 
@@ -169,6 +167,8 @@ local function update_stops(raw, stop_id) -- state 1
   return stop_id
 end
 
+local get_main_loco = require("ltnc.util").get_main_loco
+local is_train_error_state = require("ltnc.const").is_train_error_state
 local function update_depots(raw, depot_name, train_index) -- state 3
   local av_trains = raw.dispatch.availableTrains
   local counter = 0
@@ -184,7 +184,15 @@ local function update_depots(raw, depot_name, train_index) -- state 3
             depot.n_all_trains = depot.n_all_trains + 1
             local train_id = train.id
             depot.at[train_id] = train
-            if av_trains[train_id] then
+            if is_train_error_state[train.state] then 
+              local loco = get_main_loco(train)
+              data.trains_error[loco.unit_number] = {
+                type = "generic",
+                loco = loco,
+                route = {next_depot_name},
+                state = train.state,
+              }               
+            elseif av_trains[train_id] then
               depot.parked_trains[train_id] = av_trains[train_id]
               depot.n_parked = depot.n_parked + 1
               depot.cap = depot.cap + av_trains[train_id].capacity
@@ -194,7 +202,7 @@ local function update_depots(raw, depot_name, train_index) -- state 3
         else
           depot_name = next_depot_name
           depot.all_trains = nil
-          train_index = nil
+          train_index = nil -- this should hopefully fix the elusive "next" error
           break
         end -- if train
       end  -- inner while       
@@ -435,6 +443,7 @@ data_processor = function(event)
   end
 end
 
+
 local delivery_timeout = settings.global["ltn-dispatcher-delivery-timeout"].value
 local function history_tracker(event) 
   local history = event.data
@@ -447,8 +456,14 @@ local function history_tracker(event)
     history.depot = train.schedule.records[1] and train.schedule.records[1].station 
     
     if history.timed_out then      
-      data.trains_error[train.id] = {type = "timeout", train = train, last_delivery = history} 
-      script.raise_event(events.on_train_alert, data.trains_error[train.id])
+      local loco = get_main_loco(train)
+      data.trains_error[loco.unit_number] = {
+        type = "timeout",
+        loco = loco,
+        route = {history.depot, history.from, history.to},
+        depot = history.depot,
+      }
+      script.raise_event(events.on_train_alert, data.trains_error[loco.unit_number])
     else      
       -- check train for residual content
       -- if a train has fluid and items, only item residue is logged
@@ -460,12 +475,15 @@ local function history_tracker(event)
         else
           history.residuals = {"fluid", fres}
         end  
-        data.trains_error[train.id] = {
+        local loco = get_main_loco(train)
+        data.trains_error[loco.unit_number ] = {
           type = "residuals",
-          train = train,
-          last_delivery = history,
-        }                  
-        script.raise_event(events.on_train_alert, data.trains_error[train.id])
+          loco = loco,
+          route = {history.depot, history.from, history.to},
+          depot = history.depot,
+          cargo = history.residuals,
+        }                 
+        script.raise_event(events.on_train_alert, data.trains_error[loco.unit_number])
       end
     end    
   else
