@@ -233,6 +233,7 @@ end
 
 -- label styles
 local default_orange_color = {r = 0.98, g = 0.66, b = 0.22}
+local bright_red = {r = 1, g = 0, b = 0}
 do
 default_gui["ltnc_label_default"] = {
   type = "label_style",
@@ -282,6 +283,13 @@ default_gui["ltnc_column_header"] = {
 	type = "label_style",
 	parent = "caption_label",
   font = "ltnc_font_bold"
+}
+
+default_gui["ltnc_error_label"] = {
+	type = "label_style",
+	parent = "ltnc_label_default",
+  font = "ltnc_font_bold",
+  font_color = bright_red,
 }
 end
 

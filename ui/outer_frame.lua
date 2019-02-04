@@ -12,7 +12,6 @@ gcOuterFrame:add{
   name = "root",
   params = {
 		type = "frame",
-		--caption = { "ltnc.ltn_companion" },
 		direction = "vertical",
     name = "ltnc_main_frame"
 	},
@@ -28,7 +27,7 @@ gcOuterFrame:add{
 gcOuterFrame:add{
   name = "title_lb",
   parent_name = "title_flow",
-  params = {type = "label", caption = {"ltnc.ltn_companion"}},
+  params = {type = "label", caption = {"ltng.ltn_companion"}},
   style = {font = "ltnc_font_frame_caption"},
 }
 gcOuterFrame:add{
@@ -43,7 +42,7 @@ gcOuterFrame:add{
   params = {
     type = "sprite-button",
     sprite = "ltnc_sprite_refresh",
-    tooltip = {"ltnc.refresh-bt"},
+    tooltip = {"ltng.refresh-bt"},
   },
   event = {id = defines.events.on_gui_click, handler = "on_refresh_bt_click"},
 }
@@ -63,7 +62,7 @@ for i = 1, N_TABS do
     parent_name = "button_flow",
     params = {
       type="button",
-      caption={"ltnc.tab"..i.."-caption"},
+      caption={"ltng.tab"..i.."-caption"},
       style = "ltnc_tab_button"
     },
     style = {width = BUTTON_WIDTH},
