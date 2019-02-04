@@ -217,7 +217,7 @@ end
 -- !ToDo: have another look at this when you are thinking straight, does not seem safe
 function handlers.clear_history(event, data_string)
   global.data.delivery_hist = {}
-  global.date.newest_history_index = 1
+  global.data.newest_history_index = 1
   update_tab(event.player_index)
 end
 

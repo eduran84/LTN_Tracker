@@ -43,7 +43,7 @@ gcHistTab:add{
   params = {
     type = "sprite-button",
     sprite = "ltnc_sprite_delete",
-    tooltip = {"alert.delete-tt"},
+    tooltip = {"history.delete-tt"},
   },
   event = {id = defines.events.on_gui_click, handler = "clear_history"}
 }
@@ -89,21 +89,21 @@ function gcHistTab:update(pind, index)
       local delivery = history_data[(i + offset > 0) and (i + offset) or (i + offset + 100)]
       if delivery then
         -- involved stops and depot
+        label = hist_table.add{
+          type = "label",
+          caption = delivery.depot,
+          style = "ltnc_label_default"
+        }
+        label.style.width = COL_WIDTH[1]
         local label = hist_table.add{
           type = "label",
           caption = delivery.from,
           style = "ltnc_label_default"
         }
-        label.style.width = COL_WIDTH[1]
-        label = hist_table.add{
-          type = "label",
-          caption = delivery.to,
-          style = "ltnc_label_default"
-        }
         label.style.width = COL_WIDTH[2]
         label = hist_table.add{
           type = "label",
-          caption = delivery.depot,
+          caption = delivery.to,
           style = "ltnc_label_default"
         }
         label.style.width = COL_WIDTH[3]
@@ -119,12 +119,11 @@ function gcHistTab:update(pind, index)
           label.style.font_color = {r = 1, g = 0, b = 0}
           label = inner_tb.add{
             type = "label",
-            caption = "timed out",    -- !TODO localize
+            caption = {"error.train-timeout"}
           }
           label.style.width = COL_WIDTH[4]
           label.style.align = "right"
           label.style.font_color = {r = 1, g = 0, b = 0}
-
         else
           label = hist_table.add{
             type = "label",
@@ -133,14 +132,12 @@ function gcHistTab:update(pind, index)
           label.style.width = COL_WIDTH[4]
           label.style.align = "right"
         end
-
         -- shipement and residual items, if any
         if delivery.residuals then
           local tb = hist_table.add{type = "table", column_count = 1}
           tb.style.align = "center"
           tb.style.cell_spacing = 0
           tb.style.vertical_spacing = 0
-
           build_item_table{parent = tb, provided = delivery.shipment, columns = 5}
           build_item_table{
             parent = tb,
