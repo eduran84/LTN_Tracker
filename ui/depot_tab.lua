@@ -153,9 +153,9 @@ function gcDepotTab:event_handler(event, index, name_or_id)
   else
     if name_or_id:sub(1,1) == "%" then
       local depot_data = global.data.depots[self.mystorage.selected_depot[event.player_index]]
-      local train_id = tonumber(name_or_id:match("%%(%d+)"))
-      if train_id and depot_data then
-        return "on_train_clicked", depot_data.at[train_id]
+      local train_index = tonumber(name_or_id:match("%%(%d+)"))
+      if train_index and depot_data then
+        return "on_train_clicked", depot_data.all_trains[train_index]
       end
     else
       -- depot name clicked, data_string is depot name
@@ -223,16 +223,17 @@ function gcDepotTab:show_details(pind)
 
   -- table main body, right side
   -- list all trains assigned to the depot
-  local index = #self.elem + 1
-  for train_id, train in pairs(depot_data.at) do
+  local index = #self.elem
+  for train_index, train in pairs(depot_data.all_trains) do
     if train.valid then
+      index = index + 1
       local comp = build_train_composition_string(train)
       -- first column: train composition
       local label = tb.add{
         type = "label",
         caption = comp,
         style = "ltnc_hover_bold_label",
-        name = self:_create_name(index, "%" .. train_id),
+        name = self:_create_name(index, "%" .. train_index),
       }
       label.style.width = DEPOT_CONST.col_width_right[1]
       label.style.vertical_align = "center"
@@ -269,7 +270,6 @@ function gcDepotTab:show_details(pind)
       label.style.width = DEPOT_CONST.col_width_right[2]
       label.style.font_color = color
       if label_txt_2 then
-        index = index + 1
         label = flow.add{
           type = "label",
           caption = label_txt_2,

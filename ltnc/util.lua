@@ -18,6 +18,7 @@ end
 -- build string describing train composition
 -- !TODO! there must be a better way to do this, currently too convoluted
 function util.build_train_composition_string(train)
+
 	local carriages = train.carriages
 	local comp_string = ""
 	local locos_front = train.locomotives["front_movers"]

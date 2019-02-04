@@ -191,7 +191,6 @@ local function update_depots(raw, depot_name, train_index) -- state 3
           if train.valid then
             depot.n_all_trains = depot.n_all_trains + 1
             local train_id = train.id
-            depot.at[train_id] = train
             if is_train_error_state[train.state] then
               local loco = get_main_loco(train)
               data.trains_error[loco.unit_number] = {
@@ -209,7 +208,6 @@ local function update_depots(raw, depot_name, train_index) -- state 3
           end
         else
           depot_name = next_depot_name
-          depot.all_trains = nil
           train_index = nil -- this should hopefully fix the elusive "next" error
           break
         end -- if train
