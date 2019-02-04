@@ -114,7 +114,7 @@ function gcOuterFrame:show(pind)
 end
 
 function gcOuterFrame:set_alert(pind)
-  if global.gui.active_tab ~= 5 then
+  if global.gui.active_tab[pind] ~= 5 then
     local bt = self:get_el(pind, "tabbutton_5")
     bt.style = HIGHLIGHT_STYLE
     bt.style.width = BUTTON_WIDTH
