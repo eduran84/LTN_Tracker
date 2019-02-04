@@ -214,6 +214,13 @@ function handlers.on_tab_changed(event, data_string)
   update_tab(event.player_index)
 end
 
+-- !ToDo: have another look at this when you are thinking straight, does not seem safe
+function handlers.clear_history(event, data_string)
+  global.data.delivery_hist = {}
+  global.date.newest_history_index = 1
+  update_tab(event.player_index)
+end
+
 local MINIMAL_REFRESH_DELAY = require("ltnc.const").ui_ctrl.refresh_delay
 function handlers.on_refresh_bt_click(event, data_string)
   local pind = event.player_index

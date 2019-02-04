@@ -24,7 +24,7 @@ gcHistTab:add{
     style = "table_with_selection"
   }
 }
-for i = 1,N_COLS+1 do
+for i = 1,N_COLS do
   gcHistTab:add{
     name = "header"..i,
     parent_name = "header_table",
@@ -37,6 +37,16 @@ for i = 1,N_COLS+1 do
     style = {width = H_COL_WIDTH[i]}
   }
 end
+gcHistTab:add{
+  name = "delete_bt",
+  parent_name = "header_table",
+  params = {
+    type = "sprite-button",
+    sprite = "ltnc_sprite_delete",
+    tooltip = {"alert.delete-tt"},
+  },
+  event = {id = defines.events.on_gui_click, handler = "clear_history"}
+}
 
 -- main table
 gcHistTab:add{name = "pane", parent_name = "root", params = {type = "scroll-pane"}}
