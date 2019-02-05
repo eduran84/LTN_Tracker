@@ -83,7 +83,7 @@ gcStopTab:add{
   name = "table",
   parent_name = "scrollpane",
   params = {type = "table", column_count = N_COLS, draw_horizontal_lines = true},
-  style = {vertical_align = "bottom"}
+  style = {vertical_align = "top"}
 }
 gcStopTab.tab_index = require("ltnc.const").station_tab.tab_index
 
@@ -141,7 +141,6 @@ function gcStopTab:update(pind, index)
           style = "ltnc_hoverable_label",
           name = self:_create_name(index, stop_id),
         }
-        label.style.vertical_align = "center"
         label.style.single_line = false
         label.style.width = STATION_WIDTH
         index = index + 1

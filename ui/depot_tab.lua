@@ -322,14 +322,20 @@ function gcDepotTab:show_details(pind)
           style = "ltnc_label_default",
         }
       elseif state == 1 then
-        build_item_table{parent = tb, provided = data.deliveries[train.id].shipment, columns = 5}
+        build_item_table{
+          parent = tb,
+          provided = data.deliveries[train.id].shipment,
+          columns = 4,
+          max_rows = 2,
+        }
       elseif state == -100 then
         local residuals = data.trains_error[train_id].cargo
         if residuals and next(residuals) then
           label = build_item_table{
             parent = tb,
             requested = residuals[2],
-            columns = 5,
+            columns = 4,
+            max_rows = 2,
             type = residuals[1],
             no_negate = true,
           }

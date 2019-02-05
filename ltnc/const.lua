@@ -39,17 +39,17 @@ CONST.depot_tab = {
   pane_width_left = 350,
 	col_width_left = {270, 30, 50, 50, 53, 150},
 
-  pane_width_right = 491,
-	col_width_right = {140, 160, 101},
+  pane_width_right = 494,
+	col_width_right = {140, 170, 101},
   -- parked / error / on delivery
   color_dict = {{r=0,g=1,b=0}, {r=1,g=0,b=0}, {r=1,g=1,b=1}},
 }
 
 CONST.station_tab = {
 	tab_index = 2,
-  header_col_width = {150, 48, 34*6+7, 34*5+7, 34*6+6},
-  station_col_width = 150,
-  item_table_col_count = {6, 5, 6},
+  header_col_width = {165, 48, 34*6+7, 34*5+7, 34*7+6},
+  station_col_width = 165,
+  item_table_col_count = {6, 5, 7},
   item_table_max_rows = {4, 4, 1},
 }
 
