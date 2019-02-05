@@ -124,29 +124,18 @@ local function update_stops(raw, stop_id) -- state 1
       if stop.entity.valid then
         -- list in name lookup table
         local name = stop.entity.backer_name
-        raw.name2id[name] = stop_id
-        if stop.errorCode ~= 0 then
-          -- move to table with error stops
-          stop.name = name
-          stop.signals = {
-            name = "virtual-signal/" .. LTN_CONSTANTS.error_color_lookup[stop.errorCode],
-            count = 1,
-          }
-          raw.stops_error[stop_id] = stop
-        elseif stop.isDepot then
+        if stop.isDepot then
           if raw.depots[name] then
             local depot = raw.depots[name]
             -- add stop to depot
-            if  depot.network_id ~= stop.network_id then
-              depot.network_id = 0
-            end
+            depot.network_ids[#depot.network_ids+1] = stop.network_id
             depot.signals[get_lamp_color(stop)] = (depot.signals[get_lamp_color(stop)] or 0) + 1
           else
             --create new depot
             raw.depots[name] = {
               parked_trains = {},
               signals = {[get_lamp_color(stop)] = 1},
-              network_id = stop.network_id,
+              network_ids = {stop.network_id},
               all_trains = stop.entity.get_train_stop_trains(),
               n_parked = 0,
               n_all_trains = 0,
@@ -157,7 +146,17 @@ local function update_stops(raw, stop_id) -- state 1
             -- counts as two stop updates, due to get_train_stop_trains call
             counter = counter + 1
           end
-        else
+        end
+        raw.name2id[name] = stop_id
+        if stop.errorCode ~= 0 then
+          -- add to table with error stops
+          stop.name = name
+          stop.signals = {
+            name = "virtual-signal/" .. LTN_CONSTANTS.error_color_lookup[stop.errorCode],
+            count = 1,
+          }
+          raw.stops_error[stop_id] = stop
+        elseif not stop.isDepot then
           -- add extra fields to normal stops
           stop.name = name
           stop.requested = req_by_stop[stop_id]

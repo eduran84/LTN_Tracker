@@ -4,6 +4,7 @@ local tick2timestring = require("ltnc.util").tick2timestring
 
 -- set/get constants
 local N_COLS = require("ltnc.const").history_tab.n_columns
+local N_COLS_SHIP = require("ltnc.const").history_tab.n_cols_shipment
 local COL_WIDTH = require("ltnc.const").history_tab.col_width
 local H_COL_WIDTH = require("ltnc.const").history_tab.header_col_width
 local HISTORY_LIMIT = require("ltnc.const").proc.history_limit
@@ -138,16 +139,24 @@ function gcHistTab:update(pind, index)
           tb.style.align = "center"
           tb.style.cell_spacing = 0
           tb.style.vertical_spacing = 0
-          build_item_table{parent = tb, provided = delivery.shipment, columns = 5}
+          build_item_table{
+            parent = tb,
+            provided = delivery.shipment,
+            columns = N_COLS_SHIP
+          }
           build_item_table{
             parent = tb,
             requested = delivery.residuals[2],
-            columns = 5,
+            columns = N_COLS_SHIP,
             type = delivery.residuals[1],
             no_negate = true,
           }
         else
-          build_item_table{parent = hist_table, provided = delivery.shipment, columns = 5}
+          build_item_table{
+            parent = hist_table,
+            provided = delivery.shipment,
+            columns = N_COLS_SHIP
+          }
         end -- if delivery.residuals then
       end --if delivery then
     end -- for i = -1, -99, -1 do

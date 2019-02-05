@@ -202,22 +202,31 @@ function gcDepotTab:update(pind, index)
         ignored_by_interaction = true,
       }
       label.style.width = DEPOT_CONST.col_width_left[5]
-      -- third row: depot state and network id
+      -- third row: network id and depot state
       subflow = flow.add{type = "flow"}
-      subflow.style.vertical_align = "center"
-      subflow.add{
-				type = "sprite-button",
-				sprite = depot_data.network_id ~= 0 and network_id_sprite or mixed_id_sprite,
-				number = depot_data.network_id ~= 0 and depot_data.network_id or 0,
-				enabled = false,
-        style = "ltnc_empty_button",
-      }
       build_item_table{
         parent = subflow,
-        columns = 7,
+        columns = 4,
         signals = depot_data.signals,
         enabled = false,
       }
+      local elem = subflow.add{type = "frame", style = "ltnc_slot_table_frame"}
+      elem.ignored_by_interaction = true
+      elem.style.maximal_height = 38
+      elem = elem.add{type = "table", column_count = 4, style = "slot_table"}
+      local hash = {}
+      for _, id in pairs(depot_data.network_ids) do
+        if not hash[id] then
+          elem.add{
+            type = "sprite-button",
+            sprite = network_id_sprite,
+            number = id,
+            enabled = false,
+            style = "ltnc_empty_button",
+          }
+          hash[id] = true
+        end
+      end
     end
     self:show_details(pind)
   else
