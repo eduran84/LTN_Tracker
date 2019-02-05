@@ -1,11 +1,11 @@
 {
-  "name": "LTNCompanion",
-  "version": "0.7.2",
-  "title": "LTN Companion",
-  "author": "eduran",
-  "contact": "<placeholder>",
-  "homepage": "<placeholder>",
-  "description": "<placeholder>",
-  "factorio_version": "0.16",
-	"dependencies": ["base >= 0.16.51", "LogisticTrainNetwork >= 1.9.10"]
+"name": "LTNCompanion",
+"version": "0.7.2",
+"title": "LTN Companion",
+"author": "eduran",
+"contact": "<placeholder>",
+"homepage": "<placeholder>",
+"description": "<placeholder>",
+"factorio_version": "0.16",
+"dependencies": ["base >= 0.16.51", "LogisticTrainNetwork >= 1.9.10"]
 }

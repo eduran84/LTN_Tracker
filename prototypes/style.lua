@@ -172,6 +172,26 @@ default_gui["ltnc_tab_button_highlight"]  =
     position = {0, 16}
   },
 }
+
+default_gui["ltnc_depot_button"]  =
+{
+  type = "button_style",
+  parent = "button",
+  padding = 0,
+  minimal_height = 100,
+  maximal_height = 100,
+  hovered_font_color = {r=0.5, g=0.5, b=0.5},
+  hovered_graphical_set =
+  {
+    type = "composition",
+    filename = "__core__/graphics/gui.png",
+    priority = "extra-high-no-scale",
+    load_in_minimal_mode = true,
+    corner_size = {3, 3},
+    position = {0, 16}
+  },
+}
+
 default_gui["ltnc_empty_button"] =
 {
   type = "button_style",
@@ -257,6 +277,12 @@ default_gui["ltnc_summary_number"] = {
   vertical_align = "center"
 }
 
+default_gui["ltnc_number_label"] = {
+  type = "label_style",
+  font = "ltnc_font_default",
+  font_color = default_orange_color,
+}
+
 default_gui["ltnc_hoverable_label"] = {
   type = "label_style",
   font = "ltnc_font_default",
@@ -329,4 +355,16 @@ default_gui["ltnc_slot_table_frame"] =
   minimal_height = 38,
   vertically_stretchable = "off",
 	horizontally_stretchable = "off",
+}
+default_gui["ltnc_frame_no_bg"] = {
+  type = "frame_style",
+  parent = "frame",
+  graphical_set = {
+    type = "composition",
+    filename = "__LTNCompanion__/graphics/frame.png",
+    priority = "extra-high-no-scale",
+    load_in_minimal_mode = true,
+    corner_size = {3, 3},
+    position = {8, 0}
+  },
 }

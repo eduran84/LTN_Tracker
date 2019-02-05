@@ -90,22 +90,23 @@ local out = out -- <DEBUG>
 -- functions here are called from data_processor, defined below
 
 local ctrl_signal_var_name = require("ltnc.const").ltn.ctrl_signal_var_name
-local function get_control_signals(stop) -- helper function for state 1
+local function get_lamp_color(stop) -- helper functions for state 1
+  local color_signal = stop.lampControl.get_control_behavior().get_signal(1)
+  return color_signal and color_signal.signal.name
+end
+local function get_control_signals(stop)
   local color_signal = stop.lampControl.get_control_behavior().get_signal(1)
   local status = {
     name = color_signal and "virtual-signal/" .. color_signal.signal.name,
     count = color_signal and color_signal.count,
   }
   local signals = {}
-  local i = 1
-  for k,v in pairs(ctrl_signal_var_name) do
+  for sig_name,v in pairs(ctrl_signal_var_name) do
     local count = stop[v]
     if type(count) =="number" and count > 0 then
-      signals[i] = {name = k, count = count}
-      i = i+1
+      signals[sig_name] = count
     elseif count == true then
-      signals[i] = {name = k, count = 1}
-      i = i+1
+      signals[sig_name] = 1
     end
   end
   return {status, signals}
@@ -119,48 +120,54 @@ local function update_stops(raw, stop_id) -- state 1
     counter = counter + 1
     local stop
     stop_id, stop = next(stops, stop_id)
-    if stop_id then
-      -- list in name lookup table
-      local name = stop.entity.backer_name
-      raw.name2id[name] = stop_id
-      if stop.errorCode ~= 0 or not stop.entity.valid then
-        -- move to table with error stops
-        stop.name = name
-        stop.signals = {
-          name = "virtual-signal/" .. LTN_CONSTANTS.error_color_lookup[stop.errorCode],
-          count = 1,
-        }
-        raw.stops_error[stop_id] = stop
-        --raw.stops[stop_id] = nil
-      elseif stop.isDepot then
-        if raw.depots[name] then
-          -- add stop to depot
-          table.insert(raw.depots[name].stops, stop)
-        else
-          --create new depot
-          raw.depots[name] = {
-            stops = {stop},
-            parked_trains = {},
-            all_trains = stop.entity.get_train_stop_trains(),
-            n_parked = 0,
-            n_all_trains = 0,
-            cap = 0,
-            fcap = 0,
-            at = {},
+    if stop then
+      if stop.entity.valid then
+        -- list in name lookup table
+        local name = stop.entity.backer_name
+        raw.name2id[name] = stop_id
+        if stop.errorCode ~= 0 then
+          -- move to table with error stops
+          stop.name = name
+          stop.signals = {
+            name = "virtual-signal/" .. LTN_CONSTANTS.error_color_lookup[stop.errorCode],
+            count = 1,
           }
-          -- counts as two stop updates, due to get_train_stop_trains call
-          counter = counter + 1
-        end
-        --raw.stops[stop_id] = nil
-      else
-        -- add extra fields to normal stops
-        stop.name = name
-        stop.requested = req_by_stop[stop_id]
-        stop.signals = get_control_signals(stop)
-        stop.provided = {}
-        stop.incoming = {}
-        stop.outgoing = {}
-      end -- if stop.errorCode ~= 0
+          raw.stops_error[stop_id] = stop
+        elseif stop.isDepot then
+          if raw.depots[name] then
+            local depot = raw.depots[name]
+            -- add stop to depot
+            --table.insert(raw.depots[name].stops, stop)
+            --depot.network_ids[stop.network_id] = true
+            --table.insert(depot.signals, get_lamp_color(stop))
+            depot.signals[get_lamp_color(stop)] = (depot.signals[get_lamp_color(stop)] or 0) + 1
+          else
+            --create new depot
+            raw.depots[name] = {
+              --stops = {stop},
+              parked_trains = {},
+              signals = {[get_lamp_color(stop)] = 1},
+              network_ids = {stop.network_id},
+              all_trains = stop.entity.get_train_stop_trains(),
+              n_parked = 0,
+              n_all_trains = 0,
+              cap = 0,
+              fcap = 0,
+              at = {},
+            }
+            -- counts as two stop updates, due to get_train_stop_trains call
+            counter = counter + 1
+          end
+        else
+          -- add extra fields to normal stops
+          stop.name = name
+          stop.requested = req_by_stop[stop_id]
+          stop.signals = get_control_signals(stop)
+          stop.provided = {}
+          stop.incoming = {}
+          stop.outgoing = {}
+        end -- if stop.errorCode ~= 0
+      end   -- if stop.valid
     else
       return nil -- all stops done
     end --if stop_id then

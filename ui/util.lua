@@ -21,11 +21,6 @@ local function build_item_table(args)
   else
     columns = 4
   end
-	if args.enabled == nil then
-		enabled = false
-  else
-    enabled = args.enabled
-	end
   local type = args.type
   local no_negate = args.no_negate
 
@@ -33,6 +28,12 @@ local function build_item_table(args)
 	local frame = args.parent.add{type = "frame", style = "ltnc_slot_table_frame"}
   frame.style.vertically_stretchable = false
 
+	if args.enabled == nil then
+		enabled = false
+    frame.ignored_by_interaction = true
+  else
+    enabled = args.enabled
+	end
   if args.max_rows then
     frame.style.maximal_height = args.max_rows * 38
     frame = frame.add{type = "scroll-pane", horizontal_scroll_policy = "never", vertical_scroll_policy = "auto"}---and-reserve-space"}
@@ -70,18 +71,17 @@ local function build_item_table(args)
 		end
 	end
   if args.signals then
-		for _,v in pairs(args.signals) do
+		for name, amount in pairs(args.signals) do
 			tble.add{
 				type = "sprite-button",
-				sprite = "virtual-signal/" .. v.name,
-				number = v.count,
+				sprite = "virtual-signal/" .. name,
+				number = amount,
 				enabled = enabled,
         style = "ltnc_empty_button",
 			}
       count = count + 1
 		end
 	end
-
   while count == 0 or count % columns > 0  do
     tble.add{
       type = "sprite-button",

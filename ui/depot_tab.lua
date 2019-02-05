@@ -10,7 +10,7 @@ local gcDepotTab= GC(NAME, {
 })
 gcDepotTab.tab_index = DEPOT_CONST.tab_index
 
--- left pane with table header row
+-- left side: frame and scroll-pane
 gcDepotTab:add{
   name = "frame_l",
   parent_name = "root",
@@ -18,6 +18,7 @@ gcDepotTab:add{
     type = "frame",
     caption = {"depot.frame-caption-left"},
     direction = "vertical",
+    --style = "ltnc_frame_no_bg",
   },
   style = {
     width = DEPOT_CONST.pane_width_left,
@@ -26,48 +27,17 @@ gcDepotTab:add{
   }
 }
 gcDepotTab:add{
-  name = "table_head_l",
-  parent_name = "frame_l",
-  params = {
-    type = "table",
-    column_count = N_COLS_LEFT,
-    style = "table_with_selection",
-  },
-  style = {vertical_align = "center", horizontal_spacing = 0},
-}
-for i = 1,N_COLS_LEFT do
-  gcDepotTab:add{
-    name = "table_head_l_"..i,
-    parent_name = "table_head_l",
-    params = {
-      type="label",
-        caption={"depot.header-col-"..i},
-        tooltip={"depot.header-col-"..i.."-tt"},
-      style="ltnc_column_header",
-      },
-    style = {width = DEPOT_CONST.col_width_header_left[i]},
-  }
-end
-
--- left pane main body
-gcDepotTab:add{
   name = "pane_l",
   parent_name = "frame_l",
   params = {
     type = "scroll-pane",
     horizontal_scroll_policy = "never",
     vertical_scroll_policy = "auto",---and-reserve-space",
-  }
-}
-gcDepotTab:add{
-  name = "table_l",
-  parent_name = "pane_l",
-  params = {
-    type = "table",
-    column_count = N_COLS_LEFT,
-    style = "table_with_selection",
   },
-  style = {vertical_align = "center"},
+  style = {
+    left_padding = 0, right_padding = 0,
+    top_padding = 0, bottom_padding = 0
+  }
 }
 
 -- right pane with table header row
@@ -166,41 +136,87 @@ function gcDepotTab:event_handler(event, index, name_or_id)
   return nil
 end
 
+local build_item_table = require("ui.util").build_item_table
 local format = string.format
 function gcDepotTab:update(pind, index)
   if index == self.tab_index then
     self:show(pind)
     global.gui.active_tab[pind] = index
-    local tb = self:get_el(pind, "table_l")
-    tb.clear()
+    local left_frame = self:get_el(pind, "pane_l")
+    left_frame.clear()
     -- table main body, left side
     local index = #self.elem + 1
     for depot_name, depot_data in pairs(global.data.depots) do
-      -- first column: depot name
-      local label = tb.add{
-        type = "label",
-        caption = depot_name,
-        style = "ltnc_hover_bold_label",
+      local bt = left_frame.add{
+        type = "button",
+        style = "ltnc_depot_button",
         name = self:_create_name(index, depot_name),
       }
-      label.style.width = DEPOT_CONST.col_width_left[1]
+      bt.style.width = DEPOT_CONST.pane_width_left - 28
       index = index+1
+      local flow = bt.add{
+        type = "flow",
+        direction = "vertical",
+        vertical_spacing = 0,
+        ignored_by_interaction = true,
+      }
 
-      -- second column: number of trains
-      label = tb.add{
+      -- first row: depot name
+      local subflow = flow.add{type = "flow"}
+      local label = subflow.add{
         type = "label",
-        caption = depot_data.n_parked .. "/" .. depot_data.n_all_trains,
+        caption = depot_name,
+        style = "ltnc_summary_label",
+        ignored_by_interaction = true,
+      }
+      label.style.width = DEPOT_CONST.col_width_left[1]
+      label = subflow.add{
+        type = "label",
+        caption = "ID: " .. depot_data.network_ids[1],
         style = "ltnc_label_default",
+        ignored_by_interaction = true,
       }
       label.style.width = DEPOT_CONST.col_width_left[2]
 
-      -- third column: capacity
-      label = tb.add{
+      -- second row: number of trains and capacity
+      subflow = flow.add{type = "flow"}
+      label = subflow.add{
         type = "label",
-        caption =  format("%d stacks + %dk fluid", depot_data.cap,  depot_data.fcap/1000),
+        caption = "#Trains:",
         style = "ltnc_label_default",
+        ignored_by_interaction = true,
       }
       label.style.width = DEPOT_CONST.col_width_left[3]
+      label = subflow.add{
+        type = "label",
+        caption = depot_data.n_parked .. "/" .. depot_data.n_all_trains,
+        style = "ltnc_number_label",
+        ignored_by_interaction = true,
+      }
+      label.style.width = DEPOT_CONST.col_width_left[4]
+      label = subflow.add{
+        type = "label",
+        caption = "Capacity:",
+        style = "ltnc_label_default",
+        ignored_by_interaction = true,
+      }
+      label.style.width = DEPOT_CONST.col_width_left[5]
+      label = subflow.add{
+        type = "label",
+        caption =  format("%d stacks + %dk fluid", depot_data.cap,  depot_data.fcap/1000),
+        style = "ltnc_number_label",
+        ignored_by_interaction = true,
+      }
+      label.style.width = DEPOT_CONST.col_width_left[6]
+
+      -- third row: depot state and network id
+      build_item_table{
+        parent = flow,
+        columns = 9,
+        signals = depot_data.signals,
+        --use_palceholder = 9,
+        enabled = false,
+      }
     end
     self:show_details(pind)
   else
@@ -210,8 +226,6 @@ end
 
 local build_train_composition_string = require("ltnc.util").build_train_composition_string
 local train_state_dict = require("ltnc.const").train_state_dict
-local build_item_table = require("ui.util").build_item_table
-
 function gcDepotTab:show_details(pind)
   local depot_name = global.gui[self.name].selected_depot[pind]
   if not depot_name then return end

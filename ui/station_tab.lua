@@ -142,6 +142,7 @@ function gcStopTab:update(pind, index)
           name = self:_create_name(index, stop_id),
         }
         label.style.vertical_align = "center"
+        label.style.single_line = false
         label.style.width = STATION_WIDTH
         index = index + 1
         -- second column: status

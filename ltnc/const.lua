@@ -36,16 +36,13 @@ CONST.main_frame = {
 
 CONST.depot_tab = {
 	tab_index = 1,
-  pane_width_left = 354,
+  pane_width_left = 350,
+	col_width_left = {270, 30, 50, 50, 53, 150},
+
   pane_width_right = 491,
-	col_width_left = {108, 30, 210},
-	col_width_header_left = {110, 65, 190},
 	col_width_right = {140, 160, 101},
   -- parked / error / on delivery
   color_dict = {{r=0,g=1,b=0}, {r=1,g=0,b=0}, {r=1,g=1,b=1}},
---  depot_msg_dict = {[0] = "parked at depot", [2] = "returning to depot"},
-  --loading / unloading / moving to pick up / moving to drop off
---  delivery_msg_dict = {"Loading at:", "Unloading at:", "Fetching from:", "Delivering to:"},
 }
 
 CONST.station_tab = {
