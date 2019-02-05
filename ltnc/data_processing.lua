@@ -173,13 +173,6 @@ local function update_stops(raw, stop_id) -- state 1
   return stop_id
 end
 
-local function prune_train_errors(raw)
-  for train_id, error_data in pairs(data.trains_error) do
-    if error_data.type == "generic" then
-      data.trains_error[train_id] = nil
-    end
-  end
-end
 
 local get_main_loco = require("ltnc.util").get_main_loco
 local is_train_error_state = require("ltnc.const").is_train_error_state
@@ -197,15 +190,7 @@ local function update_depots(raw, depot_name, train_index) -- state 3
           if train.valid then
             depot.n_all_trains = depot.n_all_trains + 1
             local train_id = train.id
-            if is_train_error_state[train.state] then
-              local loco = get_main_loco(train)
-              data.trains_error[train_id] = {
-                type = "generic",
-                loco = loco,
-                route = {next_depot_name},
-                state = train.state,
-              }
-            elseif av_trains[train_id] then
+            if av_trains[train_id] then
               depot.parked_trains[train_id] = av_trains[train_id]
               depot.n_parked = depot.n_parked + 1
               depot.cap = depot.cap + av_trains[train_id].capacity
@@ -379,20 +364,15 @@ data_processor = function(event)
   -- the returned value should allow the function to continue from where it stopped
   -- they must return nil when their job is done, in which case proc.state is incremented
 
-  ---- state 6 currently unused ------
+  ---- state 3 and 6 currently unused ------
   elseif proc.state == 1 then
   -- processing stops first, information gathered here is required for other steps
     local stop_id = update_stops(raw, proc.next_stop_id)
     if stop_id then
       proc.next_stop_id = stop_id -- store last processed id, so we know where to continue next tick
     else
-      proc.state = 2 -- go to next state
+      proc.state = 3 -- go to next state
     end
-
-  elseif proc.state == 2 then
-    -- check trains on error list and remove if needed
-    prune_train_errors(raw)
-    proc.state = 3
 
   elseif proc.state == 3 then
     -- sorting available trains by depot
@@ -477,7 +457,6 @@ local function history_tracker(event)
         loco = loco,
         route = {history.depot, history.from, history.to},
         depot = history.depot,
-        state = -101
       }
       script.raise_event(events.on_train_alert, data.trains_error[train.id])
     else
@@ -498,7 +477,6 @@ local function history_tracker(event)
           route = {history.depot, history.from, history.to},
           depot = history.depot,
           cargo = history.residuals,
-          state = -100
         }
         script.raise_event(events.on_train_alert, data.trains_error[train.id])
       end
@@ -559,7 +537,6 @@ local function on_init(event_id)
   global.data.item2stop = global.data.item2stop or {}
   global.data.item2delivery = global.data.item2delivery or {}
   global.data.history_limit = HISTORY_LIMIT
-
 
   on_load(event_id)
 end

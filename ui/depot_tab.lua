@@ -146,9 +146,10 @@ function gcDepotTab:update(pind, index)
     global.gui.active_tab[pind] = index
     local left_frame = self:get_el(pind, "pane_l")
     left_frame.clear()
-    -- table main body, left side
+    -- left side, depot list
     local index = #self.elem + 1
     for depot_name, depot_data in pairs(global.data.depots) do
+      -- create button for each depot
       local bt = left_frame.add{
         type = "button",
         style = "ltnc_depot_button",
@@ -162,7 +163,6 @@ function gcDepotTab:update(pind, index)
         vertical_spacing = 0,
         ignored_by_interaction = true,
       }
-
       -- first row: depot name
       local label = flow.add{
         type = "label",
@@ -235,7 +235,7 @@ function gcDepotTab:update(pind, index)
 end
 
 local build_train_composition_string = require("ltnc.util").build_train_composition_string
-local train_state_dict = require("ltnc.const").train_state_dict
+local train_state_dict = require("ltnc.const").train_error_state_dict
 function gcDepotTab:show_details(pind)
   local depot_name = global.gui[self.name].selected_depot[pind]
   if not depot_name then return end
@@ -264,7 +264,7 @@ function gcDepotTab:show_details(pind)
       label.style.height = 38
 
       -- figure out train status
-      local label_txt_1, label_txt_2, state, color
+      local label_txt_1, label_txt_2, error_type, state, color
       local train_id = train.id
       if depot_data.parked_trains[train_id] then
         label_txt_1 = {"depot.parked"}
@@ -289,10 +289,10 @@ function gcDepotTab:show_details(pind)
         end
         state = 1
       elseif data.trains_error[train_id] then
-        --display errors state
-        state = data.trains_error[train_id].state
-        label_txt_1 = train_state_dict[state]
+        --display error state
+        label_txt_1 = train_state_dict[data.trains_error[train_id].type]
         color = DEPOT_CONST.color_dict[2]
+        state = 2
       else
         -- train returning to depot is the only option left
         label_txt_1 = {"depot.returning"}
@@ -338,7 +338,7 @@ function gcDepotTab:show_details(pind)
           columns = 4,
           max_rows = 2,
         }
-      elseif state == -100 then
+      else
         local residuals = data.trains_error[train_id].cargo
         if residuals and next(residuals) then
           label = build_item_table{
@@ -351,15 +351,8 @@ function gcDepotTab:show_details(pind)
           }
           label.style.vertical_align = "top"
           label.style.horizontally_stretchable = false
-        end
-      else
-        -- empty label, otherwise table is misaligned
-        label = tb.add{
-          type = "label",
-          caption = train_state_dict[state],
-          style = "ltnc_label_default",
-        }
-      end
+        end -- if residuals and next(residuals) then
+      end -- if state == 0 then
     end -- if train.valid then
   end   -- for _, train in pairs(depot_data.all_trains) do
 end

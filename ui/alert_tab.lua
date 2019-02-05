@@ -182,19 +182,6 @@ function gcAlertTab:update(pind, index)
         }
         elem.style.width = COL_WIDTH_R[3]
         self:build_buttons(tb, index, train_id)
-      else
-        local elem = tb.add{
-          type = "label",
-          caption = state_dict[error_data.state],
-          style = "ltnc_error_label",
-        }
-        elem.style.width = COL_WIDTH_R[3]
-        elem = tb.add{
-          type = "sprite-button",
-          sprite = "ltnc_sprite_enter",
-          tooltip = {"alert.select-tt"},
-          name = self:_create_name(index, "s" .. train_id),
-        }
       end
     end
     index = index + 1
