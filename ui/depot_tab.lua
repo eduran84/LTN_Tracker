@@ -136,6 +136,8 @@ function gcDepotTab:event_handler(event, index, name_or_id)
   return nil
 end
 
+local mixed_id_sprite = "ltnc_unclear_id_sprite"
+local network_id_sprite = "virtual-signal/" .. require("ltnc.const").ltn.NETWORKID
 local build_item_table = require("ui.util").build_item_table
 local format = string.format
 function gcDepotTab:update(pind, index)
@@ -162,59 +164,58 @@ function gcDepotTab:update(pind, index)
       }
 
       -- first row: depot name
-      local subflow = flow.add{type = "flow"}
-      local label = subflow.add{
+      local label = flow.add{
         type = "label",
         caption = depot_name,
         style = "ltnc_summary_label",
         ignored_by_interaction = true,
       }
       label.style.width = DEPOT_CONST.col_width_left[1]
-      label = subflow.add{
-        type = "label",
-        caption = "ID: " .. depot_data.network_ids[1],
-        style = "ltnc_label_default",
-        ignored_by_interaction = true,
-      }
-      label.style.width = DEPOT_CONST.col_width_left[2]
 
       -- second row: number of trains and capacity
-      subflow = flow.add{type = "flow"}
+      local subflow = flow.add{type = "flow"}
       label = subflow.add{
         type = "label",
         caption = "#Trains:",
         style = "ltnc_label_default",
         ignored_by_interaction = true,
       }
-      label.style.width = DEPOT_CONST.col_width_left[3]
+      label.style.width = DEPOT_CONST.col_width_left[2]
       label = subflow.add{
         type = "label",
         caption = depot_data.n_parked .. "/" .. depot_data.n_all_trains,
         style = "ltnc_number_label",
         ignored_by_interaction = true,
       }
-      label.style.width = DEPOT_CONST.col_width_left[4]
+      label.style.width = DEPOT_CONST.col_width_left[3]
       label = subflow.add{
         type = "label",
         caption = "Capacity:",
         style = "ltnc_label_default",
         ignored_by_interaction = true,
       }
-      label.style.width = DEPOT_CONST.col_width_left[5]
+      label.style.width = DEPOT_CONST.col_width_left[4]
       label = subflow.add{
         type = "label",
         caption =  format("%d stacks + %dk fluid", depot_data.cap,  depot_data.fcap/1000),
         style = "ltnc_number_label",
         ignored_by_interaction = true,
       }
-      label.style.width = DEPOT_CONST.col_width_left[6]
-
+      label.style.width = DEPOT_CONST.col_width_left[5]
       -- third row: depot state and network id
+      subflow = flow.add{type = "flow"}
+      subflow.style.vertical_align = "center"
+      subflow.add{
+				type = "sprite-button",
+				sprite = depot_data.network_id ~= 0 and network_id_sprite or mixed_id_sprite,
+				number = depot_data.network_id ~= 0 and depot_data.network_id or 0,
+				enabled = false,
+        style = "ltnc_empty_button",
+      }
       build_item_table{
-        parent = flow,
-        columns = 9,
+        parent = subflow,
+        columns = 7,
         signals = depot_data.signals,
-        --use_palceholder = 9,
         enabled = false,
       }
     end

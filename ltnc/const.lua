@@ -37,7 +37,7 @@ CONST.main_frame = {
 CONST.depot_tab = {
 	tab_index = 1,
   pane_width_left = 350,
-	col_width_left = {270, 30, 50, 50, 53, 150},
+	col_width_left = {300, 50, 50, 53, 150},
 
   pane_width_right = 494,
 	col_width_right = {140, 170, 101},

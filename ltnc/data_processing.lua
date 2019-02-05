@@ -137,17 +137,16 @@ local function update_stops(raw, stop_id) -- state 1
           if raw.depots[name] then
             local depot = raw.depots[name]
             -- add stop to depot
-            --table.insert(raw.depots[name].stops, stop)
-            --depot.network_ids[stop.network_id] = true
-            --table.insert(depot.signals, get_lamp_color(stop))
+            if  depot.network_id ~= stop.network_id then
+              depot.network_id = 0
+            end
             depot.signals[get_lamp_color(stop)] = (depot.signals[get_lamp_color(stop)] or 0) + 1
           else
             --create new depot
             raw.depots[name] = {
-              --stops = {stop},
               parked_trains = {},
               signals = {[get_lamp_color(stop)] = 1},
-              network_ids = {stop.network_id},
+              network_id = stop.network_id,
               all_trains = stop.entity.get_train_stop_trains(),
               n_parked = 0,
               n_all_trains = 0,

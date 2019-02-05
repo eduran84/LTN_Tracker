@@ -69,6 +69,15 @@ data:extend({
   },
   {
     type = "sprite",
+    name = "ltnc_unclear_id_sprite",
+    filename = "__LTNCompanion__/graphics/unknown_network_id.png",
+    priority = "high",
+    width = 32,
+    height = 32,
+    scale = 1,
+  },
+  {
+    type = "sprite",
     name = "ltnc_bt_sprite",
     filename = "__base__/graphics/technology/railway.png",
     priority = "high",
