@@ -141,7 +141,6 @@ local function update_stops(raw, stop_id) -- state 1
               n_all_trains = 0,
               cap = 0,
               fcap = 0,
-              at = {},
             }
             -- counts as two stop updates, due to get_train_stop_trains call
             counter = counter + 1
@@ -173,9 +172,6 @@ local function update_stops(raw, stop_id) -- state 1
   return stop_id
 end
 
-
-local get_main_loco = require("ltnc.util").get_main_loco
-local is_train_error_state = require("ltnc.const").is_train_error_state
 local function update_depots(raw, depot_name, train_index) -- state 3
   local av_trains = raw.dispatch.availableTrains
   local counter = 0
@@ -228,11 +224,9 @@ local function update_provided(raw, item) -- state 4
           i2s[item] = i2s[item] or {}
           i2s[item][#i2s[item]+1] = stop_id
           local networkID = stop.network_id
-          if networkID then
-            -- store provided amount for each network id and item
-            raw.provided[networkID] = raw.provided[networkID] or {}
-            raw.provided[networkID][item] = (raw.provided[networkID][item] or 0) + count
-          end
+          -- store provided amount for each network id and item
+          raw.provided[networkID] = raw.provided[networkID] or {}
+          raw.provided[networkID][item] = (raw.provided[networkID][item] or 0) + count
         end
         counter = counter + 1
       end
@@ -323,12 +317,12 @@ end
 -- data_processor starts running on_tick when new data arrives and stops when processing is finished
 data_processor = function(event)
   local proc = global.proc
-  if debug_level >= 2 then
+  --[[if debug_level >= 2 then
     out.info("data_processor", "Processing data on tick:", game.tick, "\nCurrent processor state:", proc)
-    --[[if debug_level > 2 then
+    if debug_level > 2 then
       out.info("data_processor", "Raw data follows:\n", global.raw)
-    end  --]]
-  end
+    end
+  end--]]
   if proc.state == 0 then -- new data arrived, init processing
     script.on_event(defines.events.on_tick, data_processor)
     -- suspend LTN interface during data processing
@@ -355,9 +349,10 @@ data_processor = function(event)
     proc.next_depot_name = nil
 
     proc.state = 1 -- set next state
-    if debug_level >= 3 then
+
+    --[[if debug_level >= 3 then
       out.info("data_processor", "Raw data follows:\n", global.raw)
-    end
+    end --]]
 
   -- processing functions for each state can take multiple ticks to complete
   -- if those functions return a value, they will be called again next tick, with that value as input
@@ -431,14 +426,15 @@ data_processor = function(event)
     script.on_event(defines.events.on_tick, nil)
 
     proc.state = 0
-    if debug_level >= 3 then
+    --[[if debug_level >= 3 then
       out.info("data_processor", "Processed data follows:\n", global.data)
-    end
+    end--]]
   end
 end
 
 
 local delivery_timeout = settings.global["ltn-dispatcher-delivery-timeout"].value
+local get_main_loco = require("ltnc.util").get_main_loco
 local function history_tracker(event)
   local history = event.data
   local train = history.train

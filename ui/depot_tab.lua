@@ -90,7 +90,6 @@ gcDepotTab:add{
     vertical_scroll_policy = "auto",
   }
 }
-
 gcDepotTab:add{
   name = "table_r",
   parent_name = "pane_r",
@@ -244,7 +243,6 @@ function gcDepotTab:show_details(pind)
   local depot_data = data.depots[depot_name]
   local tb = self:get_el(pind, "table_r")
   tb.clear()
-
   -- table main body, right side
   -- list all trains assigned to the depot
   local index = #self.elem

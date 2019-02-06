@@ -69,15 +69,6 @@ data:extend({
   },
   {
     type = "sprite",
-    name = "ltnc_unclear_id_sprite",
-    filename = "__LTNCompanion__/graphics/unknown_network_id.png",
-    priority = "high",
-    width = 32,
-    height = 32,
-    scale = 1,
-  },
-  {
-    type = "sprite",
     name = "ltnc_bt_sprite",
     filename = "__base__/graphics/technology/railway.png",
     priority = "high",
@@ -365,7 +356,7 @@ default_gui["ltnc_slot_table_frame"] =
   vertically_stretchable = "off",
 	horizontally_stretchable = "off",
 }
-default_gui["ltnc_frame_no_bg"] = {
+--[[default_gui["ltnc_frame_no_bg"] = {
   type = "frame_style",
   parent = "frame",
   graphical_set = {
@@ -376,4 +367,4 @@ default_gui["ltnc_frame_no_bg"] = {
     corner_size = {3, 3},
     position = {8, 0}
   },
-}
+}--]]

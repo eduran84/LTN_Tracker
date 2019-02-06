@@ -17,11 +17,10 @@ CONST.ui_ctrl = {
 
 -- data_processing.lua
 CONST.proc = {
-  history_limit = 100, -- maximum number of entries in history table
   stops_per_tick = 20,
   deliveries_per_tick = 20,
   trains_per_tick = 30,
-  items_per_tick = 100
+  items_per_tick = 50
 }
 
 -- UI layout
