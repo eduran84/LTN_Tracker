@@ -139,8 +139,8 @@ local function update_stops(raw, stop_id) -- state 1
               cap = 0,
               fcap = 0,
             }
-            -- counts as two stop updates, due to get_train_stop_trains call
-            counter = counter + 1
+            -- counts as three stop updates, due to get_train_stop_trains call
+            counter = counter + 2
           end
         end
         raw.name2id[name] = stop_id
@@ -311,6 +311,7 @@ end
 -- data_processor starts running on_tick when new data arrives and stops when processing is finished
 data_processor = function(event)
   local proc = global.proc
+  log(proc.state)
   --[[if debug_level >= 2 then
     out.info("data_processor", "Processing data on tick:", game.tick, "\nCurrent processor state:", proc)
     if debug_level > 2 then
@@ -432,9 +433,9 @@ local get_main_loco = require("ltnt.util").get_main_loco
 local function history_tracker(event)
   local history = event.data
   local train = history.train
-  if debug_level >= 2 then
+  --[[if debug_level >= 2 then
     out.info("delivery_tracker", "data received:", history, history.train)
-  end
+  end--]]
   if train.valid then -- probably not necessary, train should be valid on the tick the event is received
     history.runtime = game.tick - history.started
     history.timed_out = history.runtime >= delivery_timeout
