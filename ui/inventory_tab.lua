@@ -100,23 +100,14 @@ function gcInvTab:update(pind, index)
     itemTables.provided:update_table(pind, get_items_in_network(data.provided, selected_network_id))
     itemTables.requested:update_table(pind, get_items_in_network(data.requested, selected_network_id))
     itemTables.transit:update_table(pind, data.in_transit or {})
-    itemTables.details:set_item(pind)
-
-    -- !DEBUG
-    --[[
-    if self:get(pind).test then self:get(pind).test.destroy() end
-    local testflow = self:get(pind).add{type = "flow", name ="test", direction = "horizontal"}
-    local testtb = testflow.add{type = "table", name ="test", column_count = 2}
-    local testlb = testtb.add{type = "label", caption = "LABEL"}
-    testlb.style.height = 100
-    local testframe = testtb.add{type = "frame", caption = "frame in table"}
-    testframe.style.vertically_stretchable = false
-    testframe = testflow.add{type = "frame", caption = "frame outside of table"}
-    testframe.style.vertically_stretchable = false
-    --]]
+    itemTables.details:set_item(pind, selected_network_id)
   else
     self:hide(pind)
   end
+end
+
+function gcInvTab:on_item_clicked(pind, data_string)
+  self.sub_gc.details:set_item(pind, self.sub_gc.idSelector:get_current_value(pind), data_string)
 end
 
 

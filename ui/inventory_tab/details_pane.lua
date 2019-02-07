@@ -144,11 +144,12 @@ end
 
 -- additional methods
 -- cache functions
+local btest = bit32.btest
 local match = string.match
 local get_items_in_network = require("ltnt.util").get_items_in_network
 local build_item_table = require("ui.util").build_item_table
 
-function gcDetails:set_item(pind, ltn_item)
+function gcDetails:set_item(pind, network_id, ltn_item)
   ltn_item = ltn_item or self.mystorage.selected_item[pind]
   if not ltn_item then return end
   self.mystorage.selected_item[pind] = ltn_item
@@ -167,9 +168,9 @@ function gcDetails:set_item(pind, ltn_item)
   get(self, pind, "item_label").caption = proto.localised_name or item_name
   get(self, pind, "item_icon").sprite = spritepath
   -- update totals
-  local provided_items = get_items_in_network(data.provided, -1)
+  local provided_items = get_items_in_network(data.provided, network_id)
 	get(self, pind, "tprov_num").caption = provided_items[ltn_item] or 0
-	local requested_items = get_items_in_network(data.requested, -1)
+	local requested_items = get_items_in_network(data.requested, network_id)
 	get(self, pind, "treq_num").caption = requested_items[ltn_item] or 0
 	get(self, pind, "ttr_num").caption = data.in_transit[ltn_item] or 0
 
@@ -183,32 +184,34 @@ function gcDetails:set_item(pind, ltn_item)
   if data.item2stop[ltn_item] then
 		for _,stop_id in pairs(data.item2stop[ltn_item]) do
       local stop = data.stops[stop_id]
-      index = index + 1
-      local outer_flow = tb.add{type = "flow"}
-			local label = outer_flow.add{
-				type = "label",
-				caption = stop.name,
-				style = "ltnt_hover_bold_label",
-        name = create_name(self, index, stop_id)
-			}
-      label.style.single_line = false
-      index = index + 1
-			label.style.width = COL_WIDTH_STN[1]
-			--label.style.single_line = false
-			label = outer_flow.add{
-				type = "label",
-				caption = "ID: " ..stop.network_id,
-				style = "ltnt_hoverable_label",
-        name = create_name(self, index, stop_id),
-			}
-			label.style.width = COL_WIDTH_STN[2]
-      build_item_table{
-        parent = tb,
-        provided = stop.provided,
-        requested = stop.requested,
-        columns = COL_COUNT,
-        max_rows = 2,
-      }
+      if btest(stop.network_id, network_id) then
+        index = index + 1
+        local outer_flow = tb.add{type = "flow"}
+        local label = outer_flow.add{
+          type = "label",
+          caption = stop.name,
+          style = "ltnt_hover_bold_label",
+          name = create_name(self, index, stop_id)
+        }
+        label.style.single_line = false
+        index = index + 1
+        label.style.width = COL_WIDTH_STN[1]
+        --label.style.single_line = false
+        label = outer_flow.add{
+          type = "label",
+          caption = "ID: " ..stop.network_id,
+          style = "ltnt_hoverable_label",
+          name = create_name(self, index, stop_id),
+        }
+        label.style.width = COL_WIDTH_STN[2]
+        build_item_table{
+          parent = tb,
+          provided = stop.provided,
+          requested = stop.requested,
+          columns = COL_COUNT,
+          max_rows = 2,
+        }
+      end
 		end
 	end
 

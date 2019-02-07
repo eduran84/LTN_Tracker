@@ -96,10 +96,7 @@ local function get_lamp_color(stop) -- helper functions for state 1
 end
 local function get_control_signals(stop)
   local color_signal = stop.lampControl.get_control_behavior().get_signal(1)
-  local status = {
-    name = color_signal and "virtual-signal/" .. color_signal.signal.name,
-    count = color_signal and color_signal.count,
-  }
+  local status = {[color_signal and color_signal.signal.name] = color_signal and color_signal.count}
   local signals = {}
   for sig_name,v in pairs(ctrl_signal_var_name) do
     local count = stop[v]
@@ -150,10 +147,7 @@ local function update_stops(raw, stop_id) -- state 1
         if stop.errorCode ~= 0 then
           -- add to table with error stops
           stop.name = name
-          stop.signals = {
-            name = "virtual-signal/" .. LTN_CONSTANTS.error_color_lookup[stop.errorCode],
-            count = 1,
-          }
+          stop.signals = {[LTN_CONSTANTS.error_color_lookup[stop.errorCode]] = 1}
           raw.stops_error[stop_id] = stop
         elseif not stop.isDepot then
           -- add extra fields to normal stops

@@ -137,54 +137,64 @@ function gcAlertTab:update(pind, index)
     -- left side: table listing stops with error state
     local tb = self:get_el(pind, "table_l")
     tb.clear()
-    local index = #self.elem + 1
-    for stop_id, stopdata in pairs(global.data.stops_error) do
+    if next(global.data.stops_error) then
+      local index = #self.elem + 1
+      for stop_id, stopdata in pairs(global.data.stops_error) do
+        local elem = tb.add{
+          type = "label",
+          caption = stopdata.name,
+          style = "ltnt_hoverable_label",
+          name = self:_create_name(index, stop_id),
+        }
+        elem.style.vertical_align = "center"
+        elem.style.width = COL_WIDTH_L[1]
+        index = index + 1
+        build_item_table{parent = tb, signals = stopdata.signals, columns = 1}
+        elem = tb.add{type = "label", caption = error_string[stopdata.errorCode], style = "ltnt_label_default"}
+        elem.style.width = COL_WIDTH_L[3]
+      end
+    else
       local elem = tb.add{
         type = "label",
-        caption = stopdata.name,
-        style = "ltnt_hoverable_label",
-        name = self:_create_name(index, stop_id),
+        caption = {"alert.no-error-stops"},
+        style = "ltnt_label_default",
       }
-      elem.style.vertical_align = "center"
-      elem.style.width = COL_WIDTH_L[1]
-      index = index + 1
-      elem = tb.add{
-        type = "sprite-button",
-        sprite = stopdata.signals.name,
-        count = 1,
-        enabled = false,
-      }
-      elem = tb.add{type = "label", caption = error_string[stopdata.errorCode], style = "ltnt_label_default"}
-      elem.style.width = COL_WIDTH_L[3]
     end
 
     -- right side: table listing trains with residual items or error state
     tb = self:get_el(pind, "table_r")
     tb.clear()
-    for train_id, error_data in pairs(global.data.trains_error) do
-      if not error_data.route then out.error("global.data.trains_error:", global.data.trains_error) end
-      build_route_labels(tb, error_data.route)
-      if error_data.type == "residuals" then
-        -- residual item overview
-        build_item_table{
-          parent = tb,
-          requested = error_data.cargo[2],
-          columns = 4,
-          type = error_data.cargo[1],
-          no_negate = true,
-        }
-        self:build_buttons(tb, index, train_id)
-      elseif error_data.type == "timeout" then
-        local elem = tb.add{
-          type = "label",
-          caption = {"error.train-timeout"},
-          style = "ltnt_error_label",
-        }
-        elem.style.width = COL_WIDTH_R[3]
-        self:build_buttons(tb, index, train_id)
+    if next(global.data.trains_error) then
+      for train_id, error_data in pairs(global.data.trains_error) do
+        build_route_labels(tb, error_data.route)
+        if error_data.type == "residuals" then
+          -- residual item overview
+          build_item_table{
+            parent = tb,
+            requested = error_data.cargo[2],
+            columns = 4,
+            type = error_data.cargo[1],
+            no_negate = true,
+          }
+          self:build_buttons(tb, index, train_id)
+        elseif error_data.type == "timeout" then
+          local elem = tb.add{
+            type = "label",
+            caption = {"error.train-timeout"},
+            style = "ltnt_error_label",
+          }
+          elem.style.width = COL_WIDTH_R[3]
+          self:build_buttons(tb, index, train_id)
+        end
       end
+      index = index + 1
+    else
+      local elem = tb.add{
+        type = "label",
+        caption = {"alert.no-error-trains"},
+        style = "ltnt_label_default",
+      }
     end
-    index = index + 1
   else
     self:hide(pind)
   end

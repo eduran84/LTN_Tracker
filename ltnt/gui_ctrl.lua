@@ -263,9 +263,8 @@ function handlers.on_train_clicked(event, train)
 end
 
 function handlers.on_item_clicked(event, data_string)
-  -- set item displayed on details tab
   -- item name and amount is encoded in data_string
-  GC.inv_details:set_item(event.player_index, data_string)
+  GC.inv_tab:on_item_clicked(event.player_index, data_string)
 end
 
 return {
