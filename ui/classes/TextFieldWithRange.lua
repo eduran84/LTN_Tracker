@@ -7,7 +7,7 @@ Required args:
           Has to be a string consisting only of alphanumeric characters and underscores
 Optional arguments, provided in a table:
   caption, tooltip, label_style, label_style_params, textfield_style, tf_invalid_style, textfield_style_params, default_text -- should be self-explanatory
-  valid_func -- a function that takes a string input and returns true or false 
+  valid_func -- a function that takes a string input and returns true or false
 
 Layout:
 
@@ -33,9 +33,9 @@ setmetatable(TFWR, {
 	end,
 })
 
-function TFWR:_init(name, args) 
+function TFWR:_init(name, args)
   -- optional arguments: caption, tooltip, valid_func, label_style, label_style_params, textfield_style, tf_invalid_style, textfield_style_params, default_text
-  
+
   -- input parsing
   args = args or {}
   out.assert(type(args) == "table", "Optional input arguments have to be provided in a single table. Arguments provided:", args)
@@ -49,13 +49,13 @@ function TFWR:_init(name, args)
   local default_text = args.default_text or -1
   self.is_input_valid = args.valid_func or (function(input)
     local n = tonumber(input)
-      return n and n == math.floor(n) and n > -2
+      return n and n == math.floor(n)
     end)
-  out.assert(type(self.is_input_valid) == "function", "Optional input argument valid_func has to be a function. Provided valid_func:", args.valid_func)  
+  out.assert(type(self.is_input_valid) == "function", "Optional input argument valid_func has to be a function. Provided valid_func:", args.valid_func)
   out.assert(self.is_input_valid(default_text), "Default text \"", default_text, "\" is not valid according to validation function", self.is_input_valid)
-  
+
   -- call super constructor and add elements
-  GuiComposition._init(self, name)  
+  GuiComposition._init(self, name)
   -- flow holding label and text field
   self:add{
     name = "root",
@@ -120,7 +120,7 @@ function TFWR:get_event_handler(event, index, data_string)
         return handler --, pind
       else
         self:set_invalid(pind)
-      end      
+      end
     end
   else
     return self:event_handler(event, index, data_string)
@@ -128,11 +128,11 @@ function TFWR:get_event_handler(event, index, data_string)
 end
 -- additional methods
 function TFWR:set_invalid(pind)
-	self:get_tf(pind).style = self.tf_invalid_style	
+	self:get_tf(pind).style = self.tf_invalid_style
 end
 
 function TFWR:set_valid(pind, new_text)
-	self:get_tf(pind).style = self.tf_style  
+	self:get_tf(pind).style = self.tf_style
   self.mystorage.last_valid_value[pind] = new_text
 end
 
