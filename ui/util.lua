@@ -25,7 +25,7 @@ local function build_item_table(args)
   local no_negate = args.no_negate
 
   -- outer frame
-	local frame = args.parent.add{type = "frame", style = "ltnc_slot_table_frame"}
+	local frame = args.parent.add{type = "frame", style = "ltnt_slot_table_frame"}
   frame.style.vertically_stretchable = false
 
 	if args.enabled == nil then
@@ -50,7 +50,7 @@ local function build_item_table(args)
 				sprite = item2sprite(item, type),
 				number = amount,
 				enabled = enabled,
-        style = "ltnc_provided_button",
+        style = "ltnt_provided_button",
 			}
       count = count + 1
 		end
@@ -65,7 +65,7 @@ local function build_item_table(args)
 				sprite = item2sprite(item, type),
 				number = amount,
 				enabled = enabled,
-        style = "ltnc_requested_button",
+        style = "ltnt_requested_button",
 			}
       count = count + 1
 		end
@@ -77,7 +77,7 @@ local function build_item_table(args)
 				sprite = "virtual-signal/" .. name,
 				number = amount,
 				enabled = enabled,
-        style = "ltnc_empty_button",
+        style = "ltnt_empty_button",
 			}
       count = count + 1
 		end
@@ -87,7 +87,7 @@ local function build_item_table(args)
       type = "sprite-button",
       sprite = "",
       enabled = enabled,
-      style = "ltnc_empty_button",
+      style = "ltnt_empty_button",
     }
     count = count + 1
   end

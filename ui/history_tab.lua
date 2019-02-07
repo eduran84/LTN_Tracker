@@ -1,13 +1,13 @@
 -- localize helper functions
 local build_item_table = require("ui.util").build_item_table
-local tick2timestring = require("ltnc.util").tick2timestring
+local tick2timestring = require("ltnt.util").tick2timestring
 
 -- set/get constants
-local N_COLS = require("ltnc.const").history_tab.n_columns
-local N_COLS_SHIP = require("ltnc.const").history_tab.n_cols_shipment
-local COL_WIDTH = require("ltnc.const").history_tab.col_width
-local H_COL_WIDTH = require("ltnc.const").history_tab.header_col_width
-local HISTORY_LIMIT = require("ltnc.const").proc.history_limit
+local N_COLS = require("ltnt.const").history_tab.n_columns
+local N_COLS_SHIP = require("ltnt.const").history_tab.n_cols_shipment
+local COL_WIDTH = require("ltnt.const").history_tab.col_width
+local H_COL_WIDTH = require("ltnt.const").history_tab.header_col_width
+local HISTORY_LIMIT = require("ltnt.const").proc.history_limit
 local NAME = "hist_tab"
 
 local gcHistTab = require("ui.classes.GuiComposition")(NAME, {
@@ -33,7 +33,7 @@ for i = 1,N_COLS do
       type = "label",
       caption = {"history.header-col-"..i},
       tooltip = {"history.header-col-"..i.."-tt"},
-      style = "ltnc_column_header"
+      style = "ltnt_column_header"
     },
     style = {width = H_COL_WIDTH[i]}
   }
@@ -43,7 +43,7 @@ gcHistTab:add{
   parent_name = "header_table",
   params = {
     type = "sprite-button",
-    sprite = "ltnc_sprite_delete",
+    sprite = "ltnt_sprite_delete",
     tooltip = {"history.delete-tt"},
   },
   event = {id = defines.events.on_gui_click, handler = "clear_history"}
@@ -63,7 +63,7 @@ gcHistTab:add{
   },
   style = {vertical_align = "center"}
 }
-gcHistTab.tab_index = require("ltnc.const").history_tab.tab_index
+gcHistTab.tab_index = require("ltnt.const").history_tab.tab_index
 
 -- overloaded methods
 function gcHistTab:event_handler(event, index, data_string)
@@ -93,19 +93,19 @@ function gcHistTab:update(pind, index)
         label = hist_table.add{
           type = "label",
           caption = delivery.depot,
-          style = "ltnc_label_default"
+          style = "ltnt_label_default"
         }
         label.style.width = COL_WIDTH[1]
         local label = hist_table.add{
           type = "label",
           caption = delivery.from,
-          style = "ltnc_label_default"
+          style = "ltnt_label_default"
         }
         label.style.width = COL_WIDTH[2]
         label = hist_table.add{
           type = "label",
           caption = delivery.to,
-          style = "ltnc_label_default"
+          style = "ltnt_label_default"
         }
         label.style.width = COL_WIDTH[3]
         -- runtime, possibly with time-out warning

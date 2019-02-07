@@ -14,10 +14,10 @@ Layout:
 --]]
 
 -- set/get constants
-local TOTAL_WIDTH = require("ltnc.const").inventory_tab.details_width
-local COL_COUNT =  require("ltnc.const").inventory_tab.details_item_tb_col_count
-local COL_WIDTH_STN = require("ltnc.const").inventory_tab.details_tb_col_width_stations
-local COL_WIDTH_DEL = require("ltnc.const").inventory_tab.details_tb_col_width_deliveries
+local TOTAL_WIDTH = require("ltnt.const").inventory_tab.details_width
+local COL_COUNT =  require("ltnt.const").inventory_tab.details_item_tb_col_count
+local COL_WIDTH_STN = require("ltnt.const").inventory_tab.details_tb_col_width_stations
+local COL_WIDTH_DEL = require("ltnt.const").inventory_tab.details_tb_col_width_deliveries
 local SUM_LABEL_WIDTH =  TOTAL_WIDTH - 150
 local NAME = "inv_details"
 
@@ -41,8 +41,8 @@ gcDetails:add{
 gcDetails:add{
   name = "item_label",
   parent_name = "header_flow",
-  params = {type = "label", caption = "", style = "ltnc_label_default"},
-  style = {font = "ltnc_font_subheading", width = TOTAL_WIDTH - 75},
+  params = {type = "label", caption = "", style = "ltnt_label_default"},
+  style = {font = "ltnt_font_subheading", width = TOTAL_WIDTH - 75},
 }
 gcDetails:add{
   name = "item_icon",
@@ -58,35 +58,35 @@ gcDetails:add{
 gcDetails:add{
   name = "tprov_label",
   parent_name = "summary_tb",
-  params = {type = "label", caption = {"inventory.detail-prov"}, style = "ltnc_summary_label"},
+  params = {type = "label", caption = {"inventory.detail-prov"}, style = "ltnt_summary_label"},
   style = {width = SUM_LABEL_WIDTH},
 }
 gcDetails:add{
   name = "tprov_num",
   parent_name = "summary_tb",
-  params = {type = "label", caption = "0", style = "ltnc_summary_number"},
+  params = {type = "label", caption = "0", style = "ltnt_summary_number"},
 }
 gcDetails:add{
   name = "treq_label",
   parent_name = "summary_tb",
-  params = {type = "label", caption = {"inventory.detail-req"}, style = "ltnc_summary_label"},
+  params = {type = "label", caption = {"inventory.detail-req"}, style = "ltnt_summary_label"},
   style = {width = SUM_LABEL_WIDTH},
 }
 gcDetails:add{
   name = "treq_num",
   parent_name = "summary_tb",
-  params = {type = "label", caption = "0", style = "ltnc_summary_number"},
+  params = {type = "label", caption = "0", style = "ltnt_summary_number"},
 }
 gcDetails:add{
   name = "ttr_label",
   parent_name = "summary_tb",
-  params = {type = "label", caption = {"inventory.detail-tr"}, style = "ltnc_summary_label"},
+  params = {type = "label", caption = {"inventory.detail-tr"}, style = "ltnt_summary_label"},
   style = {width = SUM_LABEL_WIDTH},
 }
 gcDetails:add{
   name = "ttr_num",
   parent_name = "summary_tb",
-  params =  {type = "label", caption = "0", style = "ltnc_summary_number"},
+  params =  {type = "label", caption = "0", style = "ltnt_summary_number"},
 }
 
 -- scrollpane for following tables
@@ -104,7 +104,7 @@ gcDetails:add{
 gcDetails:add{
   name = "stoptb_label",
   parent_name = "scroll",
-  params = {type = "label", style = "ltnc_column_header", caption = {"inventory.stop_header_p"}}
+  params = {type = "label", style = "ltnt_column_header", caption = {"inventory.stop_header_p"}}
 }
 gcDetails:add{
   name = "stoptb",
@@ -115,7 +115,7 @@ gcDetails:add{
 gcDetails:add{
   name = "desc",
   parent_name = "stoptb",
-  params = {type = "label", caption = {"inventory.detail_label"}, style = "ltnc_label_default"},
+  params = {type = "label", caption = {"inventory.detail_label"}, style = "ltnt_label_default"},
   style = {single_line = false, width = TOTAL_WIDTH - 30},
 }
 
@@ -123,7 +123,7 @@ gcDetails:add{
 gcDetails:add{
   name = "deltb_label",
   parent_name = "scroll",
-  params = {type = "label", style = "ltnc_column_header", caption = {"inventory.del_header"}}
+  params = {type = "label", style = "ltnt_column_header", caption = {"inventory.del_header"}}
 }
 gcDetails:add{
   name = "deltb",
@@ -145,7 +145,7 @@ end
 -- additional methods
 -- cache functions
 local match = string.match
-local get_items_in_network = require("ltnc.util").get_items_in_network
+local get_items_in_network = require("ltnt.util").get_items_in_network
 local build_item_table = require("ui.util").build_item_table
 
 function gcDetails:set_item(pind, ltn_item)
@@ -188,7 +188,7 @@ function gcDetails:set_item(pind, ltn_item)
 			local label = outer_flow.add{
 				type = "label",
 				caption = stop.name,
-				style = "ltnc_hover_bold_label",
+				style = "ltnt_hover_bold_label",
         name = create_name(self, index, stop_id)
 			}
       label.style.single_line = false
@@ -198,7 +198,7 @@ function gcDetails:set_item(pind, ltn_item)
 			label = outer_flow.add{
 				type = "label",
 				caption = "ID: " ..stop.network_id,
-				style = "ltnc_hoverable_label",
+				style = "ltnt_hoverable_label",
         name = create_name(self, index, stop_id),
 			}
 			label.style.width = COL_WIDTH_STN[2]
@@ -224,7 +224,7 @@ function gcDetails:set_item(pind, ltn_item)
       local label = flow.add{
 				type = "label",
 				caption = delivery.from,
-				style = "ltnc_hover_bold_label",
+				style = "ltnt_hover_bold_label",
         name = create_name(self, index, delivery.from_id)
 			}
 			label.style.width = COL_WIDTH_DEL[1]
@@ -232,14 +232,14 @@ function gcDetails:set_item(pind, ltn_item)
       label = flow.add{
 				type = "label",
 				caption = " >> ",
-				style = "ltnc_label_default",
+				style = "ltnt_label_default",
 			}
 			label.style.width = COL_WIDTH_DEL[2]
       index = index + 1
       label = flow.add{
 				type = "label",
 				caption = delivery.to,
-				style = "ltnc_hover_bold_label",
+				style = "ltnt_hover_bold_label",
         name = create_name(self, index, delivery.to_id)
 			}
 			label.style.width = COL_WIDTH_DEL[3]

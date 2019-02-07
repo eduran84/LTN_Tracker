@@ -1,10 +1,10 @@
 -- localize helper functions
-local get_items_in_network = require("ltnc.util").get_items_in_network
+local get_items_in_network = require("ltnt.util").get_items_in_network
 
 -- set/get constants
 local NAME = "inv_tab"
 local N_SUBPANES = 4
-local IT_COL_COUNT = require("ltnc.const").inventory_tab.item_table_column_count
+local IT_COL_COUNT = require("ltnt.const").inventory_tab.item_table_column_count
 
 local gcInvTab= require("ui.classes.GuiComposition")(NAME, {
   params = {type = "flow", direction = "vertical"},
@@ -80,14 +80,14 @@ gcInvTab:add{
   parent_name = "flow",
   params = {type = "flow", horizontally_stretchable = "true"}
 }--]]
-gcInvTab.tab_index = require("ltnc.const").inventory_tab.tab_index
+gcInvTab.tab_index = require("ltnt.const").inventory_tab.tab_index
 -- details pane on the right side
 gcInvTab:add{
   name = "details",
   parent_name = "flow",
   gui_composition = require("ui.inventory_tab.details_pane"),
 }
-gcInvTab.tab_index = require("ltnc.const").inventory_tab.tab_index
+gcInvTab.tab_index = require("ltnt.const").inventory_tab.tab_index
 
 -- additional methods
 function gcInvTab:update(pind, index)

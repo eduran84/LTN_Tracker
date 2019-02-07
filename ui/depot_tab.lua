@@ -1,5 +1,5 @@
 local NAME = "depot_tab"
-local DEPOT_CONST = require("ltnc.const").depot_tab
+local DEPOT_CONST = require("ltnt.const").depot_tab
 local N_COLS_LEFT = 3
 local N_COLS_RIGHT = 3
 
@@ -18,7 +18,7 @@ gcDepotTab:add{
     type = "frame",
     caption = {"depot.frame-caption-left"},
     direction = "vertical",
-    --style = "ltnc_frame_no_bg",
+    --style = "ltnt_frame_no_bg",
   },
   style = {
     width = DEPOT_CONST.pane_width_left,
@@ -74,7 +74,7 @@ for i = 1,N_COLS_RIGHT do
       type="label",
       caption={"depot.header-col-r-"..i},
       tooltip={"depot.header-col-r-"..i.."-tt"},
-      style="ltnc_column_header",
+      style="ltnt_column_header",
       },
     style = {width = DEPOT_CONST.col_width_right[i]},
     }
@@ -104,7 +104,7 @@ gcDepotTab:add{
 gcDepotTab:add{
   name = "desc",
   parent_name = "table_r",
-  params = {type = "label", caption = {"depot.init-note"}, style = "ltnc_label_default"},
+  params = {type = "label", caption = {"depot.init-note"}, style = "ltnt_label_default"},
   style = {single_line = false, width = DEPOT_CONST.pane_width_right - 50},
 }
 
@@ -135,8 +135,8 @@ function gcDepotTab:event_handler(event, index, name_or_id)
   return nil
 end
 
-local mixed_id_sprite = "ltnc_unclear_id_sprite"
-local network_id_sprite = "virtual-signal/" .. require("ltnc.const").ltn.NETWORKID
+local mixed_id_sprite = "ltnt_unclear_id_sprite"
+local network_id_sprite = "virtual-signal/" .. require("ltnt.const").ltn.NETWORKID
 local build_item_table = require("ui.util").build_item_table
 local format = string.format
 function gcDepotTab:update(pind, index)
@@ -151,7 +151,7 @@ function gcDepotTab:update(pind, index)
       -- create button for each depot
       local bt = left_frame.add{
         type = "button",
-        style = "ltnc_depot_button",
+        style = "ltnt_depot_button",
         name = self:_create_name(index, depot_name),
       }
       bt.style.width = DEPOT_CONST.pane_width_left - 28
@@ -166,7 +166,7 @@ function gcDepotTab:update(pind, index)
       local label = flow.add{
         type = "label",
         caption = depot_name,
-        style = "ltnc_summary_label",
+        style = "ltnt_summary_label",
         ignored_by_interaction = true,
       }
       label.style.width = DEPOT_CONST.col_width_left[1]
@@ -176,28 +176,28 @@ function gcDepotTab:update(pind, index)
       label = subflow.add{
         type = "label",
         caption = "#Trains:",
-        style = "ltnc_label_default",
+        style = "ltnt_label_default",
         ignored_by_interaction = true,
       }
       label.style.width = DEPOT_CONST.col_width_left[2]
       label = subflow.add{
         type = "label",
         caption = depot_data.n_parked .. "/" .. depot_data.n_all_trains,
-        style = "ltnc_number_label",
+        style = "ltnt_number_label",
         ignored_by_interaction = true,
       }
       label.style.width = DEPOT_CONST.col_width_left[3]
       label = subflow.add{
         type = "label",
         caption = "Capacity:",
-        style = "ltnc_label_default",
+        style = "ltnt_label_default",
         ignored_by_interaction = true,
       }
       label.style.width = DEPOT_CONST.col_width_left[4]
       label = subflow.add{
         type = "label",
         caption =  format("%d stacks + %dk fluid", depot_data.cap,  depot_data.fcap/1000),
-        style = "ltnc_number_label",
+        style = "ltnt_number_label",
         ignored_by_interaction = true,
       }
       label.style.width = DEPOT_CONST.col_width_left[5]
@@ -209,7 +209,7 @@ function gcDepotTab:update(pind, index)
         signals = depot_data.signals,
         enabled = false,
       }
-      local elem = subflow.add{type = "frame", style = "ltnc_slot_table_frame"}
+      local elem = subflow.add{type = "frame", style = "ltnt_slot_table_frame"}
       elem.ignored_by_interaction = true
       elem.style.maximal_height = 38
       elem = elem.add{type = "table", column_count = 4, style = "slot_table"}
@@ -221,7 +221,7 @@ function gcDepotTab:update(pind, index)
             sprite = network_id_sprite,
             number = id,
             enabled = false,
-            style = "ltnc_empty_button",
+            style = "ltnt_empty_button",
           }
           hash[id] = true
         end
@@ -233,8 +233,8 @@ function gcDepotTab:update(pind, index)
   end
 end
 
-local build_train_composition_string = require("ltnc.util").build_train_composition_string
-local train_state_dict = require("ltnc.const").train_error_state_dict
+local build_train_composition_string = require("ltnt.util").build_train_composition_string
+local train_state_dict = require("ltnt.const").train_error_state_dict
 function gcDepotTab:show_details(pind)
   local depot_name = global.gui[self.name].selected_depot[pind]
   if not depot_name then return end
@@ -254,7 +254,7 @@ function gcDepotTab:show_details(pind)
       local label = tb.add{
         type = "label",
         caption = comp,
-        style = "ltnc_hover_bold_label",
+        style = "ltnt_hover_bold_label",
         name = self:_create_name(index, "%" .. train_index),
       }
       label.style.width = DEPOT_CONST.col_width_right[1]
@@ -307,7 +307,7 @@ function gcDepotTab:show_details(pind)
       label = flow.add{
         type = "label",
         caption = label_txt_1,
-        style = "ltnc_label_default",
+        style = "ltnt_label_default",
       }
       label.style.width = DEPOT_CONST.col_width_right[2]
       label.style.font_color = color
@@ -315,7 +315,7 @@ function gcDepotTab:show_details(pind)
         label = flow.add{
           type = "label",
           caption = label_txt_2,
-          style = "ltnc_hover_bold_label",
+          style = "ltnt_hover_bold_label",
           name = self:_create_name(index, data.name2id[label_txt_2]),
         }
         label.style.width = DEPOT_CONST.col_width_right[2]
@@ -327,7 +327,7 @@ function gcDepotTab:show_details(pind)
         label = tb.add{
           type = "label",
           caption = "",
-          style = "ltnc_label_default",
+          style = "ltnt_label_default",
         }
       elseif state == 1 then
         build_item_table{

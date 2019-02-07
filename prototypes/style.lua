@@ -3,37 +3,37 @@ local default_gui = data.raw["gui-style"].default
 data:extend({
   {
     type = "font",
-    name = "ltnc_font_default",
+    name = "ltnt_font_default",
     from = "default",
     size = 14
   },
   {
     type = "font",
-    name = "ltnc_font_bold",
+    name = "ltnt_font_bold",
     from = "default-bold",
     size = 14
     },
   {
     type = "font",
-    name = "ltnc_font_tab_caption",
+    name = "ltnt_font_tab_caption",
     from = "default-semibold",
     size = 18
   },
   {
     type = "font",
-    name = "ltnc_font_frame_caption",
+    name = "ltnt_font_frame_caption",
     from = "default-semibold",
     size = 20
   },
   {
     type = "font",
-    name = "ltnc_font_subheading",
+    name = "ltnt_font_subheading",
     from = "default",
     size = 18
   },
   {
     type = "sprite",
-    name = "ltnc_sprite_refresh",
+    name = "ltnt_sprite_refresh",
     filename = "__core__/graphics/reset.png",
     priority = "high",
     width = 128,
@@ -42,7 +42,7 @@ data:extend({
   },
   {
     type = "sprite",
-    name = "ltnc_sprite_delete",
+    name = "ltnt_sprite_delete",
     filename = "__core__/graphics/remove-icon.png",
     priority = "high",
     width = 64,
@@ -51,7 +51,7 @@ data:extend({
   },
   {
     type = "sprite",
-    name = "ltnc_sprite_enter",
+    name = "ltnt_sprite_enter",
     filename = "__core__/graphics/enter-icon.png",
     priority = "high",
     width = 64,
@@ -60,8 +60,8 @@ data:extend({
   },
   {
     type = "sprite",
-    name = "ltnc_bt_alert_sprite",
-    filename = "__LTNCompanion__/graphics/bt_with_alert.png",
+    name = "ltnt_bt_alert_sprite",
+    filename = "__LTN_Tracker__/graphics/bt_with_alert.png",
     priority = "high",
     width = 128,
     height = 128,
@@ -69,7 +69,7 @@ data:extend({
   },
   {
     type = "sprite",
-    name = "ltnc_bt_sprite",
+    name = "ltnt_bt_sprite",
     filename = "__base__/graphics/technology/railway.png",
     priority = "high",
     width = 128,
@@ -78,7 +78,7 @@ data:extend({
   },
   {
     type = "sprite",
-    name = "ltnc_warning_sign_sprite",
+    name = "ltnt_warning_sign_sprite",
     filename = "__core__/graphics/warning-icon.png",
     priority = "high",
     width = 64,
@@ -91,17 +91,17 @@ data:extend({
 local SUMMARY_NUM_WIDTH = 100
 -- button styles
 do
-default_gui["ltnc_button_default"] =
+default_gui["ltnt_button_default"] =
 {
     type = "button_style",
-    font = "ltnc_font_default",
+    font = "ltnt_font_default",
     align = "center",
     vertical_align = "center"
 }
-default_gui["ltnc_tab_button"] =
+default_gui["ltnt_tab_button"] =
 {
   type = "button_style",
-  font = "ltnc_font_tab_caption",
+  font = "ltnt_font_tab_caption",
   align = "center",
   vertical_align = "middle-center",
   disabled_font_color = {r=1, g=1, b=1},
@@ -125,10 +125,10 @@ default_gui["ltnc_tab_button"] =
     position = {0, 16}
   },
 }
-default_gui["ltnc_tab_button_highlight"]  =
+default_gui["ltnt_tab_button_highlight"]  =
 {
   type = "button_style",
-  font = "ltnc_font_tab_caption",
+  font = "ltnt_font_tab_caption",
   align = "middle-center",
   padding = 5,
   hovered_font_color = {r=0, g=0, b=0},
@@ -173,7 +173,7 @@ default_gui["ltnc_tab_button_highlight"]  =
   },
 }
 
-default_gui["ltnc_depot_button"]  =
+default_gui["ltnt_depot_button"]  =
 {
   type = "button_style",
   parent = "button",
@@ -192,7 +192,7 @@ default_gui["ltnc_depot_button"]  =
   },
 }
 
-default_gui["ltnc_empty_button"] =
+default_gui["ltnt_empty_button"] =
 {
   type = "button_style",
   parent = "slot_button",
@@ -211,7 +211,7 @@ default_gui["ltnc_empty_button"] =
   }
 }
 
-default_gui["ltnc_provided_button"] =
+default_gui["ltnt_provided_button"] =
 {
   type = "button_style",
   parent = "green_slot_button",
@@ -231,7 +231,7 @@ default_gui["ltnc_provided_button"] =
   },
 }
 
-default_gui["ltnc_requested_button"] =
+default_gui["ltnt_requested_button"] =
 {
   type = "button_style",
   parent = "red_slot_button",
@@ -255,37 +255,37 @@ end
 local default_orange_color = {r = 0.98, g = 0.66, b = 0.22}
 local bright_red = {r = 1, g = 0, b = 0}
 do
-default_gui["ltnc_label_default"] = {
+default_gui["ltnt_label_default"] = {
   type = "label_style",
-  font = "ltnc_font_default",
+  font = "ltnt_font_default",
   vertical_align = "center"
 }
 
-default_gui["ltnc_summary_label"] = {
+default_gui["ltnt_summary_label"] = {
   type = "label_style",
 	parent = "bold_label",
-  font = "ltnc_font_bold",
+  font = "ltnt_font_bold",
   vertical_align = "center"
 }
 
-default_gui["ltnc_summary_number"] = {
+default_gui["ltnt_summary_number"] = {
   type = "label_style",
 	parent = "bold_label",
-  font = "ltnc_font_default",
+  font = "ltnt_font_default",
 	align = "right",
 	width = SUMMARY_NUM_WIDTH,
   vertical_align = "center"
 }
 
-default_gui["ltnc_number_label"] = {
+default_gui["ltnt_number_label"] = {
   type = "label_style",
-  font = "ltnc_font_default",
+  font = "ltnt_font_default",
   font_color = default_orange_color,
 }
 
-default_gui["ltnc_hoverable_label"] = {
+default_gui["ltnt_hoverable_label"] = {
   type = "label_style",
-  font = "ltnc_font_default",
+  font = "ltnt_font_default",
   hovered_font_color = {
     r = 0.5 * (1 + default_orange_color.r),
     g = 0.5 * (1 + default_orange_color.g),
@@ -294,9 +294,9 @@ default_gui["ltnc_hoverable_label"] = {
   vertical_align = "center"
 }
 
-default_gui["ltnc_hover_bold_label"] = {
+default_gui["ltnt_hover_bold_label"] = {
   type = "label_style",
-  font = "ltnc_font_bold",
+  font = "ltnt_font_bold",
   hovered_font_color = {
     r = 0.5 * (1 + default_orange_color.r),
     g = 0.5 * (1 + default_orange_color.g),
@@ -305,28 +305,28 @@ default_gui["ltnc_hover_bold_label"] = {
   vertical_align = "center"
 }
 
-default_gui["ltnc_column_header"] = {
+default_gui["ltnt_column_header"] = {
 	type = "label_style",
 	parent = "caption_label",
-  font = "ltnc_font_bold"
+  font = "ltnt_font_bold"
 }
 
-default_gui["ltnc_error_label"] = {
+default_gui["ltnt_error_label"] = {
 	type = "label_style",
-	parent = "ltnc_label_default",
-  font = "ltnc_font_bold",
+	parent = "ltnt_label_default",
+  font = "ltnt_font_bold",
   font_color = bright_red,
 }
 end
 
 -- table styles
 do
-default_gui["ltnc_table_default"] = {
+default_gui["ltnt_table_default"] = {
   type = "table_style",
 	parent = "table_with_selection",
 }
 
-default_gui["ltnc_shipment_table"] =
+default_gui["ltnt_shipment_table"] =
 {
   type = "table_style",
   parent = "slot_table",
@@ -337,7 +337,7 @@ default_gui["ltnc_shipment_table"] =
 end
 
 -- pane styles
-default_gui["ltnc_scrollpane"] =
+default_gui["ltnt_scrollpane"] =
 {
   type = "scroll_pane_style",
   parent = "scroll_pane",
@@ -346,7 +346,7 @@ default_gui["ltnc_scrollpane"] =
 }
 
 -- frame styles
-default_gui["ltnc_slot_table_frame"] =
+default_gui["ltnt_slot_table_frame"] =
 {
   type = "frame_style",
   parent = "frame",
@@ -356,15 +356,3 @@ default_gui["ltnc_slot_table_frame"] =
   vertically_stretchable = "off",
 	horizontally_stretchable = "off",
 }
---[[default_gui["ltnc_frame_no_bg"] = {
-  type = "frame_style",
-  parent = "frame",
-  graphical_set = {
-    type = "composition",
-    filename = "__LTNCompanion__/graphics/frame.png",
-    priority = "extra-high-no-scale",
-    load_in_minimal_mode = true,
-    corner_size = {3, 3},
-    position = {8, 0}
-  },
-}--]]

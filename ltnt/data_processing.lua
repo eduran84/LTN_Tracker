@@ -2,7 +2,7 @@
 -- STRUCTURE --
 * whenever data is received from LTN events, data_processor() is called
 * data_processor registers for on_tick and deals with a chunk of the available data on each tick
-* the amount of data handled per tick is set in ltnc/const.lua
+* the amount of data handled per tick is set in ltnt/const.lua
 * any additional updates from LTN are ignored while this happens
   (I would expect data handling to be faster than LTN's once-per-second updates, but it might not be for a very large base)
 * when processing is finished:
@@ -74,13 +74,13 @@ local data
 local events -- custom event ids
 
 -- constants
---local HISTORY_LIMIT = require("ltnc.const").proc.history_limit
-local STOPS_PER_TICK = require("ltnc.const").proc.stops_per_tick
-local DELIVERIES_PER_TICK = require("ltnc.const").proc.deliveries_per_tick
-local TRAINS_PER_TICK = require("ltnc.const").proc.trains_per_tick
-local ITEMS_PER_TICK = require("ltnc.const").proc.items_per_tick
-local LTN_CONSTANTS = require("ltnc.const").ltn
-local HISTORY_LIMIT = settings.global["ltnc-history-limit"].value
+--local HISTORY_LIMIT = require("ltnt.const").proc.history_limit
+local STOPS_PER_TICK = require("ltnt.const").proc.stops_per_tick
+local DELIVERIES_PER_TICK = require("ltnt.const").proc.deliveries_per_tick
+local TRAINS_PER_TICK = require("ltnt.const").proc.trains_per_tick
+local ITEMS_PER_TICK = require("ltnt.const").proc.items_per_tick
+local LTN_CONSTANTS = require("ltnt.const").ltn
+local HISTORY_LIMIT = settings.global["ltnt-history-limit"].value
 local FILENAME = "data.log"
 
 local out = out -- <DEBUG>
@@ -89,7 +89,7 @@ local out = out -- <DEBUG>
 ---------------------
 -- functions here are called from data_processor, defined below
 
-local ctrl_signal_var_name = require("ltnc.const").ltn.ctrl_signal_var_name
+local ctrl_signal_var_name = require("ltnt.const").ltn.ctrl_signal_var_name
 local function get_lamp_color(stop) -- helper functions for state 1
   local color_signal = stop.lampControl.get_control_behavior().get_signal(1)
   return color_signal and color_signal.signal.name
@@ -434,7 +434,7 @@ end
 
 
 local delivery_timeout = settings.global["ltn-dispatcher-delivery-timeout"].value
-local get_main_loco = require("ltnc.util").get_main_loco
+local get_main_loco = require("ltnt.util").get_main_loco
 local function history_tracker(event)
   local history = event.data
   local train = history.train
@@ -538,8 +538,8 @@ local function on_init(event_id)
 end
 
 local function on_settings_changed(event)
-  if event.setting == "ltnc-history-limit" then
-    HISTORY_LIMIT = settings.global["ltnc-history-limit"].value
+  if event.setting == "ltnt-history-limit" then
+    HISTORY_LIMIT = settings.global["ltnt-history-limit"].value
     global.data.history_limit = HISTORY_LIMIT
     global.data.newest_history_index = 1
     global.data.delivery_hist = {}

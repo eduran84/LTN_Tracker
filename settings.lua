@@ -1,12 +1,12 @@
 data:extend({
 	{
-		name = "ltnc-show-button",
+		name = "ltnt-show-button",
 		setting_type = "runtime-per-user",
 		type = "bool-setting",
 		default_value = true,
 	},
 	{
-		name = "ltnc-window-height",
+		name = "ltnt-window-height",
 		setting_type = "runtime-per-user",
 		type = "int-setting",
 		default_value = 750,
@@ -14,7 +14,7 @@ data:extend({
 		maximum_value = 2000,
 	},
   {
-		name = "ltnc-history-limit",
+		name = "ltnt-history-limit",
     setting_type = "runtime-global",
 		type = "int-setting",
 		default_value = 50,
@@ -22,14 +22,14 @@ data:extend({
 		maximum_value = 100,
 	},
 	{
-		name = "ltnc-debug-level",
+		name = "ltnt-debug-level",
     setting_type = "runtime-global",
 		type = "string-setting",
     default_value = "1",
     allowed_values = {"0", "1", "2"},
 	},
 	{
-		name = "ltnc-debug-print",
+		name = "ltnt-debug-print",
     setting_type = "runtime-global",
 		type = "bool-setting",
 		default_value = false,

@@ -2,8 +2,8 @@
 local CONST = {}
 
 CONST.global = {
-  mod_name = "LTNCompanion", -- preliminary name
-  mod_prefix = "ltnc",
+  mod_name = "LTN Tracker", -- preliminary name
+  mod_prefix = "ltnt",
   gui_events = {defines.events.on_gui_click, defines.events.on_gui_checked_state_changed, defines.events.on_gui_text_changed}, -- events handled by on_gui_event
   mod_name_ltn = "LogisticTrainNetwork",
   minimal_version_ltn = "01.09.10",
@@ -27,10 +27,10 @@ CONST.proc = {
 CONST.main_frame = {
 	n_tabs = 5,
   button_width = 165,
-  button_sprite_bare = "ltnc_bt_sprite",
-  button_sprite_alert = "ltnc_bt_alert_sprite",
-  button_highlight_style = "ltnc_tab_button_highlight",
-  button_default_style =  "ltnc_tab_button"
+  button_sprite_bare = "ltnt_bt_sprite",
+  button_sprite_alert = "ltnt_bt_alert_sprite",
+  button_highlight_style = "ltnt_tab_button_highlight",
+  button_default_style =  "ltnt_tab_button"
 }
 
 CONST.depot_tab = {

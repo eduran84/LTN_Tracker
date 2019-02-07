@@ -2,7 +2,7 @@ require("prototypes.style")
 
 local key = {
 	type = "custom-input",
-	name = "ltnc-toggle-hotkey",
+	name = "ltnt-toggle-hotkey",
 	key_sequence = "CONTROL + SHIFT + E",
 	consuming = "none",
 }
