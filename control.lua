@@ -83,8 +83,7 @@ local function on_settings_changed(event)
   if debug_level > 0 then
     out.info("control.lua", "Player", player.name, "changed setting", setting)
   end
-  if setting == "ltn-dispatcher-delivery-timeout" or setting == "ltnt-history-limit" then
-    -- LTN delivery timeout is used in processor
+  if setting == "ltnt-history-limit" then
     prc.on_settings_changed(event)
   end
   if setting == "ltnt-window-height" or setting == "ltnt-show-button" then
@@ -119,9 +118,9 @@ script.on_configuration_changed(
   function(data)
     if data and data.mod_changes[LTN_MOD_NAME] then
       local ov = data.mod_changes[LTN_MOD_NAME].old_version
-      ov = ov and format_version(ov) or "<not present>"
+      ov = ov and format_version(ov) or "0.0.0 (not present)"
       local nv = data.mod_changes[LTN_MOD_NAME].new_version
-      nv = nv and format_version(nv) or "<not present>"
+      nv = nv and format_version(nv) or "0.0.0 (not present)"
       if nv >= LTN_MINIMAL_VERSION then
         if nv > LTN_CURRENT_VERSION then
           out.warn("LTN version changed from ", ov, " to ", nv, ". That version is not supported, yet. Depending on the changes to LTN, this could result in issues with ltnt.")

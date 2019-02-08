@@ -96,7 +96,7 @@ local function get_lamp_color(stop) -- helper functions for state 1
 end
 local function get_control_signals(stop)
   local color_signal = stop.lampControl.get_control_behavior().get_signal(1)
-  local status = {[color_signal and color_signal.signal.name] = color_signal and color_signal.count}
+  local status = {color_signal and color_signal.signal.name, color_signal and color_signal.count}
   local signals = {}
   for sig_name,v in pairs(ctrl_signal_var_name) do
     local count = stop[v]
@@ -154,7 +154,7 @@ local function update_stops(raw, stop_id) -- state 1
           stop.name = name
           stop.requested = req_by_stop[stop_id]
           stop.signals = get_control_signals(stop)
-          stop.provided = {}
+          stop.provided = raw.dispatch.Provided_by_Stop [stop_id]
           stop.incoming = {}
           stop.outgoing = {}
         end -- if stop.errorCode ~= 0
@@ -212,8 +212,6 @@ local function update_provided(raw, item) -- state 4
       for stop_id, count in pairs(stops) do
         local stop = raw.stops[stop_id]
         if stop then
-          -- store provided amount for individual stops
-          stop.provided[item] = (stop.provided[item] or 0) + count
           -- list stop as provider for item
           i2s[item] = i2s[item] or {}
           i2s[item][#i2s[item]+1] = stop_id
@@ -427,60 +425,67 @@ data_processor = function(event)
   end
 end
 
-
-local delivery_timeout = settings.global["ltn-dispatcher-delivery-timeout"].value
+-- history tracking
+--local delivery_timeout = settings.global["ltn-dispatcher-delivery-timeout"].value
 local get_main_loco = require("ltnt.util").get_main_loco
-local function history_tracker(event)
-  local history = event.data
-  local train = history.train
-  --[[if debug_level >= 2 then
-    out.info("delivery_tracker", "data received:", history, history.train)
-  end--]]
-  if train.valid then -- probably not necessary, train should be valid on the tick the event is received
-    history.runtime = game.tick - history.started
-    history.timed_out = history.runtime >= delivery_timeout
-    history.depot = train.schedule.records[1] and train.schedule.records[1].station
 
-    if history.timed_out then
-      local loco = get_main_loco(train)
-      data.trains_error[train.id] = {
-        type = "timeout",
-        loco = loco,
-        route = {history.depot, history.from, history.to},
-        depot = history.depot,
-      }
-      script.raise_event(events.on_train_alert, data.trains_error[train.id])
-    else
-      -- check train for residual content
-      -- if a train has fluid and items, only item residue is logged
-      local res = train.get_contents() -- does return empty table when train is empty, not nil
-      local fres = train.get_fluid_contents()
-      if next(res) or next(fres) then
-        if next(res) then
-          history.residuals = {"item", res}
-        else
-          history.residuals = {"fluid", fres}
-        end
-        local loco = get_main_loco(train)
-        data.trains_error[train.id] = {
-          type = "residuals",
-          loco = loco,
-          route = {history.depot, history.from, history.to},
-          depot = history.depot,
-          cargo = history.residuals,
-        }
-        script.raise_event(events.on_train_alert, data.trains_error[train.id])
-      end
-    end
-  else
-    out.error("Tell eduran he did it wrong! Here is some info for him, so he can do better next time:\n history:", history)
-  end
-
-  -- insert history into circular array
+local function store_history(history)
+  history.runtime = game.tick - history.started
   data.delivery_hist[data.newest_history_index] = history
   data.newest_history_index = (data.newest_history_index % HISTORY_LIMIT) + 1
 end
 
+local function on_delivery_completed(event_data)
+  -- check train for residual content
+  -- if a train has fluid and items, only item residue is logged
+  local delivery = event_data.delivery
+  local train = delivery.train
+  delivery.depot = train.schedule.records[1] and train.schedule.records[1].station
+  local res = train.get_contents() -- does return empty table when train is empty, not nil
+  local fres = train.get_fluid_contents()
+  if next(res) or next(fres) then
+    if next(res) then
+      delivery.residuals = {"item", res}
+    else
+      delivery.residuals = {"fluid", fres}
+    end
+    local loco = get_main_loco(train)
+    data.trains_error[train.id] = {
+      type = "residuals",
+      loco = loco,
+      route = {delivery.depot, delivery.from, delivery.to},
+      cargo = delivery.residuals,
+    }
+    script.raise_event(events.on_train_alert, data.trains_error[train.id])
+  end
+  store_history(delivery)
+end
+local function on_delivery_failed(event_data)
+  local delivery = event_data.delivery
+  local train = delivery.train
+  out.info("on_delivery_failed", event_data)
+  if train.valid then
+    -- train still valid -> delivery timed out
+    delivery.timed_out = true
+    delivery.depot = train.schedule.records[1] and train.schedule.records[1].station
+    local loco = get_main_loco(train)
+    data.trains_error[train.id] = {
+      type = "timeout",
+      loco = loco,
+      route = {delivery.depot, delivery.from, delivery.to},
+    }
+    script.raise_event(events.on_train_alert, data.trains_error[train.id])
+  else
+    -- train became invalid during delivery
+    data.trains_error[event_data.trainID] = {
+      type = "train_invalid",
+      loco = nil,
+      route = {"", delivery.from, delivery.to},
+    }
+    script.raise_event(events.on_train_alert, data.trains_error[train.id])
+  end
+  store_history(delivery)
+end
 
 ----------------------
 -- PUBLIC FUNCTIONS --
@@ -494,7 +499,8 @@ local function on_load(custom_events)
   events = custom_events
   events.on_stops_updated_event = remote.call("logistic-train-network", "get_on_stops_updated_event")
   events.on_dispatcher_updated_event = remote.call("logistic-train-network", "get_on_dispatcher_updated_event")
-  events.on_delivery_complete_event = remote.call("logistic-train-network", "get_on_delivery_complete_event")
+  events.on_delivery_completed_event = remote.call("logistic-train-network", "get_on_delivery_completed_event")
+  events.on_delivery_failed_event = remote.call("logistic-train-network", "get_on_delivery_failed_event")
 
   -- register for conditional events
   if global.proc.state == 0 then
@@ -503,7 +509,8 @@ local function on_load(custom_events)
   else
     script.on_event(defines.events.on_tick, data_processor)
   end
-  script.on_event(events.on_delivery_complete_event, history_tracker)
+  script.on_event(events.on_delivery_completed_event, on_delivery_completed)
+  script.on_event(events.on_delivery_failed_event, on_delivery_failed)
   if debug_level >= 1 then
     out.info("data_processing.lua", "data processor status after on_load:", global.proc)
   end
@@ -539,7 +546,7 @@ local function on_settings_changed(event)
     global.data.newest_history_index = 1
     global.data.delivery_hist = {}
   end
-  delivery_timeout = settings.global["ltn-dispatcher-delivery-timeout"].value
+  --delivery_timeout = settings.global["ltn-dispatcher-delivery-timeout"].value
 end
 
 return {

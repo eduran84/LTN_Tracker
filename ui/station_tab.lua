@@ -147,8 +147,8 @@ function gcStopTab:update(pind, index)
         -- second column: status
         tb.add{
 				type = "sprite-button",
-				sprite = stopdata.signals[1].name,
-				number = stopdata.signals[1].count,
+				sprite = "virtual-signal/"..stopdata.signals[1][1],
+				number = stopdata.signals[1][2],
 				enabled = false,
         style = "ltnt_empty_button",
         }

@@ -113,12 +113,13 @@ local function build_route_labels(parent, route) -- helper function for gcAlertT
   elem.style.vertical_align = "center"
   elem.style.width = COL_WIDTH_R[2]
 end
-function gcAlertTab:build_buttons(parent, index, loco_id) -- helper function for gcAlertTab:update
+function gcAlertTab:build_buttons(parent, index, loco_id, enabled) -- helper function for gcAlertTab:update
   local inner_tb = parent.add{type = "table", column_count = 2, style = "slot_table"}
   local elem = inner_tb.add{
     type = "sprite-button",
     sprite = "ltnt_sprite_enter",
     tooltip = {"alert.select-tt"},
+    enabled = enabled,
     name = self:_create_name(index, "s" .. loco_id),
   }
   elem = inner_tb.add{
@@ -137,8 +138,8 @@ function gcAlertTab:update(pind, index)
     -- left side: table listing stops with error state
     local tb = self:get_el(pind, "table_l")
     tb.clear()
+    local index = #self.elem + 1
     if next(global.data.stops_error) then
-      local index = #self.elem + 1
       for stop_id, stopdata in pairs(global.data.stops_error) do
         local elem = tb.add{
           type = "label",
@@ -176,7 +177,7 @@ function gcAlertTab:update(pind, index)
             type = error_data.cargo[1],
             no_negate = true,
           }
-          self:build_buttons(tb, index, train_id)
+          self:build_buttons(tb, index, train_id, true)
         elseif error_data.type == "timeout" then
           local elem = tb.add{
             type = "label",
@@ -184,7 +185,16 @@ function gcAlertTab:update(pind, index)
             style = "ltnt_error_label",
           }
           elem.style.width = COL_WIDTH_R[3]
-          self:build_buttons(tb, index, train_id)
+          self:build_buttons(tb, index, train_id, true)
+        else
+          --train invalid
+          local elem = tb.add{
+            type = "label",
+            caption = {"error.train-invalid"},
+            style = "ltnt_error_label",
+          }
+          elem.style.width = COL_WIDTH_R[3]
+          self:build_buttons(tb, index, train_id, false)
         end
       end
       index = index + 1
