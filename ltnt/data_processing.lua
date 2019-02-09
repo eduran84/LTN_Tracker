@@ -89,24 +89,24 @@ local out = out -- <DEBUG>
 ---------------------
 -- functions here are called from data_processor, defined below
 
-local ctrl_signal_var_name = require("ltnt.const").ltn.ctrl_signal_var_name
+local ctrl_signal_var_name_bool = require("ltnt.const").ltn.ctrl_signal_var_name_bool
+local ctrl_signal_var_name_num = require("ltnt.const").ltn.ctrl_signal_var_name_num
 local function get_lamp_color(stop) -- helper functions for state 1
-  local color_signal = stop.lampControl.get_control_behavior().get_signal(1)
-  return color_signal and color_signal.signal.name
+  --local color_signal = stop.lampControl.get_control_behavior().get_signal(1)
+  --return color_signal and color_signal.signal.name
+  return stop.lampControl.get_control_behavior().get_signal(1).signal.name
 end
 local function get_control_signals(stop)
   local color_signal = stop.lampControl.get_control_behavior().get_signal(1)
-  local status = {color_signal and color_signal.signal.name, color_signal and color_signal.count}
+  --local status = color_signal and {color_signal.signal.name,  color_signal.count}
   local signals = {}
-  for sig_name,v in pairs(ctrl_signal_var_name) do
-    local count = stop[v]
-    if type(count) =="number" and count > 0 then
-      signals[sig_name] = count
-    elseif count == true then
-      signals[sig_name] = 1
-    end
+  for sig_name,v in pairs(ctrl_signal_var_name_bool) do
+     signals[sig_name] = stop[v] and 1 or nil
   end
-  return {status, signals}
+  for sig_name,v in pairs(ctrl_signal_var_name_num) do
+     signals[sig_name] = stop[v] > 0 and stop[v] or nil
+  end
+  return {{color_signal.signal.name,  color_signal.count}, signals}
 end
 
 local function update_stops(raw, stop_id) -- state 1
@@ -302,6 +302,7 @@ local data_processor -- defined later
 -- on_dispatcher_updated is always triggered right after on_stops_updated
 local function on_stops_updated(event)
   raw.stops = event.data
+  game.write_file("stops.log", serpent.block(event.data), false, 1)
 end
 local function on_dispatcher_updated(event)
   raw.dispatch = event.data
