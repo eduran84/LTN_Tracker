@@ -1,10 +1,10 @@
 -- hardcoded parameters
-local filename = "ltnc.log"
+local filename = "ltnt.log"
 local mod_tag = "[" .. MOD_PREFIX:upper() .. "]"
 local ERROR = "ERROR"
 local WARN = "WARN"
 local INFO = "INFO"
-local debug_print = settings.global["ltnc-debug-print"].value
+local debug_print = settings.global["ltnt-debug-print"].value
 local max_depth = 6 -- maximum depth up to which nested objects are converted
 
 -- define factorio objects and properties the logger should convert
@@ -209,7 +209,7 @@ local function _assert(arg, ...)
 end
 
 local function on_debug_settings_changed(event)
-  debug_print = settings.global["ltnc-debug-print"].value
+  debug_print = settings.global["ltnt-debug-print"].value
 end
 
 -- return public functions

@@ -2,7 +2,7 @@
 -- STRUCTURE --
 * whenever data is received from LTN events, data_processor() is called
 * data_processor registers for on_tick and deals with a chunk of the available data on each tick
-* the amount of data handled per tick is set in ltnc/const.lua
+* the amount of data handled per tick is set in ltnt/const.lua
 * any additional updates from LTN are ignored while this happens
   (I would expect data handling to be faster than LTN's once-per-second updates, but it might not be for a very large base)
 * when processing is finished:
@@ -74,12 +74,13 @@ local data
 local events -- custom event ids
 
 -- constants
-local HISTORY_LIMIT = require("ltnc.const").proc.history_limit
-local STOPS_PER_TICK = require("ltnc.const").proc.stops_per_tick
-local DELIVERIES_PER_TICK = require("ltnc.const").proc.deliveries_per_tick
-local TRAINS_PER_TICK = require("ltnc.const").proc.trains_per_tick
-local ITEMS_PER_TICK = require("ltnc.const").proc.items_per_tick
-local LTN_CONSTANTS = require("ltnc.const").ltn
+--local HISTORY_LIMIT = require("ltnt.const").proc.history_limit
+local STOPS_PER_TICK = require("ltnt.const").proc.stops_per_tick
+local DELIVERIES_PER_TICK = require("ltnt.const").proc.deliveries_per_tick
+local TRAINS_PER_TICK = require("ltnt.const").proc.trains_per_tick
+local ITEMS_PER_TICK = require("ltnt.const").proc.items_per_tick
+local LTN_CONSTANTS = require("ltnt.const").ltn
+local HISTORY_LIMIT = settings.global["ltnt-history-limit"].value
 local FILENAME = "data.log"
 
 local out = out -- <DEBUG>
@@ -88,23 +89,21 @@ local out = out -- <DEBUG>
 ---------------------
 -- functions here are called from data_processor, defined below
 
-local ctrl_signal_var_name = require("ltnc.const").ltn.ctrl_signal_var_name
-local function get_control_signals(stop) -- helper function for state 1
+local ctrl_signal_var_name = require("ltnt.const").ltn.ctrl_signal_var_name
+local function get_lamp_color(stop) -- helper functions for state 1
   local color_signal = stop.lampControl.get_control_behavior().get_signal(1)
-  local status = {
-    name = color_signal and "virtual-signal/" .. color_signal.signal.name,
-    count = color_signal and color_signal.count,
-  }
+  return color_signal and color_signal.signal.name
+end
+local function get_control_signals(stop)
+  local color_signal = stop.lampControl.get_control_behavior().get_signal(1)
+  local status = {color_signal and color_signal.signal.name, color_signal and color_signal.count}
   local signals = {}
-  local i = 1
-  for k,v in pairs(ctrl_signal_var_name) do
+  for sig_name,v in pairs(ctrl_signal_var_name) do
     local count = stop[v]
     if type(count) =="number" and count > 0 then
-      signals[i] = {name = k, count = count}
-      i = i+1
+      signals[sig_name] = count
     elseif count == true then
-      signals[i] = {name = k, count = 1}
-      i = i+1
+      signals[sig_name] = 1
     end
   end
   return {status, signals}
@@ -118,48 +117,48 @@ local function update_stops(raw, stop_id) -- state 1
     counter = counter + 1
     local stop
     stop_id, stop = next(stops, stop_id)
-    if stop_id then
-      -- list in name lookup table
-      local name = stop.entity.backer_name
-      raw.name2id[name] = stop_id
-      if stop.errorCode ~= 0 or not stop.entity.valid then
-        -- move to table with error stops
-        stop.name = name
-        stop.signals = {
-          name = "virtual-signal/" .. LTN_CONSTANTS.error_color_lookup[stop.errorCode],
-          count = 1,
-        }
-        raw.stops_error[stop_id] = stop
-        --raw.stops[stop_id] = nil
-      elseif stop.isDepot then
-        if raw.depots[name] then
-          -- add stop to depot
-          table.insert(raw.depots[name].stops, stop)
-        else
-          --create new depot
-          raw.depots[name] = {
-            stops = {stop},
-            parked_trains = {},
-            all_trains = stop.entity.get_train_stop_trains(),
-            n_parked = 0,
-            n_all_trains = 0,
-            cap = 0,
-            fcap = 0,
-            at = {},
-          }
-          -- counts as two stop updates, due to get_train_stop_trains call
-          counter = counter + 1
+    if stop then
+      if stop.entity.valid then
+        -- list in name lookup table
+        local name = stop.entity.backer_name
+        if stop.isDepot then
+          if raw.depots[name] then
+            local depot = raw.depots[name]
+            -- add stop to depot
+            depot.network_ids[#depot.network_ids+1] = stop.network_id
+            depot.signals[get_lamp_color(stop)] = (depot.signals[get_lamp_color(stop)] or 0) + 1
+          else
+            --create new depot
+            raw.depots[name] = {
+              parked_trains = {},
+              signals = {[get_lamp_color(stop)] = 1},
+              network_ids = {stop.network_id},
+              all_trains = stop.entity.get_train_stop_trains(),
+              n_parked = 0,
+              n_all_trains = 0,
+              cap = 0,
+              fcap = 0,
+            }
+            -- counts as three stop updates, due to get_train_stop_trains call
+            counter = counter + 2
+          end
         end
-        --raw.stops[stop_id] = nil
-      else
-        -- add extra fields to normal stops
-        stop.name = name
-        stop.requested = req_by_stop[stop_id]
-        stop.signals = get_control_signals(stop)
-        stop.provided = {}
-        stop.incoming = {}
-        stop.outgoing = {}
-      end -- if stop.errorCode ~= 0
+        raw.name2id[name] = stop_id
+        if stop.errorCode ~= 0 then
+          -- add to table with error stops
+          stop.name = name
+          stop.signals = {[LTN_CONSTANTS.error_color_lookup[stop.errorCode]] = 1}
+          raw.stops_error[stop_id] = stop
+        elseif not stop.isDepot then
+          -- add extra fields to normal stops
+          stop.name = name
+          stop.requested = req_by_stop[stop_id]
+          stop.signals = get_control_signals(stop)
+          stop.provided = raw.dispatch.Provided_by_Stop [stop_id]
+          stop.incoming = {}
+          stop.outgoing = {}
+        end -- if stop.errorCode ~= 0
+      end   -- if stop.valid
     else
       return nil -- all stops done
     end --if stop_id then
@@ -167,20 +166,10 @@ local function update_stops(raw, stop_id) -- state 1
   return stop_id
 end
 
-local function prune_train_errors(raw)
-  for train_id, error_data in pairs(data.trains_error) do
-    if error_data.type == "generic" then
-      data.trains_error[train_id] = nil
-    end
-  end
-end
-
-local get_main_loco = require("ltnc.util").get_main_loco
-local is_train_error_state = require("ltnc.const").is_train_error_state
 local function update_depots(raw, depot_name, train_index) -- state 3
   local av_trains = raw.dispatch.availableTrains
   local counter = 0
-  while counter < TRAINS_PER_TICK do
+  while counter < TRAINS_PER_TICK do -- for depot_name, depot in pairs(raw.depots) do
     local next_depot_name, depot = next(raw.depots, depot_name)
     if depot then
       while counter < TRAINS_PER_TICK do
@@ -191,15 +180,7 @@ local function update_depots(raw, depot_name, train_index) -- state 3
           if train.valid then
             depot.n_all_trains = depot.n_all_trains + 1
             local train_id = train.id
-            if is_train_error_state[train.state] then
-              local loco = get_main_loco(train)
-              data.trains_error[train_id] = {
-                type = "generic",
-                loco = loco,
-                route = {next_depot_name},
-                state = train.state,
-              }
-            elseif av_trains[train_id] then
+            if av_trains[train_id] then
               depot.parked_trains[train_id] = av_trains[train_id]
               depot.n_parked = depot.n_parked + 1
               depot.cap = depot.cap + av_trains[train_id].capacity
@@ -231,17 +212,13 @@ local function update_provided(raw, item) -- state 4
       for stop_id, count in pairs(stops) do
         local stop = raw.stops[stop_id]
         if stop then
-          -- store provided amount for individual stops
-          stop.provided[item] = (stop.provided[item] or 0) + count
           -- list stop as provider for item
           i2s[item] = i2s[item] or {}
           i2s[item][#i2s[item]+1] = stop_id
           local networkID = stop.network_id
-          if networkID then
-            -- store provided amount for each network id and item
-            raw.provided[networkID] = raw.provided[networkID] or {}
-            raw.provided[networkID][item] = (raw.provided[networkID][item] or 0) + count
-          end
+          -- store provided amount for each network id and item
+          raw.provided[networkID] = raw.provided[networkID] or {}
+          raw.provided[networkID][item] = (raw.provided[networkID][item] or 0) + count
         end
         counter = counter + 1
       end
@@ -306,7 +283,6 @@ local function add_new_deliveries(raw, delivery_id) -- state 7
       delivery.from_id = raw.name2id[delivery.from]
       delivery.to_id = raw.name2id[delivery.to]
       delivery.depot = delivery.train.valid and delivery.train.schedule.records[1] and delivery.train.schedule.records[1].station
-
       -- add items to in_transit list and incoming/outgoing
       update_in_transit(delivery_id, delivery, raw)
     else
@@ -333,12 +309,13 @@ end
 -- data_processor starts running on_tick when new data arrives and stops when processing is finished
 data_processor = function(event)
   local proc = global.proc
-  if debug_level > 1 then
+  log(proc.state)
+  --[[if debug_level >= 2 then
     out.info("data_processor", "Processing data on tick:", game.tick, "\nCurrent processor state:", proc)
-    --[[if debug_level > 2 then
+    if debug_level > 2 then
       out.info("data_processor", "Raw data follows:\n", global.raw)
-    end  --]]
-  end
+    end
+  end--]]
   if proc.state == 0 then -- new data arrived, init processing
     script.on_event(defines.events.on_tick, data_processor)
     -- suspend LTN interface during data processing
@@ -365,29 +342,25 @@ data_processor = function(event)
     proc.next_depot_name = nil
 
     proc.state = 1 -- set next state
-    if debug_level > 2 then
+
+    --[[if debug_level >= 3 then
       out.info("data_processor", "Raw data follows:\n", global.raw)
-    end
+    end --]]
 
   -- processing functions for each state can take multiple ticks to complete
   -- if those functions return a value, they will be called again next tick, with that value as input
   -- the returned value should allow the function to continue from where it stopped
   -- they must return nil when their job is done, in which case proc.state is incremented
 
-  ---- state 6 currently unused ------
+  ---- state 3 and 6 currently unused ------
   elseif proc.state == 1 then
   -- processing stops first, information gathered here is required for other steps
     local stop_id = update_stops(raw, proc.next_stop_id)
     if stop_id then
       proc.next_stop_id = stop_id -- store last processed id, so we know where to continue next tick
     else
-      proc.state = 2 -- go to next state
+      proc.state = 3 -- go to next state
     end
-
-  elseif proc.state == 2 then
-    -- check trains on error list and remove if needed
-    prune_train_errors(raw)
-    proc.state = 3
 
   elseif proc.state == 3 then
     -- sorting available trains by depot
@@ -446,67 +419,73 @@ data_processor = function(event)
     script.on_event(defines.events.on_tick, nil)
 
     proc.state = 0
-    if debug_level > 2 then
+    --[[if debug_level >= 3 then
       out.info("data_processor", "Processed data follows:\n", global.data)
-    end
+    end--]]
   end
 end
 
+-- history tracking
+--local delivery_timeout = settings.global["ltn-dispatcher-delivery-timeout"].value
+local get_main_loco = require("ltnt.util").get_main_loco
 
-local delivery_timeout = settings.global["ltn-dispatcher-delivery-timeout"].value
-local function history_tracker(event)
-  local history = event.data
-  local train = history.train
-  if debug_level > 1 then
-    out.info("delivery_tracker", "data received:", history, history.train)
-  end
-  if train.valid then -- probably not necessary, train should be valid on the tick the event is received
-    history.runtime = game.tick - history.started
-    history.timed_out = history.runtime >= delivery_timeout
-    history.depot = train.schedule.records[1] and train.schedule.records[1].station
-
-    if history.timed_out then
-      local loco = get_main_loco(train)
-      data.trains_error[train.id] = {
-        type = "timeout",
-        loco = loco,
-        route = {history.depot, history.from, history.to},
-        depot = history.depot,
-        state = -101
-      }
-      script.raise_event(events.on_train_alert, data.trains_error[train.id])
-    else
-      -- check train for residual content
-      -- if a train has fluid and items, only item residue is logged
-      local res = train.get_contents() -- does return empty table when train is empty, not nil
-      local fres = train.get_fluid_contents()
-      if next(res) or next(fres) then
-        if next(res) then
-          history.residuals = {"item", res}
-        else
-          history.residuals = {"fluid", fres}
-        end
-        local loco = get_main_loco(train)
-        data.trains_error[train.id] = {
-          type = "residuals",
-          loco = loco,
-          route = {history.depot, history.from, history.to},
-          depot = history.depot,
-          cargo = history.residuals,
-          state = -100
-        }
-        script.raise_event(events.on_train_alert, data.trains_error[train.id])
-      end
-    end
-  else
-    out.error("Tell eduran he did it wrong! Here is some info for him, so he can do better next time:\n history:", history)
-  end
-
-  -- insert history into circular array
+local function store_history(history)
+  history.runtime = game.tick - history.started
   data.delivery_hist[data.newest_history_index] = history
   data.newest_history_index = (data.newest_history_index % HISTORY_LIMIT) + 1
 end
 
+local function on_delivery_completed(event_data)
+  -- check train for residual content
+  -- if a train has fluid and items, only item residue is logged
+  local delivery = event_data.delivery
+  local train = delivery.train
+  delivery.depot = train.schedule.records[1] and train.schedule.records[1].station
+  local res = train.get_contents() -- does return empty table when train is empty, not nil
+  local fres = train.get_fluid_contents()
+  if next(res) or next(fres) then
+    if next(res) then
+      delivery.residuals = {"item", res}
+    else
+      delivery.residuals = {"fluid", fres}
+    end
+    local loco = get_main_loco(train)
+    data.trains_error[train.id] = {
+      type = "residuals",
+      loco = loco,
+      route = {delivery.depot, delivery.from, delivery.to},
+      cargo = delivery.residuals,
+    }
+    script.raise_event(events.on_train_alert, data.trains_error[train.id])
+  end
+  store_history(delivery)
+end
+local function on_delivery_failed(event_data)
+  local delivery = event_data.delivery
+  local train = delivery.train
+  out.info("on_delivery_failed", event_data)
+  if train.valid then
+    -- train still valid -> delivery timed out
+    delivery.timed_out = true
+    delivery.depot = train.schedule.records[1] and train.schedule.records[1].station
+    local loco = get_main_loco(train)
+    data.trains_error[train.id] = {
+      type = "timeout",
+      loco = loco,
+      route = {delivery.depot, delivery.from, delivery.to},
+    }
+    script.raise_event(events.on_train_alert, data.trains_error[train.id])
+  else
+    -- train became invalid during delivery
+    data.trains_error[event_data.trainID] = {
+      type = "train_invalid",
+      loco = nil,
+      route = {"", delivery.from, delivery.to},
+    }
+    script.raise_event(events.on_train_alert, data.trains_error[train.id])
+  end
+  store_history(delivery)
+end
 
 ----------------------
 -- PUBLIC FUNCTIONS --
@@ -520,7 +499,8 @@ local function on_load(custom_events)
   events = custom_events
   events.on_stops_updated_event = remote.call("logistic-train-network", "get_on_stops_updated_event")
   events.on_dispatcher_updated_event = remote.call("logistic-train-network", "get_on_dispatcher_updated_event")
-  events.on_delivery_complete_event = remote.call("logistic-train-network", "get_on_delivery_complete_event")
+  events.on_delivery_completed_event = remote.call("logistic-train-network", "get_on_delivery_completed_event")
+  events.on_delivery_failed_event = remote.call("logistic-train-network", "get_on_delivery_failed_event")
 
   -- register for conditional events
   if global.proc.state == 0 then
@@ -529,8 +509,9 @@ local function on_load(custom_events)
   else
     script.on_event(defines.events.on_tick, data_processor)
   end
-  script.on_event(events.on_delivery_complete_event, history_tracker)
-  if debug_level > 0 then
+  script.on_event(events.on_delivery_completed_event, on_delivery_completed)
+  script.on_event(events.on_delivery_failed_event, on_delivery_failed)
+  if debug_level >= 1 then
     out.info("data_processing.lua", "data processor status after on_load:", global.proc)
   end
 end
@@ -553,12 +534,19 @@ local function on_init(event_id)
   global.data.name2id = global.data.name2id or {}
   global.data.item2stop = global.data.item2stop or {}
   global.data.item2delivery = global.data.item2delivery or {}
+  global.data.history_limit = HISTORY_LIMIT
 
   on_load(event_id)
 end
 
-local function on_settings_changed()
-  delivery_timeout = settings.global["ltn-dispatcher-delivery-timeout"].value
+local function on_settings_changed(event)
+  if event.setting == "ltnt-history-limit" then
+    HISTORY_LIMIT = settings.global["ltnt-history-limit"].value
+    global.data.history_limit = HISTORY_LIMIT
+    global.data.newest_history_index = 1
+    global.data.delivery_hist = {}
+  end
+  --delivery_timeout = settings.global["ltn-dispatcher-delivery-timeout"].value
 end
 
 return {

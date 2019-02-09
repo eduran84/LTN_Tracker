@@ -1,9 +1,9 @@
 -- constants
 local NAME = "alert_tab"
-local FRAME_WIDTH = require("ltnc.const").alert_tab.frame_width
-local N_COLS = require("ltnc.const").alert_tab.n_columns
-local COL_WIDTH_L = require("ltnc.const").alert_tab.col_width_l
-local COL_WIDTH_R = require("ltnc.const").alert_tab.col_width_r
+local FRAME_WIDTH = require("ltnt.const").alert_tab.frame_width
+local N_COLS = require("ltnt.const").alert_tab.n_columns
+local COL_WIDTH_L = require("ltnt.const").alert_tab.col_width_l
+local COL_WIDTH_R = require("ltnt.const").alert_tab.col_width_r
 
 -- object creation
 local GC = require("ui.classes.GuiComposition")
@@ -11,7 +11,7 @@ local gcAlertTab= GC(NAME, {
   params = {type = "flow", direction = "horizontal"},
   style = {visible = false},
 })
-gcAlertTab.tab_index = require("ltnc.const").alert_tab.tab_index
+gcAlertTab.tab_index = require("ltnt.const").alert_tab.tab_index
 
 -- left side: table with stations
 gcAlertTab:add{
@@ -32,7 +32,7 @@ for i = 1,N_COLS[1] do
     params = {
       type = "label",
       caption={"alert.header-col-l-"..i},
-      style="ltnc_column_header"
+      style="ltnt_column_header"
     },
     style = {width = COL_WIDTH_L[i]}
   }
@@ -61,7 +61,7 @@ for i = 1,N_COLS[2] do
     params = {
       type = "label",
       caption={"alert.header-col-r-"..i},
-      style="ltnc_column_header"
+      style="ltnt_column_header"
     },
     style = {width = COL_WIDTH_R[i]}
   }
@@ -75,8 +75,8 @@ gcAlertTab:add{
 }
 
 -- additional functions
-local error_string = require("ltnc.const").ltn.error_string_lookup
-local state_dict = require("ltnc.const").train_state_dict
+local error_string = require("ltnt.const").ltn.error_string_lookup
+local state_dict = require("ltnt.const").train_state_dict
 local build_item_table = require("ui.util").build_item_table
 local function build_route_labels(parent, route) -- helper function for gcAlertTab:update
   if route[2] and route[3] then
@@ -87,20 +87,20 @@ local function build_route_labels(parent, route) -- helper function for gcAlertT
     local elem = inner_tb.add{
       type = "label",
       caption = route[2],
-      style = "ltnc_label_default",
+      style = "ltnt_label_default",
     }
     elem.style.width = COL_WIDTH_R[1]
     elem = inner_tb.add{
       type = "label",
       caption = route[3],
-      style = "ltnc_label_default",
+      style = "ltnt_label_default",
     }
     elem.style.width = COL_WIDTH_R[1]
   else
     local elem = parent.add{
     type = "label",
     caption = "unknown",
-    style = "ltnc_label_default",
+    style = "ltnt_label_default",
     }
     elem.style.width = COL_WIDTH_R[1]
   end
@@ -108,22 +108,23 @@ local function build_route_labels(parent, route) -- helper function for gcAlertT
   local elem = parent.add{
     type = "label",
     caption = route[1],
-    style = "ltnc_label_default",
+    style = "ltnt_label_default",
   }
   elem.style.vertical_align = "center"
   elem.style.width = COL_WIDTH_R[2]
 end
-function gcAlertTab:build_buttons(parent, index, loco_id) -- helper function for gcAlertTab:update
+function gcAlertTab:build_buttons(parent, index, loco_id, enabled) -- helper function for gcAlertTab:update
   local inner_tb = parent.add{type = "table", column_count = 2, style = "slot_table"}
   local elem = inner_tb.add{
     type = "sprite-button",
-    sprite = "ltnc_sprite_enter",
+    sprite = "ltnt_sprite_enter",
     tooltip = {"alert.select-tt"},
+    enabled = enabled,
     name = self:_create_name(index, "s" .. loco_id),
   }
   elem = inner_tb.add{
     type = "sprite-button",
-    sprite = "ltnc_sprite_delete",
+    sprite = "ltnt_sprite_delete",
     tooltip = {"alert.delete-tt"},
     name = self:_create_name(index, "d" .. loco_id),
   }
@@ -138,65 +139,72 @@ function gcAlertTab:update(pind, index)
     local tb = self:get_el(pind, "table_l")
     tb.clear()
     local index = #self.elem + 1
-    for stop_id, stopdata in pairs(global.data.stops_error) do
+    if next(global.data.stops_error) then
+      for stop_id, stopdata in pairs(global.data.stops_error) do
+        local elem = tb.add{
+          type = "label",
+          caption = stopdata.name,
+          style = "ltnt_hoverable_label",
+          name = self:_create_name(index, stop_id),
+        }
+        elem.style.vertical_align = "center"
+        elem.style.width = COL_WIDTH_L[1]
+        index = index + 1
+        build_item_table{parent = tb, signals = stopdata.signals, columns = 1}
+        elem = tb.add{type = "label", caption = error_string[stopdata.errorCode], style = "ltnt_label_default"}
+        elem.style.width = COL_WIDTH_L[3]
+      end
+    else
       local elem = tb.add{
         type = "label",
-        caption = stopdata.name,
-        style = "ltnc_hoverable_label",
-        name = self:_create_name(index, stop_id),
+        caption = {"alert.no-error-stops"},
+        style = "ltnt_label_default",
       }
-      elem.style.vertical_align = "center"
-      elem.style.width = COL_WIDTH_L[1]
-      index = index + 1
-      elem = tb.add{
-        type = "sprite-button",
-        sprite = stopdata.signals.name,
-        count = 1,
-        enabled = false,
-      }
-      elem = tb.add{type = "label", caption = error_string[stopdata.errorCode], style = "ltnc_label_default"}
-      elem.style.width = COL_WIDTH_L[3]
     end
 
     -- right side: table listing trains with residual items or error state
     tb = self:get_el(pind, "table_r")
     tb.clear()
-    for train_id, error_data in pairs(global.data.trains_error) do
-      build_route_labels(tb, error_data.route)
-      if error_data.type == "residuals" then
-        -- residual item overview
-        build_item_table{
-          parent = tb,
-          requested = error_data.cargo[2],
-          columns = 4,
-          type = error_data.cargo[1],
-          no_negate = true,
-        }
-        self:build_buttons(tb, index, train_id)
-      elseif error_data.type == "timeout" then
-        local elem = tb.add{
-          type = "label",
-          caption = {"error.train-timeout"},
-          style = "ltnc_error_label",
-        }
-        elem.style.width = COL_WIDTH_R[3]
-        self:build_buttons(tb, index, train_id)
-      else
-        local elem = tb.add{
-          type = "label",
-          caption = state_dict[error_data.state],
-          style = "ltnc_error_label",
-        }
-        elem.style.width = COL_WIDTH_R[3]
-        elem = tb.add{
-          type = "sprite-button",
-          sprite = "ltnc_sprite_enter",
-          tooltip = {"alert.select-tt"},
-          name = self:_create_name(index, "s" .. train_id),
-        }
+    if next(global.data.trains_error) then
+      for train_id, error_data in pairs(global.data.trains_error) do
+        build_route_labels(tb, error_data.route)
+        if error_data.type == "residuals" then
+          -- residual item overview
+          build_item_table{
+            parent = tb,
+            requested = error_data.cargo[2],
+            columns = 4,
+            type = error_data.cargo[1],
+            no_negate = true,
+          }
+          self:build_buttons(tb, index, train_id, true)
+        elseif error_data.type == "timeout" then
+          local elem = tb.add{
+            type = "label",
+            caption = {"error.train-timeout"},
+            style = "ltnt_error_label",
+          }
+          elem.style.width = COL_WIDTH_R[3]
+          self:build_buttons(tb, index, train_id, true)
+        else
+          --train invalid
+          local elem = tb.add{
+            type = "label",
+            caption = {"error.train-invalid"},
+            style = "ltnt_error_label",
+          }
+          elem.style.width = COL_WIDTH_R[3]
+          self:build_buttons(tb, index, train_id, false)
+        end
       end
+      index = index + 1
+    else
+      local elem = tb.add{
+        type = "label",
+        caption = {"alert.no-error-trains"},
+        style = "ltnt_label_default",
+      }
     end
-    index = index + 1
   else
     self:hide(pind)
   end

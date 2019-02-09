@@ -10,7 +10,8 @@ local function build_item_table(args)
   -- !TODO go over this once more, should be as efficient as possible
   -- !TODO disable assert for release
   --required arguments: parent (without any of provided / requestd / signals an empty frame is produced)
-  --optional arguments: provided, requested, signals, columns, enabled, name, type, no_negate
+  --optional arguments: provided, requested, signals, columns, enabled, type, no_negate, max_rows
+
 
   out.assert(args.parent, "Parent not defined.\nArgs provided:", args)
   -- parse arguments
@@ -20,33 +21,25 @@ local function build_item_table(args)
   else
     columns = 4
   end
+  local type = args.type
+  local no_negate = args.no_negate
+
+  -- outer frame
+	local frame = args.parent.add{type = "frame", style = "ltnt_slot_table_frame"}
+  frame.style.vertically_stretchable = false
+
 	if args.enabled == nil then
 		enabled = false
+    frame.ignored_by_interaction = true
   else
     enabled = args.enabled
 	end
-  local params = {}
-  if args.name and type(args.name) == "string" then
-    params.name = args.name
-    out.error("Stop using this shit.") -- !DEBUG
+  if args.max_rows then
+    frame.style.maximal_height = args.max_rows * 38
+    frame = frame.add{type = "scroll-pane", horizontal_scroll_policy = "never", vertical_scroll_policy = "auto"}---and-reserve-space"}
   end
-  local type = args.type
-  local no_negate = args.no_negate
-  -- outer frame
-	params.type = "frame"
-  params.style = "ltnc_slot_table_frame"
-	local frame = args.parent.add(params)
-	frame.style.vertically_stretchable = false
-	frame.style.horizontally_stretchable = false
-	frame.style.minimal_height = 36
-
   -- table for item sprites
-	params.type = "table"
-  params.column_count = columns
-  params.style = "slot_table"
-	local tble = frame.add(params)
-	tble.style.width = 34*columns
-	tble.style.vertically_stretchable = false
+	local tble = frame.add{type = "table", column_count = columns, style = "slot_table"}
 
   local count = 0
   -- add items to table
@@ -57,9 +50,8 @@ local function build_item_table(args)
 				sprite = item2sprite(item, type),
 				number = amount,
 				enabled = enabled,
-        style = "ltnc_provided_button",
+        style = "ltnt_provided_button",
 			}
-      test.style.vertically_stretchable = false
       count = count + 1
 		end
 	end
@@ -68,38 +60,35 @@ local function build_item_table(args)
       if not no_negate then
         amount = -amount -- default to numbers for requests
       end
-			local test = tble.add{
+			tble.add{
 				type = "sprite-button",
 				sprite = item2sprite(item, type),
 				number = amount,
 				enabled = enabled,
-        style = "ltnc_requested_button",
+        style = "ltnt_requested_button",
 			}
-      test.style.vertically_stretchable = false
       count = count + 1
 		end
 	end
   if args.signals then
-		for _,v in pairs(args.signals) do
+		for name, amount in pairs(args.signals) do
 			tble.add{
 				type = "sprite-button",
-				sprite = "virtual-signal/" .. v.name,
-				number = v.count,
+				sprite = "virtual-signal/" .. name,
+				number = amount,
 				enabled = enabled,
-        style = "ltnc_empty_button",
+        style = "ltnt_empty_button",
 			}
       count = count + 1
 		end
 	end
-
   while count == 0 or count % columns > 0  do
-    local test = tble.add{
+    tble.add{
       type = "sprite-button",
       sprite = "",
       enabled = enabled,
-      style = "ltnc_empty_button",
+      style = "ltnt_empty_button",
     }
-      test.style.vertically_stretchable = false
     count = count + 1
   end
 	return frame

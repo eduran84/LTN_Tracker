@@ -41,7 +41,6 @@ end
 -----------------------------
 -- do not change any of the variables defined above from this point onward
 -- enforced by desync
-
 local function on_load()
   for _,gc in pairs(GC) do
     -- restore local references to objects' global storage tables
@@ -64,7 +63,7 @@ local function player_init(pind)
 
   -- build UI
   GC.toggle_button:build(button_flow, pind)
-  if not settings.get_player_settings(player)["ltnc-show-button"] then
+  if not settings.get_player_settings(player)["ltnt-show-button"] then
     GC.toggle_button:hide(player)
   end
   GC.outer_frame:build(frame_flow, pind)
@@ -113,11 +112,11 @@ end
 
 local function setting_changed(pind, setting)
   local player = game.players[pind]
-  if setting == "ltnc-window-height" then
+  if setting == "ltnt-window-height" then
     player_init(pind) -- rebuild entire ui for player
-  elseif setting == "ltnc-show-button" then
+  elseif setting == "ltnt-show-button" then
     -- show or hide toggle button
-    if settings.get_player_settings(player)["ltnc-show-button"].value then
+    if settings.get_player_settings(player)["ltnt-show-button"].value then
       GC.toggle_button:show(pind)
     else
       GC.toggle_button:hide(pind)
@@ -156,9 +155,9 @@ local handlers = {on_toggle_button_click = on_toggle_button_click}
 
 local function ui_event_handler(event)
   -- check element name; pattern used by all GuiComposition objects is
-  -- "ltnc_<name of GC object>_<index of element in the GC object>_<[optional]any string>"
+  -- "ltnt_<name of GC object>_<index of element in the GC object>_<[optional]any string>"
   local gc_name, elem_index, data_string = match(event.element.name, match_string)
-  if gc_name then -- this element belongs to ltnc, so continue (or some other mod with the same prefix xX)
+  if gc_name then -- this element belongs to ltnt, so continue (or some other mod with the same prefix xX)
     if debug_level > 1 then
       out.info("ui_event_handler", "Gui event received. Event:", event, "\ngc_name =", gc_name, "elem_index =", elem_index, "data_string=", data_string)
     end
@@ -191,7 +190,7 @@ end
 
 -- handler for on_gui_closed event
 local function on_ui_closed(event)
-  -- event triggers whenever any UI element is closed, so check if it is actually the LTNC UI that is supposed to close
+  -- event triggers whenever any UI element is closed, so check if it is actually the ltnt UI that is supposed to close
 	if event.element and event.element.valid and event.element.index == GC.outer_frame:get(event.player_index).index then
     close_gui(event.player_index)
 	end
@@ -214,7 +213,14 @@ function handlers.on_tab_changed(event, data_string)
   update_tab(event.player_index)
 end
 
-local MINIMAL_REFRESH_DELAY = require("ltnc.const").ui_ctrl.refresh_delay
+-- !ToDo: have another look at this when you are thinking straight, does not seem safe
+function handlers.clear_history(event, data_string)
+  global.data.delivery_hist = {}
+  global.data.newest_history_index = 1
+  update_tab(event.player_index)
+end
+
+local MINIMAL_REFRESH_DELAY = require("ltnt.const").ui_ctrl.refresh_delay
 function handlers.on_refresh_bt_click(event, data_string)
   local pind = event.player_index
   if global.gui.last_refresh_tick[pind] + MINIMAL_REFRESH_DELAY < game.tick then
@@ -223,8 +229,8 @@ function handlers.on_refresh_bt_click(event, data_string)
 end
 
 -- and even more helper functions
-local select_entity = require("ltnc.util").select_entity
-local select_train = require("ltnc.util").select_train
+local select_entity = require("ltnt.util").select_entity
+local select_train = require("ltnt.util").select_train
 
 function handlers.on_stop_name_clicked(event, data_string)
   local stop = global.data.stops[s2n(data_string)]
@@ -257,9 +263,8 @@ function handlers.on_train_clicked(event, train)
 end
 
 function handlers.on_item_clicked(event, data_string)
-  -- set item displayed on details tab
   -- item name and amount is encoded in data_string
-  GC.inv_details:set_item(event.player_index, data_string)
+  GC.inv_tab:on_item_clicked(event.player_index, data_string)
 end
 
 return {

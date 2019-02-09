@@ -1,8 +1,8 @@
 local GC = require("ui.classes.GuiComposition")
-local N_TABS = require("ltnc.const").main_frame.n_tabs
-local BUTTON_WIDTH = require("ltnc.const").main_frame.button_width
-local HIGHLIGHT_STYLE = require("ltnc.const").main_frame.button_highlight_style
-local DEFAULT_STYLE = require("ltnc.const").main_frame.button_default_style
+local N_TABS = require("ltnt.const").main_frame.n_tabs
+local BUTTON_WIDTH = require("ltnt.const").main_frame.button_width
+local HIGHLIGHT_STYLE = require("ltnt.const").main_frame.button_highlight_style
+local DEFAULT_STYLE = require("ltnt.const").main_frame.button_default_style
 local name = "outer_frame"
 
 local gcOuterFrame = GC(name)
@@ -13,7 +13,7 @@ gcOuterFrame:add{
   params = {
 		type = "frame",
 		direction = "vertical",
-    name = "ltnc_main_frame"
+    name = "ltnt_main_frame"
 	},
 	style = {height = 500, top_padding = 10},
 }
@@ -27,8 +27,8 @@ gcOuterFrame:add{
 gcOuterFrame:add{
   name = "title_lb",
   parent_name = "title_flow",
-  params = {type = "label", caption = {"ltng.ltn_companion"}},
-  style = {font = "ltnc_font_frame_caption"},
+  params = {type = "label", caption = {"ltnt.mod-name"}},
+  style = {font = "ltnt_font_frame_caption"},
 }
 gcOuterFrame:add{
   name = "spacer_flow",
@@ -41,8 +41,8 @@ gcOuterFrame:add{
   parent_name = "title_flow",
   params = {
     type = "sprite-button",
-    sprite = "ltnc_sprite_refresh",
-    tooltip = {"ltng.refresh-bt"},
+    sprite = "ltnt_sprite_refresh",
+    tooltip = {"ltnt.refresh-bt"},
   },
   event = {id = defines.events.on_gui_click, handler = "on_refresh_bt_click"},
 }
@@ -62,8 +62,8 @@ for i = 1, N_TABS do
     parent_name = "button_flow",
     params = {
       type="button",
-      caption={"ltng.tab"..i.."-caption"},
-      style = "ltnc_tab_button"
+      caption={"ltnt.tab"..i.."-caption"},
+      style = "ltnt_tab_button"
     },
     style = {width = BUTTON_WIDTH},
     event = {
@@ -74,18 +74,12 @@ for i = 1, N_TABS do
   }
 end
 gcOuterFrame:element_by_name("tabbutton_1").params.enabled = false
---[[gcOuterFrame:add{
-  name = "alert_sprite",
-  parent_name = "tabbutton_5",
-  params = {type = "sprite", sprite = "ltnc_warning_sign_sprite"}
-}--]]
-
 end --do
 
 -- overloaded methods
 function gcOuterFrame:build(parent, pind)
 	GC.build(self, parent, pind)
-	self:get(pind).style.height = settings.get_player_settings(game.players[pind])["ltnc-window-height"].value
+	self:get(pind).style.height = settings.get_player_settings(game.players[pind])["ltnt-window-height"].value
 end
 
 function gcOuterFrame:toggle(pind)

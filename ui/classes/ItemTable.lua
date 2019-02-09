@@ -49,11 +49,11 @@ function ItemTable:_init(name, args)
 	local frame_caption = args.caption or nil
   local height = args.minimal_height or nil
   if not args.button_style then
-    self.button_style = "ltnc_empty_button"
+    self.button_style = "ltnt_empty_button"
   elseif args.button_style == 2 then
-    self.button_style = "ltnc_requested_button"
+    self.button_style = "ltnt_requested_button"
   else
-    self.button_style = "ltnc_provided_button"
+    self.button_style = "ltnt_provided_button"
   end
   self.min_buttons = args.use_placeholders or 0
 

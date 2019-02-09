@@ -13,9 +13,10 @@ Layout:
 local NAME = "stop_tab"
 local N_COLS = 5
 local ROW_HEIGHT = 34
-local COL_WIDTH = require("ltnc.const").station_tab.header_col_width
-local STATION_WIDTH = require("ltnc.const").station_tab.station_col_width
-local COL_COUNTS = require("ltnc.const").station_tab.item_table_col_count
+local COL_WIDTH = require("ltnt.const").station_tab.header_col_width
+local STATION_WIDTH = require("ltnt.const").station_tab.station_col_width
+local MAX_ROWS = require("ltnt.const").station_tab.item_table_max_rows
+local COL_COUNTS = require("ltnt.const").station_tab.item_table_col_count
 local GC = require("ui.classes.GuiComposition")
 local gcStopTab= GC(NAME, {
   params = {type = "flow", direction = "vertical"},
@@ -66,7 +67,7 @@ for i = 1,N_COLS do
       type = "label",
       caption={"station.header-col-"..i},
       tooltip={"station.header-col-"..i.."-tt"},
-      style="ltnc_column_header"
+      style="ltnt_column_header"
     },
     style = {width = COL_WIDTH[i]}
   }
@@ -82,9 +83,9 @@ gcStopTab:add{
   name = "table",
   parent_name = "scrollpane",
   params = {type = "table", column_count = N_COLS, draw_horizontal_lines = true},
-  style = {vertical_align = "bottom"}
+  style = {vertical_align = "top"}
 }
-gcStopTab.tab_index = require("ltnc.const").station_tab.tab_index
+gcStopTab.tab_index = require("ltnt.const").station_tab.tab_index
 
 -- overloaded methods
 function gcStopTab:on_init(storage_tb)
@@ -110,7 +111,7 @@ end
 local btest = bit32.btest
 local function eqtest(a,b) return a==b end
 local build_item_table = require("ui.util").build_item_table
-local get_control_signals = require("ltnc.util").get_control_signals
+local get_control_signals = require("ltnt.util").get_control_signals
 function gcStopTab:update(pind, index)
   if index == self.tab_index then
     self:show(pind)
@@ -137,19 +138,19 @@ function gcStopTab:update(pind, index)
         local label = tb.add{
           type = "label",
           caption = stopdata.name,
-          style = "ltnc_hoverable_label",
+          style = "ltnt_hoverable_label",
           name = self:_create_name(index, stop_id),
         }
-        label.style.vertical_align = "center"
+        label.style.single_line = false
         label.style.width = STATION_WIDTH
         index = index + 1
         -- second column: status
         tb.add{
 				type = "sprite-button",
-				sprite = stopdata.signals[1].name,
-				number = stopdata.signals[1].count,
+				sprite = "virtual-signal/"..stopdata.signals[1][1],
+				number = stopdata.signals[1][2],
 				enabled = false,
-        style = "ltnc_empty_button",
+        style = "ltnt_empty_button",
         }
         -- third column: provided and requested items
         build_item_table{
@@ -158,6 +159,7 @@ function gcStopTab:update(pind, index)
           requested = data.stops[stop_id].requested,
           columns = COL_COUNTS[1],
           enabled = false,
+          max_rows = MAX_ROWS[1],
         }
         -- fourth column: current deliveries
         build_item_table{
@@ -165,6 +167,7 @@ function gcStopTab:update(pind, index)
           provided = stopdata.incoming,
           requested = stopdata.outgoing,
           columns = COL_COUNTS[2],
+          max_rows = MAX_ROWS[2],
           enabled = false,
         }
         -- fifth column: control signals

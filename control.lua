@@ -9,12 +9,12 @@
 -- gui_ctrl.lua module: handles UI events and displays data provided in global.data
 
 -- constants
-MOD_NAME = require("ltnc.const").global.mod_name
-MOD_PREFIX = require("ltnc.const").global.mod_prefix
-GUI_EVENTS = require("ltnc.const").global.gui_events
-local LTN_MOD_NAME = require("ltnc.const").global.mod_name_ltn
-local LTN_MINIMAL_VERSION = require("ltnc.const").global.minimal_version_ltn
-local LTN_CURRENT_VERSION = require("ltnc.const").global.current_version_ltn
+MOD_NAME = require("ltnt.const").global.mod_name
+MOD_PREFIX = require("ltnt.const").global.mod_prefix
+GUI_EVENTS = require("ltnt.const").global.gui_events
+local LTN_MOD_NAME = require("ltnt.const").global.mod_name_ltn
+local LTN_MINIMAL_VERSION = require("ltnt.const").global.minimal_version_ltn
+local LTN_CURRENT_VERSION = require("ltnt.const").global.current_version_ltn
 local custom_events = {
   on_data_updated = script.generate_event_name(),
   on_train_alert= script.generate_event_name(),
@@ -27,12 +27,12 @@ local custom_events = {
 --  2 = lots of logging;
 --  3 = not available as setting, only for use during development
 
-out = require("ltnc.logger")
-debug_level = 2 --tonumber(settings.global["ltnc-debug-level"].value)
+out = require("ltnt.logger")
+debug_level = 2 --tonumber(settings.global["ltnt-debug-level"].value)
 
 -- modules
-local prc = require("ltnc.data_processing")
-local ui = require("ltnc.gui_ctrl")
+local prc = require("ltnt.data_processing")
+local ui = require("ltnt.gui_ctrl")
 
 -- helper functions
 local function format_version(version_string)
@@ -44,7 +44,7 @@ end
 
 local function on_init()
   -- !DEBUG delete old log, for convenience during debugging
-  game.write_file("ltnc.log", "", false, 1)
+  game.write_file("ltnt.log", "", false, 1)
 
   -- check for LTN
   local ltn_version = nil
@@ -83,16 +83,15 @@ local function on_settings_changed(event)
   if debug_level > 0 then
     out.info("control.lua", "Player", player.name, "changed setting", setting)
   end
-  if setting == "ltn-dispatcher-delivery-timeout" then
-    -- LTN delivery timeout is used in processor
-    prc.on_settings_changed()
+  if setting == "ltnt-history-limit" then
+    prc.on_settings_changed(event)
   end
-  if setting == "ltnc-window-height" or setting == "ltnc-show-button" then
+  if setting == "ltnt-window-height" or setting == "ltnt-show-button" then
     ui.setting_changed(pind, setting)
   end
   -- debug settings
-  if setting == "ltnc-debug-level" or setting == "ltnc-debug-print" then
-    debug_level = tonumber(settings.global["ltnc-debug-level"].value)
+  if setting == "ltnt-debug-level" or setting == "ltnt-debug-print" then
+    debug_level = tonumber(settings.global["ltnt-debug-level"].value)
     out.on_debug_settings_changed(event)
   end
 end
@@ -119,12 +118,12 @@ script.on_configuration_changed(
   function(data)
     if data and data.mod_changes[LTN_MOD_NAME] then
       local ov = data.mod_changes[LTN_MOD_NAME].old_version
-      ov = ov and format_version(ov) or "<not present>"
+      ov = ov and format_version(ov) or "0.0.0 (not present)"
       local nv = data.mod_changes[LTN_MOD_NAME].new_version
-      nv = nv and format_version(nv) or "<not present>"
+      nv = nv and format_version(nv) or "0.0.0 (not present)"
       if nv >= LTN_MINIMAL_VERSION then
         if nv > LTN_CURRENT_VERSION then
-          out.warn("LTN version changed from ", ov, " to ", nv, ". That version is not supported, yet. Depending on the changes to LTN, this could result in issues with LTNC.")
+          out.warn("LTN version changed from ", ov, " to ", nv, ". That version is not supported, yet. Depending on the changes to LTN, this could result in issues with ltnt.")
         else
           out.info("control.lua", "LTN version changed from ", ov, " to ", nv)
         end
@@ -146,7 +145,7 @@ script.on_event(defines.events.on_runtime_mod_setting_changed, on_settings_chang
 -- gui events
 script.on_event(defines.events.on_gui_closed, ui.on_ui_closed)
 script.on_event(GUI_EVENTS, ui.ui_event_handler)
-script.on_event("ltnc-toggle-hotkey", ui.on_toggle_button_click)
+script.on_event("ltnt-toggle-hotkey", ui.on_toggle_button_click)
 
 -- custom events, not properly implemented yet
 -- raised when updated data for gui is available
