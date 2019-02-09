@@ -260,11 +260,13 @@ end
 
 local function update_in_transit(delivery_id, delivery, raw) -- helper function for state 7
   if raw.stops[delivery.to_id] and raw.stops[delivery.from_id] then
+    local network_id = delivery.networkID or -1
+    raw.in_transit[network_id] = raw.in_transit[network_id] or {}
     local inc = raw.stops[delivery.to_id] and raw.stops[delivery.to_id].incoming or {}
     -- only add to outgoing if pickup is not done yet
     local og = not delivery.pickup_done and raw.stops[delivery.from_id] and raw.stops[delivery.from_id].outgoing
     for item, amount in pairs(delivery.shipment) do
-      raw.in_transit[item] = (raw.in_transit[item] or 0) + amount
+      raw.in_transit[network_id][item] = (raw.in_transit[network_id][item] or 0) + amount
       raw.item2delivery[item] = raw.item2delivery[item] or {}
       raw.item2delivery[item][#raw.item2delivery[item]+1] = delivery_id
       inc[item] = (inc[item] or 0) + amount
@@ -303,6 +305,7 @@ local function on_stops_updated(event)
 end
 local function on_dispatcher_updated(event)
   raw.dispatch = event.data
+
   data_processor()
 end
 
@@ -310,18 +313,18 @@ end
 data_processor = function(event)
   local proc = global.proc
   log(proc.state)
-  --[[if debug_level >= 2 then
+  if debug_level >= 2 then
     out.info("data_processor", "Processing data on tick:", game.tick, "\nCurrent processor state:", proc)
-    if debug_level > 2 then
-      out.info("data_processor", "Raw data follows:\n", global.raw)
-    end
-  end--]]
+  end
   if proc.state == 0 then -- new data arrived, init processing
     script.on_event(defines.events.on_tick, data_processor)
     -- suspend LTN interface during data processing
     script.on_event(events.on_stops_updated_event, nil)
     script.on_event(events.on_dispatcher_updated_event, nil)
 
+  if debug_level > 2 then
+    out.info("data_processor", "Raw data follows:\n", global.raw)
+  end
     -- reset raw data
     raw.depots = {}
     raw.stops_error = {}
@@ -419,9 +422,9 @@ data_processor = function(event)
     script.on_event(defines.events.on_tick, nil)
 
     proc.state = 0
-    --[[if debug_level >= 3 then
+    if debug_level >= 3 then
       out.info("data_processor", "Processed data follows:\n", global.data)
-    end--]]
+    end
   end
 end
 

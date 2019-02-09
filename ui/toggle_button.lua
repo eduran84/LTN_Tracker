@@ -8,7 +8,7 @@ local gcTB = GC(NAME, {
   params = {
 		type = "sprite-button",
 		sprite = TB_WITHOUT_ALERT_SPRITE,
-		tooltip = {"ltng.main-button-tooltip"},
+		tooltip = {"ltnt.main-button-tooltip"},
 	},
   event = {id = defines.events.on_gui_click, handler = "on_toggle_button_click"}
 })

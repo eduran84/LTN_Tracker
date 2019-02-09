@@ -28,7 +28,7 @@ local custom_events = {
 --  3 = not available as setting, only for use during development
 
 out = require("ltnt.logger")
-debug_level = 2 --tonumber(settings.global["ltnt-debug-level"].value)
+debug_level = 3 --tonumber(settings.global["ltnt-debug-level"].value)
 
 -- modules
 local prc = require("ltnt.data_processing")

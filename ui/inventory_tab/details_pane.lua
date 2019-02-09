@@ -221,40 +221,42 @@ function gcDetails:set_item(pind, network_id, ltn_item)
   if data.item2delivery[ltn_item] then
 		for _,delivery_id in pairs(data.item2delivery[ltn_item]) do
       local delivery = data.deliveries[delivery_id]
-			local flow = tb.add{type = "flow"}
-			flow.style.vertical_align = "center"
-      index = index + 1
-      local label = flow.add{
-				type = "label",
-				caption = delivery.from,
-				style = "ltnt_hover_bold_label",
-        name = create_name(self, index, delivery.from_id)
-			}
-			label.style.width = COL_WIDTH_DEL[1]
-      label.style.single_line = false
-      label = flow.add{
-				type = "label",
-				caption = " >> ",
-				style = "ltnt_label_default",
-			}
-			label.style.width = COL_WIDTH_DEL[2]
-      index = index + 1
-      label = flow.add{
-				type = "label",
-				caption = delivery.to,
-				style = "ltnt_hover_bold_label",
-        name = create_name(self, index, delivery.to_id)
-			}
-			label.style.width = COL_WIDTH_DEL[3]
-      label.style.single_line = false
-      flow = tb.add{type = "flow"}
-      build_item_table{
-        parent = flow,
-        provided = delivery.shipment,
-        columns = COL_COUNT,
-        max_rows = 2,
-      }
-      flow.add{type = "flow", horizontally_stretchable = true}
+      if btest(delivery.networkID or -1, network_id) then
+        local flow = tb.add{type = "flow"}
+        flow.style.vertical_align = "center"
+        index = index + 1
+        local label = flow.add{
+          type = "label",
+          caption = delivery.from,
+          style = "ltnt_hover_bold_label",
+          name = create_name(self, index, delivery.from_id)
+        }
+        label.style.width = COL_WIDTH_DEL[1]
+        label.style.single_line = false
+        label = flow.add{
+          type = "label",
+          caption = " >> ",
+          style = "ltnt_label_default",
+        }
+        label.style.width = COL_WIDTH_DEL[2]
+        index = index + 1
+        label = flow.add{
+          type = "label",
+          caption = delivery.to,
+          style = "ltnt_hover_bold_label",
+          name = create_name(self, index, delivery.to_id)
+        }
+        label.style.width = COL_WIDTH_DEL[3]
+        label.style.single_line = false
+        flow = tb.add{type = "flow"}
+        build_item_table{
+          parent = flow,
+          provided = delivery.shipment,
+          columns = COL_COUNT,
+          max_rows = 2,
+        }
+        flow.add{type = "flow", horizontally_stretchable = true}
+      end
 		end
 	end
 end
