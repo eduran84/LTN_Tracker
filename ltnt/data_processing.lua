@@ -225,11 +225,9 @@ local function update_requested(raw) -- state 5
       i2s[item] = i2s[item] or {}
       i2s[item][#i2s[item]+1] = request.stopID
       local networkID = raw.stops[request.stopID].network_id
-      if networkID then
-        -- store requested amount for each network id and item
-        raw.requested[networkID] = raw.requested[networkID] or {}
-        raw.requested[networkID][item] = (raw.requested[networkID][item] or 0) - request.count
-      end
+      -- store requested amount for each network id and item
+      raw.requested[networkID] = raw.requested[networkID] or {}
+      raw.requested[networkID][item] = (raw.requested[networkID][item] or 0) - request.count
     end
   end
   return nil

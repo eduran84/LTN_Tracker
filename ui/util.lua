@@ -1,8 +1,15 @@
-local function item2sprite(item, item_type)
-  if item_type then
-    return item_type .. "/" .. item
+--local item_prototypes = game.item_prototypes
+--local fluid_prototypes = game.fluid_prototypes
+local match = string.match
+local function item2sprite(iname, itype)
+  if not itype then
+    itype, iname= match(iname, "(.+),(.+)")
+  end
+  out.info("DEBUG", "item:", iname, itype)
+  if iname and (game.item_prototypes[iname] or game.fluid_prototypes[iname]) then
+    return itype .. "/" .. iname
   else
-    return string.gsub(item, ",", "/")
+    return nil
   end
 end
 -- display a shipment of items as icons
