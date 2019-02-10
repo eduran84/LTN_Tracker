@@ -204,13 +204,15 @@ function gcDetails:set_item(pind, network_id, ltn_item)
           name = create_name(self, index, stop_id),
         }
         label.style.width = COL_WIDTH_STN[2]
+        local inner_flow = tb.add{type = "flow"}
         build_item_table{
-          parent = tb,
-          provided = stop.provided,
-          requested = stop.requested,
+          parent = inner_flow,
+          provided = data.provided_by_stop[stop_id],
+          requested = data.requested_by_stop[stop_id],
           columns = COL_COUNT,
           max_rows = 2,
         }
+        inner_flow.add{type = "flow", horizontally_stretchable = true}
       end
 		end
 	end

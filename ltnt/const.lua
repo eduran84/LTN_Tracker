@@ -17,9 +17,9 @@ CONST.ui_ctrl = {
 
 -- data_processing.lua
 CONST.proc = {
-  stops_per_tick = 200,
-  deliveries_per_tick = 200,
-  trains_per_tick = 300,
+  stops_per_tick = 20,
+  deliveries_per_tick = 20,
+  trains_per_tick = 30,
   items_per_tick = 500,
 }
 
@@ -121,7 +121,7 @@ ltn.ctrl_signal_var_name_num = {
   [ltn.MAXTRAINLENGTH] = "maxTraincars",
   [ltn.MAXTRAINS] = "trainLimit",
   [ltn.MINREQUESTED] = "minRequested",
-  [ltn.REQPRIORITY] = "reqestPriority",
+  [ltn.REQPRIORITY] = "requestPriority",
   [ltn.MINPROVIDED] = "minProvided",
   [ltn.PROVPRIORITY] = "providePriority",
   [ltn.LOCKEDSLOTS] = "lockedSlots",
