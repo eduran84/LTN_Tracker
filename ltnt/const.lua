@@ -20,7 +20,7 @@ CONST.proc = {
   stops_per_tick = 20,
   deliveries_per_tick = 20,
   trains_per_tick = 30,
-  items_per_tick = 500,
+  items_per_tick = 50,
 }
 
 -- UI layout
@@ -63,7 +63,7 @@ CONST.inventory_tab = {
 
 CONST.history_tab = {
 	tab_index = 4,
-	header_col_width = {163, 163, 163, 40, 60, 110},
+	header_col_width = {163, 163, 158, 35, 55, 110},
 	col_width = {163, 163, 163,  40, 40, 150},
 	n_columns = 6,
   n_cols_shipment = 5,

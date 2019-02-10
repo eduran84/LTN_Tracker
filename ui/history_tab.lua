@@ -109,7 +109,6 @@ function gcHistTab:update(pind, index)
         }
         label.style.width = COL_WIDTH[3]
         -- network id
-        out.info("DEBUG", delivery)
         label = hist_table.add{
           type = "label",
           caption = delivery.networkID,

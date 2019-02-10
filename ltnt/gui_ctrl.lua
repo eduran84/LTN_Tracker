@@ -163,9 +163,9 @@ local function ui_event_handler(event)
     end
     if GC[gc_name] then -- should not be necessary, but let's be extra safe in case another mod uses exactly the same naming pattern
       local handler, data = GC[gc_name]:get_event_handler(event, s2n(elem_index), data_string)
-      if debug_level > 2 then -- !DEBUG
-        out.info("ui_event_handler", "handler:", handler, "data:", data, "\nfull GC object state:\n", GC[gc_name])
-      end
+      --if debug_level > 2 then -- !DEBUG
+      --  out.info("ui_event_handler", "handler:", handler, "data:", data, "\nfull GC object state:\n", GC[gc_name])
+      --end
       if type(handler) == "string" then
         if data then
           handlers[handler](event, data)
