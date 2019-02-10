@@ -2,7 +2,7 @@
 local CONST = {}
 
 CONST.global = {
-  mod_name = "LTN Tracker", -- preliminary name
+  mod_name = "LTN_Tracker", -- preliminary name
   mod_prefix = "ltnt",
   gui_events = {defines.events.on_gui_click, defines.events.on_gui_checked_state_changed, defines.events.on_gui_text_changed}, -- events handled by on_gui_event
   mod_name_ltn = "LogisticTrainNetwork",
