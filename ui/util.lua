@@ -1,8 +1,15 @@
-local function item2sprite(item, item_type)
-  if item_type then
-    return item_type .. "/" .. item
+--local item_prototypes = game.item_prototypes
+--local fluid_prototypes = game.fluid_prototypes
+local match = string.match
+local function item2sprite(iname, itype)
+  if not itype then
+    itype, iname= match(iname, "(.+),(.+)")
+  end
+  out.info("DEBUG", "item:", iname, itype)
+  if iname and (game.item_prototypes[iname] or game.fluid_prototypes[iname]) then
+    return itype .. "/" .. iname
   else
-    return string.gsub(item, ",", "/")
+    return nil
   end
 end
 -- display a shipment of items as icons
@@ -28,12 +35,6 @@ local function build_item_table(args)
 	local frame = args.parent.add{type = "frame", style = "ltnt_slot_table_frame"}
   frame.style.vertically_stretchable = false
 
-	if args.enabled == nil then
-		enabled = false
-    frame.ignored_by_interaction = true
-  else
-    enabled = args.enabled
-	end
   if args.max_rows then
     frame.style.maximal_height = args.max_rows * 38
     frame = frame.add{type = "scroll-pane", horizontal_scroll_policy = "never", vertical_scroll_policy = "auto"}---and-reserve-space"}
@@ -41,6 +42,12 @@ local function build_item_table(args)
   -- table for item sprites
 	local tble = frame.add{type = "table", column_count = columns, style = "slot_table"}
 
+	if args.enabled == nil then
+		enabled = false
+    tble.ignored_by_interaction = true
+  else
+    enabled = args.enabled
+	end
   local count = 0
   -- add items to table
 	if args.provided then

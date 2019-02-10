@@ -20,7 +20,7 @@ CONST.proc = {
   stops_per_tick = 20,
   deliveries_per_tick = 20,
   trains_per_tick = 30,
-  items_per_tick = 50
+  items_per_tick = 500,
 }
 
 -- UI layout
@@ -55,10 +55,10 @@ CONST.station_tab = {
 CONST.inventory_tab = {
 	tab_index = 3,
   item_table_column_count = 14,
-  details_item_tb_col_count = 10,
+  details_item_tb_col_count = 9,
   details_width = 360,
-  details_tb_col_width_stations = {290, 50},
-  details_tb_col_width_deliveries = {150, 30, 150}
+  details_tb_col_width_stations = {275, 45},
+  details_tb_col_width_deliveries = {140, 25, 140}
 }
 
 CONST.history_tab = {
@@ -84,27 +84,6 @@ CONST.train_error_state_dict = {
   ["timeout"] = {"error.train-timeout"},
 }
 
---[[
-CONST.is_train_error_state = {
-  [defines.train_state.path_lost] = true,
-  [defines.train_state.no_schedule] = true,
-  [defines.train_state.no_path] = true,
-  [defines.train_state.manual_control_stop] = true,
-  [defines.train_state.manual_control] = true,
-}
-CONST.train_state_dict2 = { -- dont't ask why +1 is missing...
-  [defines.train_state.wait_station]    = {code = 0, msg = "parked at station"},
-  [defines.train_state.on_the_path]     = {code = 2, msg = "running"},
-  [defines.train_state.arrive_signal]   = {code = 2, msg = "running"},
-  [defines.train_state.wait_signal]     = {code = 2, msg = "running"},
-  [defines.train_state.arrive_station]  = {code = 2, msg = "running"},
-  [defines.train_state.path_lost]       = {code =-1, msg = {"error.train-no-path"}},
-  [defines.train_state.no_schedule]     = {code =-1, msg = {"error.train-no-schedule"}},
-  [defines.train_state.no_path]         = {code =-1, msg = {"error.train-no-path"}},
-  [defines.train_state.manual_control_stop]={code=-1,msg = {"error.train-manual"}},
-  [defines.train_state.manual_control]  = {code =-1, msg = {"error.train-manual"}},
-}
---]]
 -- LTN definitions, copied from LTN's control.lua
 local ltn = {
   ISDEPOT = "ltn-depot",
@@ -132,15 +111,17 @@ ltn.is_control_signal = {
   [ltn.PROVPRIORITY] = true,
   [ltn.LOCKEDSLOTS] = true,
 }
-ltn.ctrl_signal_var_name = {
+ltn.ctrl_signal_var_name_bool = {
   [ltn.ISDEPOT] = "isDepot",
+  [ltn.NOWARN] = "noWarnings",
+}
+ltn.ctrl_signal_var_name_num = {
   [ltn.NETWORKID] = "network_id",
   [ltn.MINTRAINLENGTH] = "minTraincars",
   [ltn.MAXTRAINLENGTH] = "maxTraincars",
   [ltn.MAXTRAINS] = "trainLimit",
   [ltn.MINREQUESTED] = "minRequested",
-  [ltn.REQPRIORITY] = "reqestPriority",
-  [ltn.NOWARN] = "noWarnings",
+  [ltn.REQPRIORITY] = "requestPriority",
   [ltn.MINPROVIDED] = "minProvided",
   [ltn.PROVPRIORITY] = "providePriority",
   [ltn.LOCKEDSLOTS] = "lockedSlots",

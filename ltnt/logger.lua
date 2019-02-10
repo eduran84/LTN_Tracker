@@ -71,7 +71,7 @@ end
 -- Factorio lua objects are tables with key "__self" and a userdata value; most of them have a .help() method
 local function is_object(tb)
   -- !ISSUE if the object does not have a help method (LuaBootstrap, LuaRemote, probably others) checking existence of .help will throw an error
-  if tb["__self"] and type(tb["__self"]) == "userdata" and tb.help then
+  if tb["__self"] and type(tb["__self"]) == "userdata" and tb.valid and tb.help then
     return true
   else
     return false

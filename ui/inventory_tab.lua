@@ -99,7 +99,7 @@ function gcInvTab:update(pind, index)
     local itemTables = self.sub_gc
     itemTables.provided:update_table(pind, get_items_in_network(data.provided, selected_network_id))
     itemTables.requested:update_table(pind, get_items_in_network(data.requested, selected_network_id))
-    itemTables.transit:update_table(pind, data.in_transit or {})
+    itemTables.transit:update_table(pind, get_items_in_network(data.in_transit, selected_network_id))
     itemTables.details:set_item(pind, selected_network_id)
   else
     self:hide(pind)
