@@ -28,12 +28,6 @@ local function build_item_table(args)
 	local frame = args.parent.add{type = "frame", style = "ltnt_slot_table_frame"}
   frame.style.vertically_stretchable = false
 
-	if args.enabled == nil then
-		enabled = false
-    frame.ignored_by_interaction = true
-  else
-    enabled = args.enabled
-	end
   if args.max_rows then
     frame.style.maximal_height = args.max_rows * 38
     frame = frame.add{type = "scroll-pane", horizontal_scroll_policy = "never", vertical_scroll_policy = "auto"}---and-reserve-space"}
@@ -41,6 +35,12 @@ local function build_item_table(args)
   -- table for item sprites
 	local tble = frame.add{type = "table", column_count = columns, style = "slot_table"}
 
+	if args.enabled == nil then
+		enabled = false
+    tble.ignored_by_interaction = true
+  else
+    enabled = args.enabled
+	end
   local count = 0
   -- add items to table
 	if args.provided then

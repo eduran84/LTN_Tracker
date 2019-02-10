@@ -170,8 +170,12 @@ local function update_depots(raw, depot_name) -- state 3
   local av_trains = raw.dispatch.availableTrains
   local counter = 0
   while counter < TRAINS_PER_TICK do -- for depot_name, depot in pairs(raw.depots) do
+<<<<<<< HEAD
     local depot
     depot_name, depot = next(raw.depots, depot_name)
+=======
+    local depot_name, depot = next(raw.depots, depot_name)
+>>>>>>> 470e2fccfb287c9d23a19ba5033a6a4618df8432
     if depot then
       --while counter < TRAINS_PER_TICK do
       for train_index, train in pairs(depot.all_trains) do
