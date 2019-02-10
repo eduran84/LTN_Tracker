@@ -1,8 +1,8 @@
-#LTN Tracker
+# LTN Tracker
 
 Adds a GUI to display information about your [LTN](https://mods.factorio.com/mod/LogisticTrainNetwork) network.
 
-###LTN Tracker displays:
+### LTN Tracker displays:
 1. Depot stops, their current status and assigned trains.
 2. Stations with provided/requested items, current deliveries and their control signals.
 3. The combined inventory of all stations, with detailed information for each item.
