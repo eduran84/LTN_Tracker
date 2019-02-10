@@ -15,3 +15,5 @@ Special thanks to Optera for creating LTN and for his continued support during t
 
 And finally a small warning: While this mod was tested by Optera and myself, it is still the initial release of my first Factorio mod. Bugs are to be expected.
 
+Mod Portal: https://mods.factorio.com/mod/LogisticTrainNetwork
+Forums: https://forums.factorio.com/viewtopic.php?f=190&t=64842
