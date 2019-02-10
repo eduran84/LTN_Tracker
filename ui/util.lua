@@ -5,7 +5,6 @@ local function item2sprite(iname, itype)
   if not itype then
     itype, iname= match(iname, "(.+),(.+)")
   end
-  out.info("DEBUG", "item:", iname, itype)
   if iname and (game.item_prototypes[iname] or game.fluid_prototypes[iname]) then
     return itype .. "/" .. iname
   else

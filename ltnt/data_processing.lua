@@ -83,7 +83,7 @@ local LTN_CONSTANTS = require("ltnt.const").ltn
 local HISTORY_LIMIT = settings.global["ltnt-history-limit"].value
 local FILENAME = "data.log"
 
-local out = out -- <DEBUG>
+local out = out
 ---------------------
 -- DATA PROCESSING --
 ---------------------
@@ -296,9 +296,6 @@ data_processor = function(event)
     script.on_event(events.on_stops_updated_event, nil)
     script.on_event(events.on_dispatcher_updated_event, nil)
 
-  if debug_level > 2 then
-    out.info("data_processor", "Raw data follows:\n", global.raw)
-  end
     -- reset raw data
     raw.depots = {}
     raw.stops_error = {}
@@ -309,8 +306,7 @@ data_processor = function(event)
     raw.item2stop = {}
     raw.item2delivery = {}
 
-    data.provided_by_stop = raw.dispatch.Provided_by_Stop
-    data.requested_by_stop = raw.dispatch.Requests_by_Stop
+
     -- reset state
     -- could be condensed down to just one variable, but it's more readable this way
     proc.next_stop_id = nil
@@ -370,7 +366,7 @@ data_processor = function(event)
     end
 
   elseif proc.state == 100 then -- update finished
-    -- update globals and raise event
+    -- update globals
     data.stops =  raw.stops
     data.depots = raw.depots
     data.stops_error =  raw.stops_error
@@ -381,7 +377,8 @@ data_processor = function(event)
     data.name2id =  raw.name2id
     data.item2stop =  raw.item2stop
     data.item2delivery = raw.item2delivery
-    --script.raise_event(events.on_data_updated, {}) -- currently unused, UI only updates on user interaction
+    data.provided_by_stop = raw.dispatch.Provided_by_Stop
+    data.requested_by_stop = raw.dispatch.Requests_by_Stop
 
     -- stop on_tick updates, start listening for LTN interface
     script.on_event(events.on_stops_updated_event, on_stops_updated)
@@ -389,9 +386,9 @@ data_processor = function(event)
     script.on_event(defines.events.on_tick, nil)
 
     proc.state = 0
-    if debug_level >= 3 then
-      out.info("data_processor", "Processed data follows:\n", global.data)
-    end
+    --if debug_level >= 3 then
+    --  out.info("data_processor", "Processed data follows:\n", global.data)
+    --end
   end
 end
 

@@ -1,11 +1,11 @@
 {
 "name": "LTN_Tracker",
-"version": "0.7.3",
+"version": "0.8.0",
 "title": "LTN Tracker",
 "author": "eduran",
-"contact": "<placeholder>",
+"contact": "https://forums.factorio.com/memberlist.php?mode=viewprofile&u=1699",
 "homepage": "<placeholder>",
-"description": "<placeholder>",
+"description": "A GUI for LTN.",
 "factorio_version": "0.16",
 "dependencies": ["base >= 0.16.51", "LogisticTrainNetwork >= 1.9.10"]
 }
