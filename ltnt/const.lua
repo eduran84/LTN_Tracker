@@ -63,10 +63,10 @@ CONST.inventory_tab = {
 
 CONST.history_tab = {
 	tab_index = 4,
-	header_col_width = {163, 163, 160, 60, 152},
-	col_width = {163, 163, 163,  60, 150},
-	n_columns = 5,
-  n_cols_shipment = 6,
+	header_col_width = {163, 163, 163, 40, 60, 110},
+	col_width = {163, 163, 163,  40, 40, 150},
+	n_columns = 6,
+  n_cols_shipment = 5,
 }
 
 CONST.alert_tab = {

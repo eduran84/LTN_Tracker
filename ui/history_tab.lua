@@ -108,6 +108,14 @@ function gcHistTab:update(pind, index)
           style = "ltnt_label_default"
         }
         label.style.width = COL_WIDTH[3]
+        -- network id
+        out.info("DEBUG", delivery)
+        label = hist_table.add{
+          type = "label",
+          caption = delivery.networkID,
+          style = "ltnt_label_default"
+        }
+        label.style.width = COL_WIDTH[4]
         -- runtime, possibly with time-out warning
         if delivery.timed_out then
           local inner_tb = hist_table.add{type = "table", column_count = 1, style = "slot_table"}
@@ -115,14 +123,14 @@ function gcHistTab:update(pind, index)
             type = "label",
             caption = tick2timestring(delivery.runtime),
           }
-          label.style.width = COL_WIDTH[4]
+          label.style.width = COL_WIDTH[5]
           label.style.align = "right"
           label.style.font_color = {r = 1, g = 0, b = 0}
           label = inner_tb.add{
             type = "label",
             caption = {"error.train-timeout"}
           }
-          label.style.width = COL_WIDTH[4]
+          label.style.width = COL_WIDTH[5]
           label.style.align = "right"
           label.style.font_color = {r = 1, g = 0, b = 0}
         else
@@ -130,7 +138,7 @@ function gcHistTab:update(pind, index)
             type = "label",
             caption = tick2timestring(delivery.runtime),
           }
-          label.style.width = COL_WIDTH[4]
+          label.style.width = COL_WIDTH[5]
           label.style.align = "right"
         end
         -- shipement and residual items, if any
