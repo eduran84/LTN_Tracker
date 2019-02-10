@@ -110,14 +110,14 @@ local function get_control_signals(stop)
 end
 
 local function update_stops(raw, stop_id) -- state 1
-  local req_by_stop = raw.dispatch.Requests_by_Stop
   local stops = raw.stops
-  local counter = 0
-  while counter < STOPS_PER_TICK do -- process only a limited amount of stops per tick
-    counter = counter + 1
-    local stop
-    stop_id, stop = next(stops, stop_id)
-    if stop then
+  --local counter = 0
+  --while counter < STOPS_PER_TICK do -- process only a limited amount of stops per tick
+    --counter = counter + 1
+    --local stop
+  for stop_id, stop in pairs(stops) do
+    --stop_id, stop = next(stops, stop_id)
+    --if stop then
       if stop.entity.valid then
         -- list in name lookup table
         local name = stop.entity.backer_name
@@ -140,7 +140,7 @@ local function update_stops(raw, stop_id) -- state 1
               fcap = 0,
             }
             -- counts as three stop updates, due to get_train_stop_trains call
-            counter = counter + 2
+            --counter = counter + 2
           end
         end
         raw.name2id[name] = stop_id
@@ -152,110 +152,86 @@ local function update_stops(raw, stop_id) -- state 1
         elseif not stop.isDepot then
           -- add extra fields to normal stops
           stop.name = name
-          stop.requested = req_by_stop[stop_id]
+          --stop.requested = raw.dispatch.Requests_by_Stop[stop_id]
           stop.signals = get_control_signals(stop)
-          stop.provided = raw.dispatch.Provided_by_Stop [stop_id]
+          --stop.provided = raw.dispatch.Provided_by_Stop [stop_id]
           stop.incoming = {}
           stop.outgoing = {}
         end -- if stop.errorCode ~= 0
       end   -- if stop.valid
-    else
-      return nil -- all stops done
-    end --if stop_id then
+   -- else
+    --  return nil -- all stops done
+    --end --if stop_id then
   end
-  return stop_id
+  return nil --stop_id
 end
 
-local function update_depots(raw, depot_name, train_index) -- state 3
+local function update_depots(raw, depot_name) -- state 3
   local av_trains = raw.dispatch.availableTrains
   local counter = 0
   while counter < TRAINS_PER_TICK do -- for depot_name, depot in pairs(raw.depots) do
-    local next_depot_name, depot = next(raw.depots, depot_name)
+    local depot_name, depot = next(raw.depots, depot_name)
     if depot then
-      while counter < TRAINS_PER_TICK do
-        counter = counter + 1
-        local train
-        train_index, train = next(depot.all_trains, train_index) -- train_index ~= train_id
-        if train then
-          if train.valid then
-            depot.n_all_trains = depot.n_all_trains + 1
-            local train_id = train.id
-            if av_trains[train_id] then
-              depot.parked_trains[train_id] = av_trains[train_id]
-              depot.n_parked = depot.n_parked + 1
-              depot.cap = depot.cap + av_trains[train_id].capacity
-              depot.fcap = depot.fcap + av_trains[train_id].fluid_capacity
-            end
+      --while counter < TRAINS_PER_TICK do
+      for train_index, train in pairs(depot.all_trains) do
+        if train.valid then
+          depot.n_all_trains = depot.n_all_trains + 1
+          local train_id = train.id
+          if av_trains[train_id] then
+            depot.parked_trains[train_id] = av_trains[train_id]
+            depot.n_parked = depot.n_parked + 1
+            depot.cap = depot.cap + av_trains[train_id].capacity
+            depot.fcap = depot.fcap + av_trains[train_id].fluid_capacity
           end
-        else
-          depot_name = next_depot_name
-          train_index = nil -- this should hopefully fix the elusive "next" error
-          break
-        end -- if train
+        end
       end  -- inner while
     else
       return nil
     end -- if depot
+    counter = counter + depot.n_all_trains
   end -- outer while
-  return depot_name, train_index
+  return depot_name
 end
 
-local function update_provided(raw, item) -- state 4
+local function update_provided(raw) -- state 4
   -- sort provided items by network id
   local i2s = raw.item2stop
-  local provided = raw.dispatch.Provided
-  local counter = 0
-  while counter < ITEMS_PER_TICK do
-    local stops
-    item, stops = next(provided, item)
-    if stops then
-      for stop_id, count in pairs(stops) do
-        local stop = raw.stops[stop_id]
-        if stop then
-          -- list stop as provider for item
-          i2s[item] = i2s[item] or {}
-          i2s[item][#i2s[item]+1] = stop_id
-          local networkID = stop.network_id
-          -- store provided amount for each network id and item
-          raw.provided[networkID] = raw.provided[networkID] or {}
-          raw.provided[networkID][item] = (raw.provided[networkID][item] or 0) + count
-        end
-        counter = counter + 1
+  for item, stops in pairs(raw.dispatch.Provided) do
+    for stop_id, count in pairs(stops) do
+      local stop = raw.stops[stop_id]
+      if stop then
+        -- list stop as provider for item
+        i2s[item] = i2s[item] or {}
+        i2s[item][#i2s[item]+1] = stop_id
+        local networkID = stop.network_id
+        -- store provided amount for each network id and item
+        raw.provided[networkID] = raw.provided[networkID] or {}
+        raw.provided[networkID][item] = (raw.provided[networkID][item] or 0) + count
       end
-    else
-      return nil
     end
   end
-  return item
+  return nil
 end
 
-local function update_requested(raw, rq_idx) -- state 5
+local function update_requested(raw) -- state 5
     -- sort requested items by network id
   local i2s = raw.item2stop
   local requests= raw.dispatch.Requests
-  local counter = 0
-  while counter < ITEMS_PER_TICK do
-    local request
-    rq_idx, request = next(requests, rq_idx)
-    if request then
-      if raw.stops[request.stopID] then
-        local item = request.item
-        -- list stop as requester for item
-        i2s[item] = i2s[item] or {}
-        i2s[item][#i2s[item]+1] = request.stopID
-        local networkID = raw.stops[request.stopID].network_id
-        if networkID then
-          -- store requested amount for each network id and item
-          raw.requested[networkID] = raw.requested[networkID] or {}
-          raw.requested[networkID][item] = (raw.requested[networkID][item] or 0) - request.count
-        end
-        counter = counter + 2
+  for rq_idx, request in pairs(requests) do
+    if raw.stops[request.stopID] then
+      local item = request.item
+      -- list stop as requester for item
+      i2s[item] = i2s[item] or {}
+      i2s[item][#i2s[item]+1] = request.stopID
+      local networkID = raw.stops[request.stopID].network_id
+      if networkID then
+        -- store requested amount for each network id and item
+        raw.requested[networkID] = raw.requested[networkID] or {}
+        raw.requested[networkID][item] = (raw.requested[networkID][item] or 0) - request.count
       end
-    else
-      return nil
     end
   end
-  return rq_idx
+  return nil
 end
 
 local function update_in_transit(delivery_id, delivery, raw) -- helper function for state 7
@@ -302,18 +278,16 @@ local data_processor -- defined later
 -- on_dispatcher_updated is always triggered right after on_stops_updated
 local function on_stops_updated(event)
   raw.stops = event.data
-  game.write_file("stops.log", serpent.block(event.data), false, 1)
 end
 local function on_dispatcher_updated(event)
   raw.dispatch = event.data
-
   data_processor()
 end
 
 -- data_processor starts running on_tick when new data arrives and stops when processing is finished
 data_processor = function(event)
   local proc = global.proc
-  log(proc.state)
+  --log(proc.state)
   if debug_level >= 2 then
     out.info("data_processor", "Processing data on tick:", game.tick, "\nCurrent processor state:", proc)
   end
@@ -336,13 +310,15 @@ data_processor = function(event)
     raw.item2stop = {}
     raw.item2delivery = {}
 
+    data.provided_by_stop = raw.dispatch.Provided_by_Stop
+    data.requested_by_stop = raw.dispatch.Requests_by_Stop
     -- reset state
     -- could be condensed down to just one variable, but it's more readable this way
     proc.next_stop_id = nil
-    proc.next_train_id = nil
+    --proc.next_train_id = nil
     proc.next_delivery_id = nil
-    proc.next_item = nil
-    proc.next_req = nil
+    --proc.next_item = nil
+    --proc.next_req = nil
     proc.next_depot_name = nil
 
     proc.state = 1 -- set next state
@@ -368,31 +344,22 @@ data_processor = function(event)
 
   elseif proc.state == 3 then
     -- sorting available trains by depot
-    local depot_name, train_id = update_depots(raw, proc.next_depot_name, proc.next_train_id)
+    local depot_name = update_depots(raw, proc.next_depot_name)
     if depot_name then
       proc.next_depot_name = depot_name
-      proc.next_train_id = train_id
     else
       proc.state = 4
     end
 
   elseif proc.state == 4 then
     -- sorting provided items by network id and stop
-    local next_item = update_provided(raw, proc.next_item)
-    if next_item then
-      proc.next_item = next_item
-    else
-      proc.state = 5
-    end
+    update_provided(raw)
+    proc.state = 5
 
   elseif proc.state == 5 then
     -- sorting requested items by network id and stop
-    local next_req = update_requested(raw, proc.next_req)
-    if next_req then
-      proc.next_req = next_req
-    else
-      proc.state = 7
-    end
+    update_requested(raw)
+    proc.state = 7
 
   elseif proc.state == 7 then
     -- add new deliveries and update items in transit
@@ -467,7 +434,6 @@ end
 local function on_delivery_failed(event_data)
   local delivery = event_data.delivery
   local train = delivery.train
-  out.info("on_delivery_failed", event_data)
   if train.valid then
     -- train still valid -> delivery timed out
     delivery.timed_out = true
