@@ -1,5 +1,3 @@
---local item_prototypes = game.item_prototypes
---local fluid_prototypes = game.fluid_prototypes
 local match = string.match
 local function item2sprite(iname, itype)
   if not itype then
@@ -32,11 +30,11 @@ local function build_item_table(args)
 
   -- outer frame
 	local frame = args.parent.add{type = "frame", style = "ltnt_slot_table_frame"}
-  frame.style.vertically_stretchable = false
+  --frame.style.vertically_stretchable = false
 
   if args.max_rows then
     frame.style.maximal_height = args.max_rows * 38
-    frame = frame.add{type = "scroll-pane", horizontal_scroll_policy = "never", vertical_scroll_policy = "auto"}---and-reserve-space"}
+    frame = frame.add{type = "scroll-pane", style = "ltnt_sp_vertical"}
   end
   -- table for item sprites
 	local tble = frame.add{type = "table", column_count = columns, style = "slot_table"}

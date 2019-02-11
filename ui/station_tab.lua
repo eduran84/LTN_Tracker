@@ -138,11 +138,9 @@ function gcStopTab:update(pind, index)
         local label = tb.add{
           type = "label",
           caption = stopdata.name,
-          style = "ltnt_hoverable_label",
+          style = "ltnt_lb_inv_station_name",
           name = self:_create_name(index, stop_id),
         }
-        label.style.single_line = false
-        label.style.width = STATION_WIDTH
         index = index + 1
         -- second column: status
         tb.add{
