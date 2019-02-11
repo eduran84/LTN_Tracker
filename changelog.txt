@@ -1,0 +1,16 @@
+----------------------------
+Version: 0.8.1
+Date: 2019-02-11
+
+Bugfixes:
+	- cleanup when mod configuration changes works properly now
+	
+Misc:
+	- added changelog
+	- added homepage and Description to info.json
+	
+----------------------------
+Version: 0.8.1
+Date: 2019-02-10
+
+Initial release to Factorio mod portal.
