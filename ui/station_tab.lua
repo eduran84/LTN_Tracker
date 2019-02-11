@@ -153,8 +153,8 @@ function gcStopTab:update(pind, index)
         -- third column: provided and requested items
         build_item_table{
           parent = tb,
-          provided = data.provided_by_stop[stop_id], --data.stops[stop_id].provided,
-          requested = data.requested_by_stop[stop_id], --data.stops[stop_id].requested,
+          provided = data.provided_by_stop[stop_id],
+          requested = data.requested_by_stop[stop_id],
           columns = COL_COUNTS[1],
           enabled = false,
           max_rows = MAX_ROWS[1],

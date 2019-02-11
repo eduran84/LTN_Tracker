@@ -347,7 +347,7 @@ default_gui["ltnt_lb_hist_col5_red"] = {
   parent = "ltnt_label_default",
   font_color = {r = 1, g = 0, b = 0},
 }
-
+end
 -- table styles
 do
 default_gui["ltnt_table_default"] = {
