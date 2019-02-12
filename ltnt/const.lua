@@ -1,13 +1,26 @@
 -- constant definitions
 local CONST = {}
 
+CONST.settings = {
+  ui = {
+    ["ltnt-show-button"] = true,
+    ["ltnt-window-height"] = true,
+    ["ltnt-refresh-interval"] = true,
+  },
+  proc = {["ltnt-history-limit"] = true},
+  debug = {
+    ["ltnt-debug-print"] = true,
+    ["ltnt-debug-level"] = true,
+  },
+}
+
 CONST.global = {
   mod_name = "LTN_Tracker", -- preliminary name
   mod_prefix = "ltnt",
   gui_events = {defines.events.on_gui_click, defines.events.on_gui_checked_state_changed, defines.events.on_gui_text_changed}, -- events handled by on_gui_event
   mod_name_ltn = "LogisticTrainNetwork",
   minimal_version_ltn = "01.09.10",
-  current_version_ltn = "01.09.10",
+  current_version_ltn = "01.09.11",
 }
 
 -- ui_ctrl.lua

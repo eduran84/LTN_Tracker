@@ -60,6 +60,7 @@ local function player_init(pind)
   global.gui.active_tab[pind] = 1 -- even if ui is closed, active tab persists and is restored when UI opens
   global.gui.is_gui_open[pind] = false
   global.gui.last_refresh_tick[pind] = 0
+  global.gui.refresh_interval[pind] = settings.get_player_settings(player)["ltnt-refresh-interval"].value
 
   -- build UI
   GC.toggle_button:build(button_flow, pind)
@@ -83,7 +84,13 @@ end
 
 local function on_init()
   -- global storage for UI state
-  global.gui = {is_gui_open = {}, active_tab = {}, last_refresh_tick = {}, alerts_enabled = {}}
+  global.gui = {
+    is_gui_open = {},
+    active_tab = {},
+    last_refresh_tick = {},
+    refresh_interval = {},
+  }
+
   for _,gc in pairs(GC) do
     -- creates and populates global.gui[gc.name]
     gc:on_init(global.gui)
@@ -110,17 +117,21 @@ end
 --- RUNTIME EVENT HANDLERS ---
 ------------------------------
 
-local function setting_changed(pind, setting)
+local function on_settings_changed(pind, event)
   local player = game.players[pind]
+  local setting = event.setting
   if setting == "ltnt-window-height" then
     player_init(pind) -- rebuild entire ui for player
   elseif setting == "ltnt-show-button" then
     -- show or hide toggle button
-    if settings.get_player_settings(player)["ltnt-show-button"].value then
+    if settings.get_player_settings(player)[setting].value then
       GC.toggle_button:show(pind)
     else
       GC.toggle_button:hide(pind)
     end
+  end
+  if setting == "ltnt-refresh-interval" then
+    global.gui.refresh_interval[pind] = settings.get_player_settings(player)[setting].value
   end
 end
 
@@ -183,8 +194,13 @@ end
 
 -- handler for on_data_updated event
 local function update_ui(event)
-  for i in pairs(game.players) do
-    update_tab(i)
+  local tick = game.tick
+  local interval = global.gui.refresh_interval
+  for pind in pairs(game.players) do
+    if interval[pind] > 0 and tick - global.gui.last_refresh_tick[pind] > interval[pind]  then
+      global.gui.last_refresh_tick[pind] = tick
+      update_tab(pind)
+    end
   end
 end
 
@@ -220,10 +236,10 @@ function handlers.clear_history(event, data_string)
   update_tab(event.player_index)
 end
 
-local MINIMAL_REFRESH_DELAY = require("ltnt.const").ui_ctrl.refresh_delay
 function handlers.on_refresh_bt_click(event, data_string)
   local pind = event.player_index
-  if global.gui.last_refresh_tick[pind] + MINIMAL_REFRESH_DELAY < game.tick then
+  if global.gui.last_refresh_tick[pind] + global.gui.refresh_interval[pind] < game.tick then
+    global.gui.last_refresh_tick[pind] = game.tick
     update_tab(event.player_index)
   end
 end
@@ -272,7 +288,7 @@ return {
   on_load = on_load,
   on_configuration_changed = on_configuration_changed,
   on_toggle_button_click = on_toggle_button_click,
-  setting_changed = setting_changed,
+  on_settings_changed = on_settings_changed,
   player_init = player_init,
   ui_event_handler = ui_event_handler,
   on_ui_closed = on_ui_closed,

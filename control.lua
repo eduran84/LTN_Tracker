@@ -73,29 +73,32 @@ local function on_init()
   end
 end -- on_init()
 
-local function on_settings_changed(event)
-  -- notifies modules if one of their settings changed
-  if not event then return end
-  local pind = event.player_index
-  local player = game.players[pind]
-  local setting = event.setting
+do --handle runtime settings
+  local setting_dict = require("ltnt.const").settings
+  local function on_settings_changed(event)
+    -- notifies modules if one of their settings changed
+    if not event then return end
+    local pind = event.player_index
+    local player = game.players[pind]
+    local setting = event.setting
+    if debug_level > 0 then
+      out.info("control.lua", "Player", player.name, "changed setting", setting)
+    end
+    if setting_dict.ui[setting] then
+      ui.on_settings_changed(pind, event)
+    end
+    if setting_dict.proc[setting] then
+      prc.on_settings_changed(event)
+    end
+    -- debug settings
+    if setting_dict.debug[setting] then
+      debug_level = tonumber(settings.global["ltnt-debug-level"].value)
+      out.on_debug_settings_changed(event)
+    end
+  end
 
-  if debug_level > 0 then
-    out.info("control.lua", "Player", player.name, "changed setting", setting)
-  end
-  if setting == "ltnt-history-limit" then
-    prc.on_settings_changed(event)
-  end
-  if setting == "ltnt-window-height" or setting == "ltnt-show-button" then
-    ui.setting_changed(pind, setting)
-  end
-  -- debug settings
-  if setting == "ltnt-debug-level" or setting == "ltnt-debug-print" then
-    debug_level = tonumber(settings.global["ltnt-debug-level"].value)
-    out.on_debug_settings_changed(event)
-  end
+  script.on_event(defines.events.on_runtime_mod_setting_changed, on_settings_changed)
 end
-
 -----------------------------
 ------- STATIC EVENTS -------
 -----------------------------
@@ -123,7 +126,7 @@ script.on_configuration_changed(
       nv = nv and format_version(nv) or "0.0.0 (not present)"
       if nv >= LTN_MINIMAL_VERSION then
         if nv > LTN_CURRENT_VERSION then
-          out.warn("LTN version changed from ", ov, " to ", nv, ". That version is not supported, yet. Depending on the changes to LTN, this could result in issues with ltnt.")
+          out.warn("LTN version changed from ", ov, " to ", nv, ". That version is not supported, yet. Depending on the changes to LTN, this could result in issues with LTNT.")
         else
           out.info("control.lua", "LTN version changed from ", ov, " to ", nv)
         end
@@ -140,15 +143,14 @@ script.on_configuration_changed(
 
 script.on_event(defines.events.on_player_created, function(event) ui.player_init(event.player_index) end)
 
-script.on_event(defines.events.on_runtime_mod_setting_changed, on_settings_changed)
 
 -- gui events
 script.on_event(defines.events.on_gui_closed, ui.on_ui_closed)
 script.on_event(GUI_EVENTS, ui.ui_event_handler)
 script.on_event("ltnt-toggle-hotkey", ui.on_toggle_button_click)
 
--- custom events, not properly implemented yet
+-- custom events
 -- raised when updated data for gui is available
--- script.on_event(custom_events.on_data_updated, ui.update_ui)
+script.on_event(custom_events.on_data_updated, ui.update_ui)
 -- raised when a train with an error is detected
 script.on_event(custom_events.on_train_alert, ui.on_new_alert)
