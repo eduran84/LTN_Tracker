@@ -1,5 +1,4 @@
-local default_gui = data.raw["gui-style"].default
-
+-- fonts and sprites
 data:extend({
   {
     type = "font",
@@ -87,8 +86,11 @@ data:extend({
   },
 })
 
-
+-- GuiElement styles
+local C = require("ltnt.const")
+local default_gui = data.raw["gui-style"].default
 local SUMMARY_NUM_WIDTH = 100
+
 -- button styles
 do
 default_gui["ltnt_button_default"] =
@@ -317,8 +319,35 @@ default_gui["ltnt_error_label"] = {
   font = "ltnt_font_bold",
   font_color = bright_red,
 }
-end
 
+default_gui["ltnt_lb_inv_station_name"] = {
+  type = "label_style",
+  parent = "ltnt_hoverable_label",
+  maximal_width = C.station_tab.station_col_width,
+  minimal_width = C.station_tab.station_col_width,
+  single_line = false,
+}
+for i = 1, 4 do
+default_gui["ltnt_lb_hist_col"..i] = {
+  type = "label_style",
+  parent = "ltnt_label_default",
+  maximal_width = C.history_tab.col_width[i],
+  minimal_width = C.history_tab.col_width[i],
+}
+end
+default_gui["ltnt_lb_hist_col5"] = {
+  type = "label_style",
+  parent = "ltnt_label_default",
+  maximal_width = C.history_tab.col_width[5],
+  minimal_width = C.history_tab.col_width[5],
+  align = "right",
+}
+default_gui["ltnt_lb_hist_col5_red"] = {
+  type = "label_style",
+  parent = "ltnt_label_default",
+  font_color = {r = 1, g = 0, b = 0},
+}
+end
 -- table styles
 do
 default_gui["ltnt_table_default"] = {
@@ -337,11 +366,11 @@ default_gui["ltnt_shipment_table"] =
 end
 
 -- pane styles
-default_gui["ltnt_scrollpane"] =
+default_gui["ltnt_sp_vertical"] =
 {
   type = "scroll_pane_style",
   parent = "scroll_pane",
-  vertical_scroll_policy = "auto",
+  vertical_scroll_policy = "auto-and-reserve-space",
   horizontal_scroll_policy = "never",
 }
 

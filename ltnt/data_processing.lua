@@ -384,6 +384,7 @@ data_processor = function(event)
     script.on_event(events.on_stops_updated_event, on_stops_updated)
     script.on_event(events.on_dispatcher_updated_event, on_dispatcher_updated)
     script.on_event(defines.events.on_tick, nil)
+    script.raise_event(events.on_data_updated, {})
 
     proc.state = 0
     --if debug_level >= 3 then

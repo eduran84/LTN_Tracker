@@ -82,70 +82,60 @@ function gcHistTab:update(pind, index)
     ---- repopulate table ----
     local offset = global.data.newest_history_index
     local max = global.data.history_limit
-    for i = -1, (-max+1), -1 do
-
+    for i = offset-1, (offset-max+1), -1 do
       -- start at (offset - 1), counting down
       -- on reaching 0, jump back up to HISTORY_LIMIT
       -- this allows reuse of the array without table inserts or deletions
-      local delivery = history_data[(i + offset > 0) and (i + offset) or (i + offset + 100)]
+      local delivery = history_data[(i > 0) and i or (i + max)]
       if delivery then
         -- involved stops and depot
         label = hist_table.add{
           type = "label",
           caption = delivery.depot,
-          style = "ltnt_label_default"
+          style = "ltnt_lb_hist_col1"
         }
-        label.style.width = COL_WIDTH[1]
         local label = hist_table.add{
           type = "label",
           caption = delivery.from,
-          style = "ltnt_label_default"
+          style = "ltnt_lb_hist_col2"
         }
-        label.style.width = COL_WIDTH[2]
         label = hist_table.add{
           type = "label",
           caption = delivery.to,
-          style = "ltnt_label_default"
+          style = "ltnt_lb_hist_col3"
         }
-        label.style.width = COL_WIDTH[3]
         -- network id
         label = hist_table.add{
           type = "label",
           caption = delivery.networkID,
-          style = "ltnt_label_default"
+          style = "ltnt_lb_hist_col4"
         }
-        label.style.width = COL_WIDTH[4]
         -- runtime, possibly with time-out warning
         if delivery.timed_out then
           local inner_tb = hist_table.add{type = "table", column_count = 1, style = "slot_table"}
           label = inner_tb.add{
             type = "label",
             caption = tick2timestring(delivery.runtime),
+            style = "ltnt_lb_hist_col5_red",
           }
-          label.style.width = COL_WIDTH[5]
-          label.style.align = "right"
-          label.style.font_color = {r = 1, g = 0, b = 0}
           label = inner_tb.add{
             type = "label",
-            caption = {"error.train-timeout"}
+            caption = {"error.train-timeout"},
+            style = "ltnt_lb_hist_col5_red",
           }
-          label.style.width = COL_WIDTH[5]
-          label.style.align = "right"
-          label.style.font_color = {r = 1, g = 0, b = 0}
         else
           label = hist_table.add{
             type = "label",
             caption = tick2timestring(delivery.runtime),
+            style = "ltnt_lb_hist_col5"
           }
-          label.style.width = COL_WIDTH[5]
-          label.style.align = "right"
         end
         -- shipement and residual items, if any
         if delivery.residuals then
-          local tb = hist_table.add{type = "table", column_count = 1}
-          tb.style.align = "center"
-          tb.style.cell_spacing = 0
-          tb.style.vertical_spacing = 0
+          local tb = hist_table.add{type = "table", column_count = 1, style = "slot_table"}
+          --tb.style.align = "center"
+          --tb.style.cell_spacing = 0
+          --tb.style.vertical_spacing = 0
           build_item_table{
             parent = tb,
             provided = delivery.shipment,

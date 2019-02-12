@@ -14,6 +14,14 @@ data:extend({
 		maximum_value = 2000,
 	},
   {
+		name = "ltnt-refresh-interval",
+		setting_type = "runtime-per-user",
+		type = "int-setting",
+		default_value = 0,
+		minimum_value = 0,
+		maximum_value = 30,
+	},
+  {
 		name = "ltnt-history-limit",
     setting_type = "runtime-global",
 		type = "int-setting",
@@ -25,7 +33,7 @@ data:extend({
 		name = "ltnt-debug-level",
     setting_type = "runtime-global",
 		type = "string-setting",
-    default_value = "1",
+    default_value = "0",
     allowed_values = {"0", "1", "2"},
 	},
 	{

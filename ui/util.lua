@@ -1,5 +1,3 @@
---local item_prototypes = game.item_prototypes
---local fluid_prototypes = game.fluid_prototypes
 local match = string.match
 local function item2sprite(iname, itype)
   if not itype then
@@ -21,31 +19,25 @@ local function build_item_table(args)
 
   out.assert(args.parent, "Parent not defined.\nArgs provided:", args)
   -- parse arguments
-  local columns, enabled, name
-	if args.columns then
-    columns = args.columns
-  else
-    columns = 4
-  end
+  local columns = args.columns
   local type = args.type
-  local no_negate = args.no_negate
 
   -- outer frame
 	local frame = args.parent.add{type = "frame", style = "ltnt_slot_table_frame"}
-  frame.style.vertically_stretchable = false
 
   if args.max_rows then
     frame.style.maximal_height = args.max_rows * 38
-    frame = frame.add{type = "scroll-pane", horizontal_scroll_policy = "never", vertical_scroll_policy = "auto"}---and-reserve-space"}
+    frame = frame.add{type = "scroll-pane", style = "ltnt_sp_vertical"}
   end
+
   -- table for item sprites
 	local tble = frame.add{type = "table", column_count = columns, style = "slot_table"}
-
-	if args.enabled == nil then
+  local enabled
+	if args.enabled then
+    enabled = args.enabled
+  else
 		enabled = false
     tble.ignored_by_interaction = true
-  else
-    enabled = args.enabled
 	end
   local count = 0
   -- add items to table
@@ -63,7 +55,7 @@ local function build_item_table(args)
 	end
   if args.requested then
 		for item, amount in pairs(args.requested) do
-      if not no_negate then
+      if not args.no_negate then
         amount = -amount -- default to numbers for requests
       end
 			tble.add{
