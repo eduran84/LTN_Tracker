@@ -60,7 +60,7 @@ local function player_init(pind)
   global.gui.active_tab[pind] = 1 -- even if ui is closed, active tab persists and is restored when UI opens
   global.gui.is_gui_open[pind] = false
   global.gui.last_refresh_tick[pind] = 0
-  global.gui.refresh_interval[pind] = settings.get_player_settings(player)["ltnt-refresh-interval"].value
+  global.gui.refresh_interval[pind] = settings.get_player_settings(player)["ltnt-refresh-interval"].value * 60
 
   -- build UI
   GC.toggle_button:build(button_flow, pind)
@@ -131,7 +131,7 @@ local function on_settings_changed(pind, event)
     end
   end
   if setting == "ltnt-refresh-interval" then
-    global.gui.refresh_interval[pind] = settings.get_player_settings(player)[setting].value
+    global.gui.refresh_interval[pind] = settings.get_player_settings(player)[setting].value * 60 -- convert seconds to ticks
   end
 end
 
