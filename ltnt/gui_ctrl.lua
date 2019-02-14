@@ -90,6 +90,10 @@ local function on_init()
     last_refresh_tick = {},
     refresh_interval = {},
   }
+  global.filter = {}
+
+  global.last_filter = {}
+  global.tempResults = {}
 
   for _,gc in pairs(GC) do
     -- creates and populates global.gui[gc.name]

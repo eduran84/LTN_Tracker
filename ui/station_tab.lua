@@ -51,7 +51,14 @@ gcStopTab:add{
   },
   event = {id = defines.events.on_gui_checked_state_changed, handler = {"on_checkbox_changed"}},
 }
-
+gcStopTab:add{
+  name = "filter",
+  parent_name = "button_flow",
+  params = {
+    type = "textfield",
+  },
+  event = {id = defines.events.on_gui_text_changed, handler = {"on_filter_changed"}},
+}
 -- header row
 gcStopTab:add{
   name = "header_table",
@@ -108,6 +115,59 @@ function gcStopTab:on_checkbox_changed(event)
   self:update(event.player_index, self.tab_index)
 end
 
+local function trim(s)
+  local from = s:match("^%s*()")
+  return from > #s and "" or s:match(".*%S", from)
+end
+function gcStopTab:on_filter_changed(event, data_string)
+  local elem = event.element
+  if elem.text and type(elem.text) == "string" then
+    local input = trim(elem.text)
+    if input:len() == 0 then
+      global.filter[event.player_index] = nil
+    else
+      global.filter[event.player_index] = input
+    end
+  end
+  self:update(event.player_index, self.tab_index)
+end
+
+local getStations
+do
+	-- map, key: actual station name, value: lowercased name
+	local lowerCaseNames = setmetatable({}, {
+		__index = function(self, k)
+			local v = global.data.stops[k].name:lower()
+			rawset(self, k, v)
+			return v
+		end,
+	})
+
+	getStations = function(pind)
+		local s = 1
+		if not global.filter[pind] then
+      return unpack(global.sorted_stops, s)
+		else
+			if not global.last_filter[pind] or global.last_filter[pind] ~= global.filter[pind] then
+				global.tempResults[pind] = {} -- rehash all results
+				local lower = global.filter[pind]:lower()
+				for _, station in next, global.sorted_stops do
+					local match = true
+					for word in lower:gmatch("%S+") do
+						if not lowerCaseNames[station]:find(word, 1, true) then match = false end
+					end
+					if match then table.insert(global.tempResults[pind], station) end
+				end
+				global.last_filter[pind] = global.filter[pind]
+				return unpack(global.tempResults[pind])
+			else
+				return unpack(global.tempResults[pind], s)
+			end
+		end
+	end
+end
+
+
 local btest = bit32.btest
 local function eqtest(a,b) return a==b end
 local build_item_table = require("ui.util").build_item_table
@@ -131,45 +191,49 @@ function gcStopTab:update(pind, index)
     local data = global.data
     local n = #self.elem
     local index = n + 1
-    for stop_id,stopdata in pairs(data.stops) do
-      if stopdata.errorCode == 0 and stopdata.isDepot == false and testfun(selected_network_id, stopdata.network_id) then
-        -- stop is in selected network, create table entry
-        -- first column: station name
-        local label = tb.add{
-          type = "label",
-          caption = stopdata.name,
-          style = "ltnt_lb_inv_station_name",
-          name = self:_create_name(index, stop_id),
-        }
-        index = index + 1
-        -- second column: status
-        tb.add{
-				type = "sprite-button",
-				sprite = "virtual-signal/"..stopdata.signals[1][1],
-				number = stopdata.signals[1][2],
-				enabled = false,
-        style = "ltnt_empty_button",
-        }
-        -- third column: provided and requested items
-        build_item_table{
-          parent = tb,
-          provided = data.provided_by_stop[stop_id],
-          requested = data.requested_by_stop[stop_id],
-          columns = COL_COUNTS[1],
+    for i = 1, 10 do
+      local stop_id = select(i, getStations(pind))
+      if type(stop_id) == "number" then
+        local stopdata = data.stops[stop_id]
+        if stopdata.errorCode == 0 and stopdata.isDepot == false and testfun(selected_network_id, stopdata.network_id) then
+          -- stop is in selected network, create table entry
+          -- first column: station name
+          local label = tb.add{
+            type = "label",
+            caption = stopdata.name,
+            style = "ltnt_lb_inv_station_name",
+            name = self:_create_name(index, stop_id),
+          }
+          index = index + 1
+          -- second column: status
+          tb.add{
+          type = "sprite-button",
+          sprite = "virtual-signal/"..stopdata.signals[1][1],
+          number = stopdata.signals[1][2],
           enabled = false,
-          max_rows = MAX_ROWS[1],
-        }
-        -- fourth column: current deliveries
-        build_item_table{
-          parent = tb,
-          provided = stopdata.incoming,
-          requested = stopdata.outgoing,
-          columns = COL_COUNTS[2],
-          max_rows = MAX_ROWS[2],
-          enabled = false,
-        }
-        -- fifth column: control signals
-        build_item_table{parent = tb, signals = stopdata.signals[2], columns = COL_COUNTS[3], enabled = false}
+          style = "ltnt_empty_button",
+          }
+          -- third column: provided and requested items
+          build_item_table{
+            parent = tb,
+            provided = data.provided_by_stop[stop_id],
+            requested = data.requested_by_stop[stop_id],
+            columns = COL_COUNTS[1],
+            enabled = false,
+            max_rows = MAX_ROWS[1],
+          }
+          -- fourth column: current deliveries
+          build_item_table{
+            parent = tb,
+            provided = stopdata.incoming,
+            requested = stopdata.outgoing,
+            columns = COL_COUNTS[2],
+            max_rows = MAX_ROWS[2],
+            enabled = false,
+          }
+          -- fifth column: control signals
+          build_item_table{parent = tb, signals = stopdata.signals[2], columns = COL_COUNTS[3], enabled = false}
+        end
       end
     end
    else

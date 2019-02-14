@@ -269,6 +269,34 @@ local function add_new_deliveries(raw, delivery_id) -- state 7
   return delivery_id
 end
 
+local function is_in_table(t, v)
+  for i = 1, #t do
+    if t[i] == v then return true end
+  end
+end
+local function sort_func(a,b)
+  local name_a = global.raw.stops[a].name
+  local name_b = global.raw.stops[b].name
+  return name_a < name_b
+end
+
+local sort = table.sort
+local function sort_stops(raw)
+  global.sorted_stops = {}
+  for id, stop_data in pairs(raw.stops) do
+    if stop_data.entity.valid and not stop_data.isDepot then
+      if not is_in_table(global.sorted_stops, id) then
+        table.insert(global.sorted_stops, id)
+      end
+    end
+  end
+  sort(global.sorted_stops, sort_func)
+  --
+  --for i = 1,#global.sorted_stops do
+  --  out.info("sort_stops", "i=", i, "->", raw.stops[global.sorted_stops[i]].name)
+  --end
+end
+
 --------------------
 -- EVENT HANDLERS --
 --------------------
@@ -362,8 +390,12 @@ data_processor = function(event)
     if next_delivery_id then
       proc.next_delivery_id = next_delivery_id
     else
-    proc.state = 100
+      proc.state = 8
     end
+
+  elseif proc.state == 8 then
+    sort_stops(raw)
+    proc.state = 100
 
   elseif proc.state == 100 then -- update finished
     -- update globals
@@ -502,7 +534,7 @@ local function on_init(event_id)
   global.data.item2stop = global.data.item2stop or {}
   global.data.item2delivery = global.data.item2delivery or {}
   global.data.history_limit = HISTORY_LIMIT
-
+  global.sorted_stops = {}
   on_load(event_id)
 end
 

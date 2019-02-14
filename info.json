@@ -1,10 +1,10 @@
 {
 "name": "LTN_Tracker",
-"version": "0.8.3",
+"version": "0.8.4",
 "title": "LTN Tracker",
 "author": "eduran",
 "contact": "https://forums.factorio.com/memberlist.php?mode=viewprofile&u=1699",
-"homepage": "https://forums.factorio.com/viewtopic.php?f=190",
+"homepage": "https://forums.factorio.com/viewtopic.php?f=190&t=64842",
 "description": "A GUI for LTN. Displays information about LTN stops, available items and trains controlled by LTN.",
 "factorio_version": "0.16",
 "dependencies": ["base >= 0.16.51", "LogisticTrainNetwork >= 1.9.10"]
