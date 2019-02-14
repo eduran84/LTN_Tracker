@@ -28,7 +28,7 @@ local custom_events = {
 --  3 = not available as setting, only for use during development
 
 out = require("ltnt.logger")
-debug_level = tonumber(settings.global["ltnt-debug-level"].value)
+debug_level = 1-- tonumber(settings.global["ltnt-debug-level"].value)
 
 -- modules
 local prc = require("ltnt.data_processing")
@@ -44,7 +44,7 @@ end
 
 local function on_init()
   -- !DEBUG delete old log, for convenience during debugging
-  --game.write_file("ltnt.log", "", false, 1)
+  game.write_file("ltnt.log", "", false, 1)
 
   -- check for LTN
   local ltn_version = nil
