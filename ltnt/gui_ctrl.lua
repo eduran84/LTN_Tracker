@@ -80,10 +80,7 @@ local function player_init(pind)
   if debug_level > 0 then
     out.info("gui_ctrl.lua", "UI is ready.")
   end
-
-  global.filter = {}
-  global.last_filter = {}
-  global.tempResults = {}
+  global.last_sort[pind] = "name"
 end
 
 local function on_init()
@@ -94,9 +91,10 @@ local function on_init()
     last_refresh_tick = {},
     refresh_interval = {},
   }
-  global.filter = {}
 
+  global.filter = {}
   global.last_filter = {}
+  global.last_sort = {}
   global.tempResults = {}
 
   for _,gc in pairs(GC) do

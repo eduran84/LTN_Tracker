@@ -313,6 +313,12 @@ default_gui["ltnt_column_header"] = {
   font = "ltnt_font_bold"
 }
 
+default_gui["ltnt_hover_column_header"] = {
+	type = "label_style",
+	parent = "ltnt_hover_bold_label",
+  font_color = default_orange_color
+}
+
 default_gui["ltnt_error_label"] = {
 	type = "label_style",
 	parent = "ltnt_label_default",

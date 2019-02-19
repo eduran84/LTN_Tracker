@@ -150,13 +150,10 @@ local function update_stops(raw, stop_id) -- state 1
         elseif not stop.isDepot then
           -- add extra fields to normal stops
           stop.name = name
-          --stop.requested = raw.dispatch.Requests_by_Stop[stop_id]
           stop.signals = get_control_signals(stop)
-          --stop.provided = raw.dispatch.Provided_by_Stop [stop_id]
           stop.incoming = {}
           stop.outgoing = {}
-
-          raw.stops_sorted_by_name[#raw.stops_sorted_by_name +1] = stop_id
+          raw.stop_ids[#raw.stop_ids+1] = stop_id
         end -- if stop.errorCode ~= 0
       end   -- if stop.valid
    -- else
@@ -269,31 +266,6 @@ local function add_new_deliveries(raw, delivery_id) -- state 7
   return delivery_id
 end
 
-
-local sort = table.sort
-local sort_stops_by_name
-local sort_stops_by_state
-do
-  local function sort_func(a,b)
-    return raw.stops[a].name < raw.stops[b].name
-  end
-  sort_stops_by_name =  function (raw)
-    sort(raw.stops_sorted_by_name, sort_func)
-  end
-end
-do
-  local color_order = {["signal-blue"] = 1, ["signal-yellow"] = 2, ["signal-green"] = 3}
-  local function sort_func(a,b)
-    return color_order[raw.stops[a].signals[1][1]] < color_order[raw.stops[b].signals[1][1]]
-  end
-  sort_stops_by_state = function (raw)
-    raw.stops_sorted_by_state = {}
-    for i = 1,#raw.stops_sorted_by_name do
-      raw.stops_sorted_by_state[i] = raw.stops_sorted_by_name[i]
-    end
-    sort(raw.stops_sorted_by_state, sort_func)
-  end
-end
 --------------------
 -- EVENT HANDLERS --
 --------------------
@@ -330,7 +302,7 @@ data_processor = function(event)
     raw.name2id = {}
     raw.item2stop = {}
     raw.item2delivery = {}
-    raw.stops_sorted_by_name = {}
+    raw.stop_ids = {}
 
 
     -- reset state
@@ -388,7 +360,7 @@ data_processor = function(event)
     if next_delivery_id then
       proc.next_delivery_id = next_delivery_id
     else
-      proc.state = 8
+      proc.state = 100
     end
 
   elseif proc.state == 8 then
@@ -413,9 +385,7 @@ data_processor = function(event)
     data.item2delivery = raw.item2delivery
     data.provided_by_stop = raw.dispatch.Provided_by_Stop
     data.requested_by_stop = raw.dispatch.Requests_by_Stop
-
-    data.stops_sorted_by_name = raw.stops_sorted_by_name
-    data.stops_sorted_by_state = raw.stops_sorted_by_state
+    data.stop_ids = raw.stop_ids
 
     -- stop on_tick updates, start listening for LTN interface
     script.on_event(events.on_stops_updated_event, on_stops_updated)
@@ -539,7 +509,7 @@ local function on_init(event_id)
   global.data.item2stop = global.data.item2stop or {}
   global.data.item2delivery = global.data.item2delivery or {}
   global.data.history_limit = HISTORY_LIMIT
-  global.data.stops_sorted_by_name = global.data.stops_sorted_by_name or {}
+  global.data.stop_ids = global.data.stop_ids or {}
   on_load(event_id)
 end
 

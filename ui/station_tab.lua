@@ -74,7 +74,7 @@ for i = 1,N_COLS do
       type = "label",
       caption={"station.header-col-"..i},
       tooltip={"station.header-col-"..i.."-tt"},
-      style="ltnt_column_header"
+      style="ltnt_hover_column_header"
     },
     style = {width = COL_WIDTH[i]},
     event = {id = defines.events.on_gui_click, handler = {"on_header_click"}}
@@ -119,11 +119,14 @@ end
 
 function gcStopTab:on_header_click(event)
   local name = event.element.name
-  out.info("on_header_click", "event:", event)
   if event.element == self:get_el(event.player_index, "header1") then
     self.mystorage.sort_by[event.player_index] = "name"
   elseif event.element == self:get_el(event.player_index, "header2")  then
     self.mystorage.sort_by[event.player_index] = "state"
+  elseif event.element == self:get_el(event.player_index, "header4")  then
+    self.mystorage.sort_by[event.player_index] = "deliveries"
+  else
+    return
   end
   self:update(event.player_index, self.tab_index)
 end
@@ -145,44 +148,51 @@ function gcStopTab:on_filter_changed(event, data_string)
   self:update(event.player_index, self.tab_index)
 end
 
-local getStations
+local get_stops
 do
 	-- map, key: actual station name, value: lowercased name
-	local lowerCaseNames = setmetatable({}, {
-		__index = function(self, k)
-			local v = global.data.stops[k].name:lower()
-			rawset(self, k, v)
-			return v
+	local name2lowercase = setmetatable({}, {
+		__index = function(self, stop_id)
+			local name = global.data.stops[stop_id].name:lower()
+			rawset(self, stop_id, name)
+			return name
 		end,
 	})
+  -- sort functions
+  local sort = table.sort
+  local color_order = {["signal-blue"] = 1, ["signal-yellow"] = 2, ["signal-green"] = 3}
 
-	getStations = function(self, pind)
-    local stoplist
-    out.info("getStations", "self.mystorage = ", self.mystorage)
-    if self.mystorage.sort_by[pind] == "name" then
-      stoplist = global.data.stops_sorted_by_name
-    else
-      stoplist = global.data.stops_sorted_by_state
-    end
+  local get_sort_func = {
+    ["name"] = function(a,b) return global.data.stops[a].name < global.data.stops[b].name end,
+    ["state"] = function(a,b) return color_order[global.data.stops[a].signals[1][1]] < color_order[global.data.stops[b].signals[1][1]] end,
+    ["deliveries"] = function(a,b) return #global.data.stops[a].activeDeliveries > #global.data.stops[b].activeDeliveries end,
+  }
+  local function sort_stops(stops, sort_by)
+    sort(stops, get_sort_func[sort_by])
+    return stops
+  end
 
+	get_stops = function(self, pind)
 		if not global.filter[pind] then
-      return stoplist
+      sort(global.data.stop_ids, get_sort_func[self.mystorage.sort_by[pind]])
+      out.info("DEBUG", global.data.stops)
+      return global.data.stop_ids
 		else
-			if not global.last_filter[pind] or global.last_filter[pind] ~= global.filter[pind] then
+			--if new_sort or global.last_filter[pind] or global.last_filter[pind] ~= global.filter[pind] then
+      if global.last_filter[pind] or global.last_filter[pind] ~= global.filter[pind] then
 				global.tempResults[pind] = {} -- rehash all results
 				local lower = global.filter[pind]:lower()
-				for _, station in next, stoplist do
+				for _, station in next, global.data.stop_ids do
 					local match = true
 					for word in lower:gmatch("%S+") do
-						if not lowerCaseNames[station]:find(word, 1, true) then match = false end
+						if not name2lowercase[station]:find(word, 1, true) then match = false end
 					end
 					if match then table.insert(global.tempResults[pind], station) end
 				end
 				global.last_filter[pind] = global.filter[pind]
-				return global.tempResults[pind]
-			else
-				return global.tempResults[pind]
 			end
+      sort(global.tempResults[pind], get_sort_func[self.mystorage.sort_by[pind]])
+      return global.tempResults[pind]
 		end
 	end
 end
@@ -208,10 +218,10 @@ function gcStopTab:update(pind, index)
     end
     local data = global.data
     local n = #self.elem
-    local stops_to_list = getStations(self, pind)
+    local stops_to_list = get_stops(self, pind)
     for i = 1, #stops_to_list do
       local stop_id = stops_to_list[i]
-      if type(stop_id) == "number" then
+      if stop_id and data.stops[stop_id] then
         local stopdata = data.stops[stop_id]
         if stopdata.errorCode == 0 and stopdata.isDepot == false and testfun(selected_network_id, stopdata.network_id) then
           -- stop is in selected network, create table entry
