@@ -218,6 +218,7 @@ end
 function GuiComposition:get_event_handler(event, index, data_string)
   local eid = event.name
   local pind = event.player_index
+  out.info("get_event_handler", "event:", event, "self.events", self.events)
   if index <= #self.elem then
     local handler = self.events[eid][index]
     if not handler then

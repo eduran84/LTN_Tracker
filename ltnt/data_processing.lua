@@ -282,16 +282,16 @@ do
   end
 end
 do
+  local color_order = {["signal-blue"] = 1, ["signal-yellow"] = 2, ["signal-green"] = 3}
   local function sort_func(a,b)
-    out.info("DEBUG", raw.stops[a].signals)
-    return raw.stops[a].signals[1][1] < raw.stops[b].signals[1][1]
+    return color_order[raw.stops[a].signals[1][1]] < color_order[raw.stops[b].signals[1][1]]
   end
   sort_stops_by_state = function (raw)
     raw.stops_sorted_by_state = {}
     for i = 1,#raw.stops_sorted_by_name do
       raw.stops_sorted_by_state[i] = raw.stops_sorted_by_name[i]
     end
-    sort(raw.stops_sorted_by_name, sort_func)
+    sort(raw.stops_sorted_by_state, sort_func)
   end
 end
 --------------------
@@ -415,6 +415,7 @@ data_processor = function(event)
     data.requested_by_stop = raw.dispatch.Requests_by_Stop
 
     data.stops_sorted_by_name = raw.stops_sorted_by_name
+    data.stops_sorted_by_state = raw.stops_sorted_by_state
 
     -- stop on_tick updates, start listening for LTN interface
     script.on_event(events.on_stops_updated_event, on_stops_updated)

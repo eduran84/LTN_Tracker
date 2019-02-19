@@ -76,10 +76,10 @@ for i = 1,N_COLS do
       tooltip={"station.header-col-"..i.."-tt"},
       style="ltnt_column_header"
     },
-    style = {width = COL_WIDTH[i]}
+    style = {width = COL_WIDTH[i]},
+    event = {id = defines.events.on_gui_click, handler = {"on_header_click"}}
   }
 end
-gcStopTab:element_by_name("header1").event = {id = defines.events.on_gui_click, handler = {"on_header_click"}}
 -- table for stations inside scroll-pane
 gcStopTab:add{
   name = "scrollpane",
@@ -99,6 +99,7 @@ function gcStopTab:on_init(storage_tb)
   storage_tb[self.name] =  storage_tb[self.name] or {}
   storage_tb[self.name].root = storage_tb[self.name].root or {}
   storage_tb[self.name].checkbox = storage_tb[self.name].checkbox or {}
+  storage_tb[self.name].sort_by = storage_tb[self.name].sort_by or {}
   self.mystorage = storage_tb[self.name]
   for _,gc in pairs(self.sub_gc) do
     gc:on_init(storage_tb)
@@ -108,6 +109,7 @@ end
 function gcStopTab:build(parent, pind)
   GC.build(self, parent, pind) -- super method
   self.mystorage.checkbox[pind] = self:get_el(pind, "checkbox")
+  self.mystorage.sort_by[pind] = "name"
 end
 
 -- additional methods
@@ -116,7 +118,14 @@ function gcStopTab:on_checkbox_changed(event)
 end
 
 function gcStopTab:on_header_click(event)
-  event.element.name
+  local name = event.element.name
+  out.info("on_header_click", "event:", event)
+  if event.element == self:get_el(event.player_index, "header1") then
+    self.mystorage.sort_by[event.player_index] = "name"
+  elseif event.element == self:get_el(event.player_index, "header2")  then
+    self.mystorage.sort_by[event.player_index] = "state"
+  end
+  self:update(event.player_index, self.tab_index)
 end
 
 local function trim(s)
@@ -147,14 +156,22 @@ do
 		end,
 	})
 
-	getStations = function(pind)
+	getStations = function(self, pind)
+    local stoplist
+    out.info("getStations", "self.mystorage = ", self.mystorage)
+    if self.mystorage.sort_by[pind] == "name" then
+      stoplist = global.data.stops_sorted_by_name
+    else
+      stoplist = global.data.stops_sorted_by_state
+    end
+
 		if not global.filter[pind] then
-      return global.data.stops_sorted_by_name
+      return stoplist
 		else
 			if not global.last_filter[pind] or global.last_filter[pind] ~= global.filter[pind] then
 				global.tempResults[pind] = {} -- rehash all results
 				local lower = global.filter[pind]:lower()
-				for _, station in next, global.data.stops_sorted_by_name do
+				for _, station in next, stoplist do
 					local match = true
 					for word in lower:gmatch("%S+") do
 						if not lowerCaseNames[station]:find(word, 1, true) then match = false end
@@ -191,7 +208,7 @@ function gcStopTab:update(pind, index)
     end
     local data = global.data
     local n = #self.elem
-    local stops_to_list = getStations(pind)
+    local stops_to_list = getStations(self, pind)
     for i = 1, #stops_to_list do
       local stop_id = stops_to_list[i]
       if type(stop_id) == "number" then
