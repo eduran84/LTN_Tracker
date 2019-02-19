@@ -173,7 +173,7 @@ local function _log(msg_type, tag, pargs)
     message = message.."\n"..debug.traceback(nil, 3)
   end
 
-  if debug_print and game then
+  if (debug_print or msg_type == "WARN") and game then
     game.print(message)
   end
   if debug_level > 0 then

@@ -117,18 +117,20 @@ end
 -- on_init, on_load --
 ----------------------
 
-function GuiComposition:on_init(storage_tb)
+function GuiComposition:on_init(storage_tb, reset_ui_event_id)
   storage_tb[self.name] =  storage_tb[self.name] or {}
   storage_tb[self.name].root = storage_tb[self.name].root or {}
   self.mystorage = storage_tb[self.name]
+  self.reset_ui_event_id = reset_ui_event_id
   for _,gc in pairs(self.sub_gc) do
-    gc:on_init(storage_tb)
+    gc:on_init(storage_tb, reset_ui_event_id)
   end
 end
-function GuiComposition:on_load(storage_tb)
+function GuiComposition:on_load(storage_tb, reset_ui_event_id)
   self.mystorage = storage_tb[self.name]
+  self.reset_ui_event_id = reset_ui_event_id
   for _,gc in pairs(self.sub_gc) do
-    gc:on_load(storage_tb)
+    gc:on_load(storage_tb, reset_ui_event_id)
   end
 end
 
@@ -146,18 +148,20 @@ function GuiComposition:build(parent, pind)
   self.mystorage.root[pind] = self:_build_single_element(1, parent, pind)
 end
 
-
--- !TODO: disable asserts for release version in following methods
-
 function GuiComposition:get(pind)
   out.assert(self.mystorage, "GuiComposition object", self.name, "has not been initialized.")
   out.assert(type(pind) == "number", "Argument has to be a player index. Argument received:", pind)
-  return self.mystorage.root[pind]
+  if self.mystorage.root[pind].valid then
+    return self.mystorage.root[pind]
+  else
+    out.warn("UI element", self.name, "invalidated by incompatible mod. Resetting UI.")
+    script.raise_event()
+    return nil
+  end
 end
 
 function GuiComposition:get_el(pind, element_name)
   local element_index = self.n2i[element_name]
-  -- !TODO: disable asserts for release version
   out.assert(self.mystorage, "GuiComposition object", self.name, "has not been initialized.")
   if not (element_name and self.elem[element_index]) then
     if debug_level > 0 then
@@ -176,8 +180,8 @@ function GuiComposition:get_el(pind, element_name)
 end
 
 function GuiComposition:destroy(pind)
-  if self:get(pind) then
-    self:get(pind).destroy()
+  if self.mystorage.root[pind] then
+    self.mystorage.root[pind].destroy()
     self.mystorage.root[pind] = nil
     return true
   else
