@@ -139,8 +139,6 @@ local function update_stops(raw, stop_id) -- state 1
               cap = 0,
               fcap = 0,
             }
-            -- counts as three stop updates, due to get_train_stop_trains call
-            --counter = counter + 2
           end
         end
         raw.name2id[name] = stop_id
@@ -157,6 +155,8 @@ local function update_stops(raw, stop_id) -- state 1
           --stop.provided = raw.dispatch.Provided_by_Stop [stop_id]
           stop.incoming = {}
           stop.outgoing = {}
+
+          raw.stops_sorted_by_name[#raw.stops_sorted_by_name +1] = stop_id
         end -- if stop.errorCode ~= 0
       end   -- if stop.valid
    -- else
@@ -269,34 +269,31 @@ local function add_new_deliveries(raw, delivery_id) -- state 7
   return delivery_id
 end
 
-local function is_in_table(t, v)
-  for i = 1, #t do
-    if t[i] == v then return true end
-  end
-end
-local function sort_func(a,b)
-  local name_a = global.raw.stops[a].name
-  local name_b = global.raw.stops[b].name
-  return name_a < name_b
-end
 
 local sort = table.sort
-local function sort_stops(raw)
-  global.sorted_stops = {}
-  for id, stop_data in pairs(raw.stops) do
-    if stop_data.entity.valid and not stop_data.isDepot then
-      if not is_in_table(global.sorted_stops, id) then
-        table.insert(global.sorted_stops, id)
-      end
-    end
+local sort_stops_by_name
+local sort_stops_by_state
+do
+  local function sort_func(a,b)
+    return raw.stops[a].name < raw.stops[b].name
   end
-  sort(global.sorted_stops, sort_func)
-  --
-  --for i = 1,#global.sorted_stops do
-  --  out.info("sort_stops", "i=", i, "->", raw.stops[global.sorted_stops[i]].name)
-  --end
+  sort_stops_by_name =  function (raw)
+    sort(raw.stops_sorted_by_name, sort_func)
+  end
 end
-
+do
+  local function sort_func(a,b)
+    out.info("DEBUG", raw.stops[a].signals)
+    return raw.stops[a].signals[1][1] < raw.stops[b].signals[1][1]
+  end
+  sort_stops_by_state = function (raw)
+    raw.stops_sorted_by_state = {}
+    for i = 1,#raw.stops_sorted_by_name do
+      raw.stops_sorted_by_state[i] = raw.stops_sorted_by_name[i]
+    end
+    sort(raw.stops_sorted_by_name, sort_func)
+  end
+end
 --------------------
 -- EVENT HANDLERS --
 --------------------
@@ -333,6 +330,7 @@ data_processor = function(event)
     raw.name2id = {}
     raw.item2stop = {}
     raw.item2delivery = {}
+    raw.stops_sorted_by_name = {}
 
 
     -- reset state
@@ -394,7 +392,11 @@ data_processor = function(event)
     end
 
   elseif proc.state == 8 then
-    sort_stops(raw)
+    sort_stops_by_name(raw)
+    proc.state = 9
+
+  elseif proc.state == 9 then
+    sort_stops_by_state(raw)
     proc.state = 100
 
   elseif proc.state == 100 then -- update finished
@@ -411,6 +413,8 @@ data_processor = function(event)
     data.item2delivery = raw.item2delivery
     data.provided_by_stop = raw.dispatch.Provided_by_Stop
     data.requested_by_stop = raw.dispatch.Requests_by_Stop
+
+    data.stops_sorted_by_name = raw.stops_sorted_by_name
 
     -- stop on_tick updates, start listening for LTN interface
     script.on_event(events.on_stops_updated_event, on_stops_updated)
@@ -534,7 +538,7 @@ local function on_init(event_id)
   global.data.item2stop = global.data.item2stop or {}
   global.data.item2delivery = global.data.item2delivery or {}
   global.data.history_limit = HISTORY_LIMIT
-  global.sorted_stops = {}
+  global.data.stops_sorted_by_name = global.data.stops_sorted_by_name or {}
   on_load(event_id)
 end
 
@@ -545,7 +549,6 @@ local function on_settings_changed(event)
     global.data.newest_history_index = 1
     global.data.delivery_hist = {}
   end
-  --delivery_timeout = settings.global["ltn-dispatcher-delivery-timeout"].value
 end
 
 return {

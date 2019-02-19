@@ -79,7 +79,7 @@ for i = 1,N_COLS do
     style = {width = COL_WIDTH[i]}
   }
 end
-
+gcStopTab:element_by_name("header1").event = {id = defines.events.on_gui_click, handler = {"on_header_click"}}
 -- table for stations inside scroll-pane
 gcStopTab:add{
   name = "scrollpane",
@@ -115,6 +115,10 @@ function gcStopTab:on_checkbox_changed(event)
   self:update(event.player_index, self.tab_index)
 end
 
+function gcStopTab:on_header_click(event)
+  event.element.name
+end
+
 local function trim(s)
   local from = s:match("^%s*()")
   return from > #s and "" or s:match(".*%S", from)
@@ -144,14 +148,13 @@ do
 	})
 
 	getStations = function(pind)
-		local s = 1
 		if not global.filter[pind] then
-      return unpack(global.sorted_stops, s)
+      return global.data.stops_sorted_by_name
 		else
 			if not global.last_filter[pind] or global.last_filter[pind] ~= global.filter[pind] then
 				global.tempResults[pind] = {} -- rehash all results
 				local lower = global.filter[pind]:lower()
-				for _, station in next, global.sorted_stops do
+				for _, station in next, global.data.stops_sorted_by_name do
 					local match = true
 					for word in lower:gmatch("%S+") do
 						if not lowerCaseNames[station]:find(word, 1, true) then match = false end
@@ -159,19 +162,17 @@ do
 					if match then table.insert(global.tempResults[pind], station) end
 				end
 				global.last_filter[pind] = global.filter[pind]
-				return unpack(global.tempResults[pind])
+				return global.tempResults[pind]
 			else
-				return unpack(global.tempResults[pind], s)
+				return global.tempResults[pind]
 			end
 		end
 	end
 end
 
-
 local btest = bit32.btest
 local function eqtest(a,b) return a==b end
 local build_item_table = require("ui.util").build_item_table
-local get_control_signals = require("ltnt.util").get_control_signals
 function gcStopTab:update(pind, index)
   if index == self.tab_index then
     self:show(pind)
@@ -190,9 +191,9 @@ function gcStopTab:update(pind, index)
     end
     local data = global.data
     local n = #self.elem
-    local index = n + 1
-    for i = 1, 10 do
-      local stop_id = select(i, getStations(pind))
+    local stops_to_list = getStations(pind)
+    for i = 1, #stops_to_list do
+      local stop_id = stops_to_list[i]
       if type(stop_id) == "number" then
         local stopdata = data.stops[stop_id]
         if stopdata.errorCode == 0 and stopdata.isDepot == false and testfun(selected_network_id, stopdata.network_id) then
@@ -202,9 +203,8 @@ function gcStopTab:update(pind, index)
             type = "label",
             caption = stopdata.name,
             style = "ltnt_lb_inv_station_name",
-            name = self:_create_name(index, stop_id),
+            name = self:_create_name(i+n, stop_id),
           }
-          index = index + 1
           -- second column: status
           tb.add{
           type = "sprite-button",

@@ -165,6 +165,7 @@ function gcDetails:set_item(pind, network_id, ltn_item)
   elseif item_type == "item" then
     proto = game.item_prototypes[item_name]
   end
+  out.info("DEBUG", "localized name:", proto.localised_name)
   get(self, pind, "item_label").caption = proto.localised_name or item_name
   get(self, pind, "item_icon").sprite = spritepath
   -- update totals

@@ -80,6 +80,10 @@ local function player_init(pind)
   if debug_level > 0 then
     out.info("gui_ctrl.lua", "UI is ready.")
   end
+
+  global.filter = {}
+  global.last_filter = {}
+  global.tempResults = {}
 end
 
 local function on_init()
