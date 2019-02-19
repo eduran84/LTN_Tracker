@@ -23,9 +23,7 @@ Layout:
 --]]
 -- helper functions
 local gsub = string.gsub
-local function item2sprite(item)
-	return gsub(item, ",", "/")
-end
+local item2sprite = require("ui.util").item2sprite
 
 ---------------------------------
 -- class setup and constructor --

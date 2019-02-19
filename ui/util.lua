@@ -92,4 +92,7 @@ local function build_item_table(args)
 	return frame
 end
 
-return {build_item_table = build_item_table}
+return {
+  build_item_table = build_item_table,
+  item2sprite = item2sprite
+}

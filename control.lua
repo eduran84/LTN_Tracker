@@ -18,6 +18,7 @@ local LTN_CURRENT_VERSION = require("ltnt.const").global.current_version_ltn
 local custom_events = {
   on_data_updated = script.generate_event_name(),
   on_train_alert= script.generate_event_name(),
+  on_ui_invalid= script.generate_event_name(),
 }
 
 -- debugging / logging
@@ -154,3 +155,5 @@ script.on_event("ltnt-toggle-hotkey", ui.on_toggle_button_click)
 script.on_event(custom_events.on_data_updated, ui.update_ui)
 -- raised when a train with an error is detected
 script.on_event(custom_events.on_train_alert, ui.on_new_alert)
+-- raised when UI element(s) became invalid
+script.on_event(custom_events.on_ui_invalid, ui.on_init) -- force full reset for all players
