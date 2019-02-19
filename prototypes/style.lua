@@ -59,6 +59,14 @@ data:extend({
   },
   {
     type = "sprite",
+    name = "ltnt_sprite_search",
+    filename = "__core__/graphics/search-icon.png",
+    priority = "high",
+    width = 32,
+    height = 32,
+  },
+  {
+    type = "sprite",
     name = "ltnt_bt_alert_sprite",
     filename = "__LTN_Tracker__/graphics/bt_with_alert.png",
     priority = "high",
@@ -250,6 +258,116 @@ default_gui["ltnt_requested_button"] =
       y = 36
     }
   },
+}
+
+default_gui["ltnt_sort_button_on"] =
+{
+  type = "button_style",
+  width = 22,
+  height = 12,
+  default_graphical_set =
+  {
+    type = "monolith",
+    monolith_border = 0,
+    monolith_image =
+    {
+      filename = "__core__/graphics/arrows/indication-arrow-gui-descending.png",
+      priority = "extra-high-no-scale",
+      width = 44,
+      height = 24
+    }
+  },
+  hovered_graphical_set =
+  {
+    type = "monolith",
+    monolith_border = 0,
+    monolith_image =
+    {
+      filename = "__core__/graphics/arrows/indication-arrow-gui-descending.png",
+      priority = "extra-high-no-scale",
+      width = 44,
+      height = 24
+    }
+  },
+  clicked_graphical_set =
+  {
+    type = "monolith",
+    monolith_border = 0,
+    monolith_image =
+    {
+      filename = "__core__/graphics/arrows/indication-arrow-gui-descending.png",
+      priority = "extra-high-no-scale",
+      width = 44,
+      height = 24
+    }
+  },
+  disabled_graphical_set =
+  {
+    type = "monolith",
+    monolith_border = 0,
+    monolith_image =
+    {
+      filename = "__core__/graphics/arrows/indication-arrow-gui-descending.png",
+      priority = "extra-high-no-scale",
+      width = 44,
+      height = 24
+    }
+  }
+}
+
+default_gui["ltnt_sort_button_off"] =
+{
+  type = "button_style",
+  width = 22,
+  height = 12,
+  default_graphical_set =
+  {
+    type = "monolith",
+    monolith_border = 0,
+    monolith_image =
+    {
+      filename = "__core__/graphics/arrows/inactive-arrow-gui-descending.png",
+      priority = "extra-high-no-scale",
+      width = 44,
+      height = 24
+    }
+  },
+  hovered_graphical_set =
+  {
+    type = "monolith",
+    onolith_border = 0,
+    monolith_image =
+    {
+      filename = "__core__/graphics/arrows/inactive-arrow-gui-descending-hovered.png",
+      priority = "extra-high-no-scale",
+      width = 44,
+      height = 24
+    }
+  },
+  clicked_graphical_set =
+  {
+    type = "monolith",
+    monolith_border = 0,
+    monolith_image =
+    {
+      filename = "__core__/graphics/arrows/inactive-arrow-gui-descending.png",
+      priority = "extra-high-no-scale",
+      width = 44,
+      height = 24
+    }
+  },
+  disabled_graphical_set =
+  {
+    type = "monolith",
+    monolith_border = 0,
+    monolith_image =
+    {
+      filename = "__core__/graphics/arrows/inactive-arrow-gui-descending.png",
+      priority = "extra-high-no-scale",
+      width = 44,
+      height = 24
+    }
+  }
 }
 end
 

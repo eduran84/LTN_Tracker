@@ -59,7 +59,7 @@ CONST.depot_tab = {
 
 CONST.station_tab = {
 	tab_index = 2,
-  header_col_width = {165, 48, 34*6+7, 34*5+7, 34*7+6},
+  header_col_width = {168, 32, 34*6+5, 34*5+5, 34*7+6},
   station_col_width = 165,
   item_table_col_count = {6, 5, 7},
   item_table_max_rows = {4, 4, 1},

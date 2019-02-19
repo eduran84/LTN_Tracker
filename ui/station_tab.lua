@@ -13,6 +13,8 @@ Layout:
 local NAME = "stop_tab"
 local N_COLS = 5
 local ROW_HEIGHT = 34
+local ARROW_STYLE_ON = "ltnt_sort_button_on"
+local ARROW_STYLE_OFF = "ltnt_sort_button_off"
 local COL_WIDTH = require("ltnt.const").station_tab.header_col_width
 local STATION_WIDTH = require("ltnt.const").station_tab.station_col_width
 local MAX_ROWS = require("ltnt.const").station_tab.item_table_max_rows
@@ -27,7 +29,7 @@ gcStopTab:add{
   name = "button_flow",
   parent_name = "root",
   params = {type = "flow", direction = "horizontal"},
-  style = {vertical_align = "center"},
+  style = {vertical_align = "center", horizontally_stretchable = true},
 }
 gcStopTab:add{
   name = "idSelector",
@@ -47,16 +49,28 @@ gcStopTab:add{
     type = "checkbox",
     state = false,
     caption = {"station.check-box-cap"},
-    tooltip = {"station.check-box-tt"},
   },
   event = {id = defines.events.on_gui_checked_state_changed, handler = {"on_checkbox_changed"}},
 }
 gcStopTab:add{
-  name = "filter",
+  name = "filler_flow",
+  parent_name = "button_flow",
+  params = {type = "flow", direction = "horizontal"},
+  style = {horizontally_stretchable = true},
+}
+gcStopTab:add{
+  name = "filter_label",
   parent_name = "button_flow",
   params = {
-    type = "textfield",
+    type = "label",
+    caption = {"station.filter_lb"},
+    style = "ltnt_label_default",
   },
+}
+gcStopTab:add{
+  name = "filter",
+  parent_name = "button_flow",
+  params = {type = "textfield", tooltip = {"station.filter_tt"}},
   event = {id = defines.events.on_gui_text_changed, handler = {"on_filter_changed"}},
 }
 -- header row
@@ -64,21 +78,45 @@ gcStopTab:add{
   name = "header_table",
   parent_name = "root",
   params = {type = "table", column_count = N_COLS, draw_horizontal_lines = true},
-  style = {vertical_align = "bottom"}
 }
 for i = 1,N_COLS do
   gcStopTab:add{
-    name = "header"..i,
+    name = "header_flow"..i,
     parent_name = "header_table",
     params = {
-      type = "label",
-      caption={"station.header-col-"..i},
-      tooltip={"station.header-col-"..i.."-tt"},
-      style="ltnt_hover_column_header"
-    },
-    style = {width = COL_WIDTH[i]},
-    event = {id = defines.events.on_gui_click, handler = {"on_header_click"}}
+      type = "flow", direction = "horizontal"},
+    style = {width = COL_WIDTH[i], vertical_align = "center"},
   }
+  if i == 1 or i == 2 or i == 4 then
+    gcStopTab:add{
+      name = "arrow"..i,
+      parent_name = "header_flow"..i,
+      params = {type = "button", style = "ltnt_sort_button_off"},
+      event = {id = defines.events.on_gui_click, handler = {"on_header_click"}, data = tostring(i)}
+    }
+    gcStopTab:add{
+      name = "header"..i,
+      parent_name ="header_flow"..i,
+      params = {
+        type = "label",
+        caption={"station.header-col-"..i},
+        tooltip={"station.header-col-"..i.."-tt"},
+        style="ltnt_hover_column_header"
+      },
+      event = {id = defines.events.on_gui_click, handler = {"on_header_click"}, data = tostring(i)}
+    }
+  else
+    gcStopTab:add{
+      name = "header"..i,
+      parent_name ="header_flow"..i,
+      params = {
+        type = "label",
+        caption={"station.header-col-"..i},
+        tooltip={"station.header-col-"..i.."-tt"},
+        style="ltnt_column_header"
+      },
+    }
+  end
 end
 -- table for stations inside scroll-pane
 gcStopTab:add{
@@ -117,14 +155,23 @@ function gcStopTab:on_checkbox_changed(event)
   self:update(event.player_index, self.tab_index)
 end
 
-function gcStopTab:on_header_click(event)
+function gcStopTab:on_header_click(event, index, data_string)
   local name = event.element.name
-  if event.element == self:get_el(event.player_index, "header1") then
+  if data_string == "1" then
     self.mystorage.sort_by[event.player_index] = "name"
-  elseif event.element == self:get_el(event.player_index, "header2")  then
+    self:get_el(event.player_index, "arrow1").style = ARROW_STYLE_ON
+    self:get_el(event.player_index, "arrow2").style = ARROW_STYLE_OFF
+    self:get_el(event.player_index, "arrow4").style = ARROW_STYLE_OFF
+  elseif data_string == "2"  then
     self.mystorage.sort_by[event.player_index] = "state"
-  elseif event.element == self:get_el(event.player_index, "header4")  then
+    self:get_el(event.player_index, "arrow2").style = ARROW_STYLE_ON
+    self:get_el(event.player_index, "arrow1").style = ARROW_STYLE_OFF
+    self:get_el(event.player_index, "arrow4").style = ARROW_STYLE_OFF
+  elseif data_string == "4"  then
     self.mystorage.sort_by[event.player_index] = "deliveries"
+    self:get_el(event.player_index, "arrow4").style = ARROW_STYLE_ON
+    self:get_el(event.player_index, "arrow1").style = ARROW_STYLE_OFF
+    self:get_el(event.player_index, "arrow2").style = ARROW_STYLE_OFF
   else
     return
   end

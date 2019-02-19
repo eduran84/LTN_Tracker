@@ -236,7 +236,7 @@ local function update_in_transit(delivery_id, delivery, raw) -- helper function 
     raw.in_transit[network_id] = raw.in_transit[network_id] or {}
     local inc = raw.stops[delivery.to_id] and raw.stops[delivery.to_id].incoming or {}
     -- only add to outgoing if pickup is not done yet
-    local og = not delivery.pickup_done and raw.stops[delivery.from_id] and raw.stops[delivery.from_id].outgoing
+    local og = not delivery.pickupDone and raw.stops[delivery.from_id] and raw.stops[delivery.from_id].outgoing
     for item, amount in pairs(delivery.shipment) do
       raw.in_transit[network_id][item] = (raw.in_transit[network_id][item] or 0) + amount
       raw.item2delivery[item] = raw.item2delivery[item] or {}
