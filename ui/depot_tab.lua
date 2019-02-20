@@ -241,6 +241,7 @@ function gcDepotTab:show_details(pind)
   self:get_el(pind, "frame_r").caption = {"depot.frame-caption-right", depot_name}
   local data = global.data
   local depot_data = data.depots[depot_name]
+  if not depot_data then return end
   local tb = self:get_el(pind, "table_r")
   tb.clear()
   -- table main body, right side
