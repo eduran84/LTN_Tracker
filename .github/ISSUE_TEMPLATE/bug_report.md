@@ -1,38 +1,21 @@
 ---
 name: Bug report
-about: Create a report to help us improve
+about: Report a bug.
 title: ''
-labels: ''
+labels: bug
 assignees: ''
 
 ---
 
-**Describe the bug**
-A clear and concise description of what the bug is.
+**Error message or bug description**
+If LTNT caused an error message: screenshot or text of that message.
+If something did not work as expected: Description of the behavior and what you expected instead.
 
 **To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+Steps to reproduce the bug, if known.
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
+**LTN Tracker version**
+X.Y.Z
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
-
-**Desktop (please complete the following information):**
- - OS: [e.g. iOS]
- - Browser [e.g. chrome, safari]
- - Version [e.g. 22]
-
-**Smartphone (please complete the following information):**
- - Device: [e.g. iPhone6]
- - OS: [e.g. iOS8.1]
- - Browser [e.g. stock browser, safari]
- - Version [e.g. 22]
-
-**Additional context**
-Add any other context about the problem here.
+**Log file**
+Your factorio-current.log file. It is located in Factorio's [user data directory](https://wiki.factorio.com/Application_directory#User_data_directory).
