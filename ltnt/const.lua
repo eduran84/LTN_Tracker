@@ -59,9 +59,9 @@ CONST.depot_tab = {
 
 CONST.station_tab = {
 	tab_index = 2,
-  header_col_width = {168, 32, 34*6+5, 34*5+5, 34*7+6},
-  station_col_width = 165,
-  item_table_col_count = {6, 5, 7},
+  header_col_width = {72, 135, 35*5+23, 34*4+23, 34*6},
+  station_col_width = 173,
+  item_table_col_count = {5, 4, 7},
   item_table_max_rows = {4, 4, 1},
 }
 
@@ -76,8 +76,8 @@ CONST.inventory_tab = {
 
 CONST.history_tab = {
 	tab_index = 4,
-	header_col_width = {163, 163, 158, 35, 55, 110},
-	col_width = {163, 163, 163,  40, 40, 150},
+	header_col_width = {162, 162, 158, 35, 55, 110},
+	col_width = {162, 162, 162,  40, 40, 150},
 	n_columns = 6,
   n_cols_shipment = 5,
 }

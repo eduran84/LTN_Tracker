@@ -37,8 +37,8 @@ gcStopTab:add{
   gui_composition = require("ui.classes.TextFieldWithRange")(
     "IDSstop",
     {
-      caption = {"inventory.id_selector-caption"},
-      tooltip = {"inventory.id_selector-tt"},
+      caption = {"station.id_selector-caption"},
+      tooltip = {"station.id_selector-tt"},
     }
   )
 }
@@ -49,6 +49,7 @@ gcStopTab:add{
     type = "checkbox",
     state = false,
     caption = {"station.check-box-cap"},
+    tooltip = {"station.check-box-tt"},
   },
   event = {id = defines.events.on_gui_checked_state_changed, handler = {"on_checkbox_changed"}},
 }
@@ -70,7 +71,7 @@ gcStopTab:add{
 gcStopTab:add{
   name = "filter",
   parent_name = "button_flow",
-  params = {type = "textfield", tooltip = {"station.filter_tt"}},
+  params = {type = "textfield"},
   event = {id = defines.events.on_gui_text_changed, handler = {"on_filter_changed"}},
 }
 -- header row
@@ -83,8 +84,7 @@ for i = 1,N_COLS do
   gcStopTab:add{
     name = "header_flow"..i,
     parent_name = "header_table",
-    params = {
-      type = "flow", direction = "horizontal"},
+    params = {type = "flow", direction = "horizontal"},
     style = {width = COL_WIDTH[i], vertical_align = "center"},
   }
   if i == 1 or i == 2 then
@@ -158,11 +158,11 @@ end
 function gcStopTab:on_header_click(event, index, data_string)
   local name = event.element.name
   if data_string == "1" then
-    self.mystorage.sort_by[event.player_index] = "name"
+    self.mystorage.sort_by[event.player_index] = "state"--"name"
     self:get_el(event.player_index, "arrow1").style = ARROW_STYLE_ON
     self:get_el(event.player_index, "arrow2").style = ARROW_STYLE_OFF
   elseif data_string == "2"  then
-    self.mystorage.sort_by[event.player_index] = "state"
+    self.mystorage.sort_by[event.player_index] = "name"--"state"
     self:get_el(event.player_index, "arrow2").style = ARROW_STYLE_ON
     self:get_el(event.player_index, "arrow1").style = ARROW_STYLE_OFF
   else
@@ -207,8 +207,7 @@ do --create closure
     ["name"] = function(a,b) return global.data.stops[a].name < global.data.stops[b].name end,
     ["state"] = function(a,b)
       if global.data.stops[a].signals[1][2] ~= global.data.stops[b].signals[1][2] then
-      --if #global.data.stops[a].activeDeliveries ~= #global.data.stops[b].activeDeliveries then
-        return #global.data.stops[a].activeDeliveries > #global.data.stops[b].activeDeliveries
+        return global.data.stops[a].signals[1][2] > global.data.stops[b].signals[1][2]
       else
         return color_order[global.data.stops[a].signals[1][1]] < color_order[global.data.stops[b].signals[1][1]]
       end
@@ -271,6 +270,14 @@ function gcStopTab:update(pind, index)
         local stopdata = data.stops[stop_id]
         if stopdata.errorCode == 0 and stopdata.isDepot == false and testfun(selected_network_id, stopdata.network_id) then
           -- stop is in selected network, create table entry
+          -- second column: status
+          tb.add{
+            type = "sprite-button",
+            sprite = "virtual-signal/"..stopdata.signals[1][1],
+            number = stopdata.signals[1][2],
+            enabled = false,
+            style = "ltnt_empty_button",
+          }
           -- first column: station name
           local label = tb.add{
             type = "label",
@@ -278,14 +285,7 @@ function gcStopTab:update(pind, index)
             style = "ltnt_lb_inv_station_name",
             name = self:_create_name(i+n, stop_id),
           }
-          -- second column: status
-          tb.add{
-          type = "sprite-button",
-          sprite = "virtual-signal/"..stopdata.signals[1][1],
-          number = stopdata.signals[1][2],
-          enabled = false,
-          style = "ltnt_empty_button",
-          }
+          label.style.width = STATION_WIDTH
           -- third column: provided and requested items
           build_item_table{
             parent = tb,

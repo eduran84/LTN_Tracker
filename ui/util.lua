@@ -13,8 +13,8 @@ end
 local function build_item_table(args)
   -- !TODO go over this once more, should be as efficient as possible
   -- !TODO disable assert for release
-  --required arguments: parent (without any of provided / requestd / signals an empty frame is produced)
-  --optional arguments: provided, requested, signals, columns, enabled, type, no_negate, max_rows
+  --required arguments: parent, columns (without any of provided / requested / signals an empty frame is produced)
+  --optional arguments: provided, requested, signals, enabled, type, no_negate, max_rows
 
 
   out.assert(args.parent, "Parent not defined.\nArgs provided:", args)
@@ -26,8 +26,11 @@ local function build_item_table(args)
 	local frame = args.parent.add{type = "frame", style = "ltnt_slot_table_frame"}
 
   if args.max_rows then
-    frame.style.maximal_height = args.max_rows * 38
+    frame.style.maximal_height = args.max_rows * 35
+    frame.style.width = columns * 35+23
     frame = frame.add{type = "scroll-pane", style = "ltnt_sp_vertical"}
+    frame.horizontal_scroll_policy = "never"
+    frame.vertical_scroll_policy = "auto"
   end
 
   -- table for item sprites
@@ -43,7 +46,7 @@ local function build_item_table(args)
   -- add items to table
 	if args.provided then
 		for item, amount in pairs(args.provided) do
-			local test = tble.add{
+			tble.add{
 				type = "sprite-button",
 				sprite = item2sprite(item, type),
 				number = amount,
