@@ -78,8 +78,11 @@ gcStopTab:add{
 gcStopTab:add{
   name = "header_table",
   parent_name = "root",
-  params = {type = "table", column_count = N_COLS, draw_horizontal_lines = true},
+  params = {type = "table", column_count = N_COLS, style = "slot_table"},
+  style = {cell_spacing = 0, horizontal_spacing = 0},
 }
+
+
 for i = 1,N_COLS do
   gcStopTab:add{
     name = "header_flow"..i,
@@ -87,6 +90,17 @@ for i = 1,N_COLS do
     params = {type = "flow", direction = "horizontal"},
     style = {width = COL_WIDTH[i], vertical_align = "center"},
   }
+  if i ~= 1 then
+  gcStopTab:add{
+    name = "header_sep"..i,
+    parent_name = "header_flow"..i,
+    params = {
+      type = "label",
+      caption = "|",
+      style = "ltnt_column_header"
+    },
+  }
+  end
   if i == 1 or i == 2 then
     gcStopTab:add{
       name = "arrow"..i,
@@ -94,27 +108,29 @@ for i = 1,N_COLS do
       params = {type = "button", style = "ltnt_sort_button_off"},
       event = {id = defines.events.on_gui_click, handler = {"on_header_click"}, data = tostring(i)}
     }
-    gcStopTab:add{
-      name = "header"..i,
-      parent_name ="header_flow"..i,
-      params = {
-        type = "label",
-        caption={"station.header-col-"..i},
-        tooltip={"station.header-col-"..i.."-tt"},
-        style="ltnt_hover_column_header"
-      },
-      event = {id = defines.events.on_gui_click, handler = {"on_header_click"}, data = tostring(i)}
-    }
   else
     gcStopTab:add{
       name = "header"..i,
-      parent_name ="header_flow"..i,
+      parent_name = "header_flow"..i,
       params = {
         type = "label",
-        caption={"station.header-col-"..i},
-        tooltip={"station.header-col-"..i.."-tt"},
-        style="ltnt_column_header"
+        caption = {"station.header-col-"..i},
+        tooltip = {"station.header-col-"..i.."-tt"},
+        style = "ltnt_column_header"
       },
+    }
+  end
+  if i == 1 then
+    gcStopTab:add{
+      name = "header"..i,
+      parent_name = "header_flow"..i,
+      params = {
+        type = "label",
+        caption = {"station.header-col-"..i},
+        tooltip = {"station.header-col-"..i.."-tt"},
+        style = "ltnt_hover_column_header"
+      },
+      event = {id = defines.events.on_gui_click, handler = {"on_header_click"}, data = tostring(i)}
     }
   end
 end
@@ -270,14 +286,6 @@ function gcStopTab:update(pind, index)
         local stopdata = data.stops[stop_id]
         if stopdata.errorCode == 0 and stopdata.isDepot == false and testfun(selected_network_id, stopdata.network_id) then
           -- stop is in selected network, create table entry
-          -- second column: status
-          tb.add{
-            type = "sprite-button",
-            sprite = "virtual-signal/"..stopdata.signals[1][1],
-            number = stopdata.signals[1][2],
-            enabled = false,
-            style = "ltnt_empty_button",
-          }
           -- first column: station name
           local label = tb.add{
             type = "label",
@@ -286,6 +294,14 @@ function gcStopTab:update(pind, index)
             name = self:_create_name(i+n, stop_id),
           }
           label.style.width = STATION_WIDTH
+          -- second column: status
+          tb.add{
+            type = "sprite-button",
+            sprite = "virtual-signal/"..stopdata.signals[1][1],
+            number = stopdata.signals[1][2],
+            enabled = false,
+            style = "ltnt_empty_button",
+          }
           -- third column: provided and requested items
           build_item_table{
             parent = tb,
