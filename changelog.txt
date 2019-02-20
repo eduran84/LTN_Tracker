@@ -1,10 +1,20 @@
 -------------------------------------------------------------
+Version: 0.8.4
+Date: 2019-02-19
+
+Bugfix:
+  - removing items from a save (by removing other mods)
+    should no longer cause errors
+  - workaround added for UI elements being invalidated by
+    other mods
+
+-------------------------------------------------------------
 Version: 0.8.3
 Date: 2019-02-13
 
 Bugfix:
   - fixed broken .zip file
-  
+
 -------------------------------------------------------------
 Version: 0.8.2
 Date: 2019-02-12

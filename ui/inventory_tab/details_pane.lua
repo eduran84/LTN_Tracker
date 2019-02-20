@@ -154,7 +154,6 @@ function gcDetails:set_item(pind, network_id, ltn_item)
   if not ltn_item then return end
   self.mystorage.selected_item[pind] = ltn_item
   local item_type, item_name = match(ltn_item, "([^,]+),(.+)") -- format: "<item_type>,<item_name>"
-	local spritepath = item_type .. "/" .. item_name
   local localised_name = item_name
   local get = self.get_el
   local data = global.data
@@ -165,8 +164,10 @@ function gcDetails:set_item(pind, network_id, ltn_item)
   elseif item_type == "item" then
     proto = game.item_prototypes[item_name]
   end
-  get(self, pind, "item_label").caption = proto.localised_name or item_name
+  local spritepath = proto and item_type .. "/" .. item_name or ""
+  get(self, pind, "item_label").caption = proto and proto.localised_name or item_name
   get(self, pind, "item_icon").sprite = spritepath
+
   -- update totals
   local provided_items = get_items_in_network(data.provided, network_id)
 	get(self, pind, "tprov_num").caption = provided_items[ltn_item] or 0
