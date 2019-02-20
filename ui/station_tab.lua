@@ -87,7 +87,7 @@ for i = 1,N_COLS do
       type = "flow", direction = "horizontal"},
     style = {width = COL_WIDTH[i], vertical_align = "center"},
   }
-  if i == 1 or i == 2 or i == 4 then
+  if i == 1 or i == 2 then
     gcStopTab:add{
       name = "arrow"..i,
       parent_name = "header_flow"..i,
@@ -161,17 +161,10 @@ function gcStopTab:on_header_click(event, index, data_string)
     self.mystorage.sort_by[event.player_index] = "name"
     self:get_el(event.player_index, "arrow1").style = ARROW_STYLE_ON
     self:get_el(event.player_index, "arrow2").style = ARROW_STYLE_OFF
-    self:get_el(event.player_index, "arrow4").style = ARROW_STYLE_OFF
   elseif data_string == "2"  then
     self.mystorage.sort_by[event.player_index] = "state"
     self:get_el(event.player_index, "arrow2").style = ARROW_STYLE_ON
     self:get_el(event.player_index, "arrow1").style = ARROW_STYLE_OFF
-    self:get_el(event.player_index, "arrow4").style = ARROW_STYLE_OFF
-  elseif data_string == "4"  then
-    self.mystorage.sort_by[event.player_index] = "deliveries"
-    self:get_el(event.player_index, "arrow4").style = ARROW_STYLE_ON
-    self:get_el(event.player_index, "arrow1").style = ARROW_STYLE_OFF
-    self:get_el(event.player_index, "arrow2").style = ARROW_STYLE_OFF
   else
     return
   end
@@ -196,8 +189,9 @@ function gcStopTab:on_filter_changed(event, data_string)
 end
 
 local get_stops
-do
-	-- map, key: actual station name, value: lowercased name
+do --create closure
+	-- key: actual station name, value: lowercased name
+  -- lowercase names are buffered, so lower needs to be called only once per name
 	local name2lowercase = setmetatable({}, {
 		__index = function(self, stop_id)
 			local name = global.data.stops[stop_id].name:lower()
@@ -211,21 +205,26 @@ do
 
   local get_sort_func = {
     ["name"] = function(a,b) return global.data.stops[a].name < global.data.stops[b].name end,
-    ["state"] = function(a,b) return color_order[global.data.stops[a].signals[1][1]] < color_order[global.data.stops[b].signals[1][1]] end,
-    ["deliveries"] = function(a,b) return #global.data.stops[a].activeDeliveries > #global.data.stops[b].activeDeliveries end,
+    ["state"] = function(a,b)
+      if global.data.stops[a].signals[1][2] ~= global.data.stops[b].signals[1][2] then
+      --if #global.data.stops[a].activeDeliveries ~= #global.data.stops[b].activeDeliveries then
+        return #global.data.stops[a].activeDeliveries > #global.data.stops[b].activeDeliveries
+      else
+        return color_order[global.data.stops[a].signals[1][1]] < color_order[global.data.stops[b].signals[1][1]]
+      end
+    end,
   }
   local function sort_stops(stops, sort_by)
     sort(stops, get_sort_func[sort_by])
     return stops
   end
 
+
 	get_stops = function(self, pind)
 		if not global.filter[pind] then
       sort(global.data.stop_ids, get_sort_func[self.mystorage.sort_by[pind]])
-      out.info("DEBUG", global.data.stops)
       return global.data.stop_ids
 		else
-			--if new_sort or global.last_filter[pind] or global.last_filter[pind] ~= global.filter[pind] then
       if global.last_filter[pind] or global.last_filter[pind] ~= global.filter[pind] then
 				global.tempResults[pind] = {} -- rehash all results
 				local lower = global.filter[pind]:lower()
