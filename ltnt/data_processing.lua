@@ -259,7 +259,6 @@ local function add_new_deliveries(raw, delivery_id) -- state 7
     if delivery then
       delivery.from_id = raw.name2id[delivery.from]
       delivery.to_id = raw.name2id[delivery.to]
-      delivery.depot = delivery.train.valid and delivery.train.schedule.records[1] and delivery.train.schedule.records[1].station
       -- add items to in_transit list and incoming/outgoing
       update_in_transit(delivery_id, delivery, raw)
     else
