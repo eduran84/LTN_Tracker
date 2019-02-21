@@ -1,8 +1,23 @@
 -------------------------------------------------------------
+Version: 0.8.6
+Date: 2019-02-21
+
+Bugfixes:
+  - deleting train schedules no longer causes an error
+  - fixed missing localized string
+
+-------------------------------------------------------------
+Version: 0.8.5
+Date: 2019-02-20
+
+Bugfixes:
+  - renaming depots should no longer cause issues
+
+-------------------------------------------------------------
 Version: 0.8.4
 Date: 2019-02-19
 
-Bugfix:
+Bugfixes:
   - removing items from a save (by removing other mods)
     should no longer cause errors
   - workaround added for UI elements being invalidated by
@@ -12,7 +27,7 @@ Bugfix:
 Version: 0.8.3
 Date: 2019-02-13
 
-Bugfix:
+Bugfixes:
   - fixed broken .zip file
 
 -------------------------------------------------------------
@@ -30,7 +45,7 @@ Misc:
 Version: 0.8.1
 Date: 2019-02-11
 
-Bugfixes:
+Bugfixeses:
 	- cleanup when mod configuration changes works properly now
 
 Misc:
