@@ -175,7 +175,8 @@ function gcDepotTab:update(pind, index)
       local subflow = flow.add{type = "flow"}
       label = subflow.add{
         type = "label",
-        caption = "#Trains:",
+        caption = {"depot.header-col-2"},
+        tooltip = {"depot.header-col-2-tt"},
         style = "ltnt_label_default",
         ignored_by_interaction = true,
       }
@@ -189,7 +190,8 @@ function gcDepotTab:update(pind, index)
       label.style.width = DEPOT_CONST.col_width_left[3]
       label = subflow.add{
         type = "label",
-        caption = "Capacity:",
+        caption = {"depot.header-col-3"},
+        tooltip = {"depot.header-col-3-tt"},
         style = "ltnt_label_default",
         ignored_by_interaction = true,
       }
