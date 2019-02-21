@@ -407,7 +407,7 @@ local function on_delivery_completed(event_data)
   -- if a train has fluid and items, only item residue is logged
   local delivery = event_data.delivery
   local train = delivery.train
-  delivery.depot = train.schedule.records[1] and train.schedule.records[1].station
+  delivery.depot = train.schedule and train.schedule.records[1] and train.schedule.records[1].station or "unknown"
   local res = train.get_contents() -- does return empty table when train is empty, not nil
   local fres = train.get_fluid_contents()
   if next(res) or next(fres) then
@@ -433,7 +433,7 @@ local function on_delivery_failed(event_data)
   if train.valid then
     -- train still valid -> delivery timed out
     delivery.timed_out = true
-    delivery.depot = train.schedule.records[1] and train.schedule.records[1].station
+    delivery.depot = train.schedule and train.schedule.records[1] and train.schedule.records[1].station or "unknown"
     local loco = get_main_loco(train)
     data.trains_error[train.id] = {
       type = "timeout",
