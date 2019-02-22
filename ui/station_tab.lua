@@ -24,6 +24,7 @@ local gcStopTab= GC(NAME, {
   params = {type = "flow", direction = "vertical"},
   style = {visible = false},
 })
+do -- build static part of UI
 -- network id selector
 gcStopTab:add{
   name = "button_flow",
@@ -147,14 +148,20 @@ gcStopTab:add{
   style = {vertical_align = "top"}
 }
 gcStopTab.tab_index = require("ltnt.const").station_tab.tab_index
+end
 
 -- overloaded methods
 function gcStopTab:on_init(storage_tb)
-  storage_tb[self.name] =  storage_tb[self.name] or {}
-  storage_tb[self.name].root = storage_tb[self.name].root or {}
-  storage_tb[self.name].checkbox = storage_tb[self.name].checkbox or {}
-  storage_tb[self.name].sort_by = storage_tb[self.name].sort_by or {}
-  self.mystorage = storage_tb[self.name]
+  self.mystorage = self.mystorage
+  self.mystorage =  self.mystorage or {}
+  self.mystorage.root = self.mystorage.root or {}
+  self.mystorage.checkbox = self.mystorage.checkbox or {}
+  self.mystorage.sort_by = self.mystorage.sort_by or {}
+  self.mystorage.filter = self.mystorage.filter or {}
+  self.mystorage.last_filter = self.mystorage.last_filter or {}
+  self.mystorage.cached_results = self.mystorage.cached_results or {}
+
+
   for _,gc in pairs(self.sub_gc) do
     gc:on_init(storage_tb)
   end
@@ -174,11 +181,11 @@ end
 function gcStopTab:on_header_click(event, index, data_string)
   local name = event.element.name
   if data_string == "1" then
-    self.mystorage.sort_by[event.player_index] = "state"--"name"
+    self.mystorage.sort_by[event.player_index] = "state"
     self:get_el(event.player_index, "arrow1").style = ARROW_STYLE_ON
     self:get_el(event.player_index, "arrow2").style = ARROW_STYLE_OFF
   elseif data_string == "2"  then
-    self.mystorage.sort_by[event.player_index] = "name"--"state"
+    self.mystorage.sort_by[event.player_index] = "name"
     self:get_el(event.player_index, "arrow2").style = ARROW_STYLE_ON
     self:get_el(event.player_index, "arrow1").style = ARROW_STYLE_OFF
   else
@@ -196,9 +203,9 @@ function gcStopTab:on_filter_changed(event, data_string)
   if elem.text and type(elem.text) == "string" then
     local input = trim(elem.text)
     if input:len() == 0 then
-      global.filter[event.player_index] = nil
+      self.mystorage.filter[event.player_index] = nil
     else
-      global.filter[event.player_index] = input
+      self.mystorage.filter[event.player_index] = input
     end
   end
   self:update(event.player_index, self.tab_index)
@@ -229,31 +236,26 @@ do --create closure
       end
     end,
   }
-  local function sort_stops(stops, sort_by)
-    sort(stops, get_sort_func[sort_by])
-    return stops
-  end
-
 
 	get_stops = function(self, pind)
 		if not global.filter[pind] then
       sort(global.data.stop_ids, get_sort_func[self.mystorage.sort_by[pind]])
       return global.data.stop_ids
 		else
-      if global.last_filter[pind] or global.last_filter[pind] ~= global.filter[pind] then
-				global.tempResults[pind] = {} -- rehash all results
-				local lower = global.filter[pind]:lower()
+      if self.mystorage.last_filter[pind] or self.mystorage.last_filter[pind] ~= self.mystorage.filter[pind] then
+				self.mystorage.cached_results[pind] = {}
+				local lower = self.mystorage.filter[pind]:lower()
 				for _, station in next, global.data.stop_ids do
 					local match = true
 					for word in lower:gmatch("%S+") do
 						if not name2lowercase[station]:find(word, 1, true) then match = false end
 					end
-					if match then table.insert(global.tempResults[pind], station) end
+					if match then table.insert(self.mystorage.cached_results[pind], station) end
 				end
-				global.last_filter[pind] = global.filter[pind]
+				self.mystorage.last_filter[pind] = self.mystorage.filter[pind]
 			end
-      sort(global.tempResults[pind], get_sort_func[self.mystorage.sort_by[pind]])
-      return global.tempResults[pind]
+      sort(self.mystorage.cached_results[pind], get_sort_func[self.mystorage.sort_by[pind]])
+      return self.mystorage.cached_results[pind]
 		end
 	end
 end

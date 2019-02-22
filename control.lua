@@ -136,7 +136,7 @@ script.on_configuration_changed(
       end
     end
     if data and data.mod_changes[MOD_NAME] then
-      ui.on_configuration_changed(data)
+      ui.reset_ui(data)
       out.info("control.lua", MOD_NAME .. " updated to version " .. tostring(game.active_mods[MOD_NAME]))
     end
   end
@@ -156,4 +156,4 @@ script.on_event(custom_events.on_data_updated, ui.update_ui)
 -- raised when a train with an error is detected
 script.on_event(custom_events.on_train_alert, ui.on_new_alert)
 -- raised when UI element(s) became invalid
-script.on_event(custom_events.on_ui_invalid, ui.on_init) -- force full reset for all players
+script.on_event(custom_events.on_ui_invalid, ui.reset_ui) -- force full reset for all players
