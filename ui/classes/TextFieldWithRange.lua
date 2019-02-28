@@ -43,7 +43,7 @@ function TFWR:_init(name, args)
   local tooltip = args.tooltip or ""
   local label_style = args.label_style or "ltnt_summary_label"
   local label_style_params = args.label_style_params or {vertical_align = "center"}
-  self.tf_style = args.textfield_style or "number_textfield"
+  self.tf_style = args.textfield_style or "long_number_textfield"
   self.tf_invalid_style = args.textfield_invalid_style or "invalid_value_textfield"
   local tf_style_params = args.textfield_style_params or {width = 100}
   local default_text = args.default_text or -1

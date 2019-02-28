@@ -33,29 +33,29 @@ data:extend({
   {
     type = "sprite",
     name = "ltnt_sprite_refresh",
-    filename = "__core__/graphics/reset.png",
+    filename = "__core__/graphics/icons/refresh.png",
     priority = "high",
-    width = 128,
-    height = 128,
-    scale = 0.25,
+    width = 32,
+    height = 32,
+    scale = 1,
   },
   {
     type = "sprite",
     name = "ltnt_sprite_delete",
-    filename = "__core__/graphics/remove-icon.png",
+    filename = "__core__/graphics/icons/trash.png",
     priority = "high",
-    width = 64,
-    height = 64,
-    scale = 0.5,
+    width = 32,
+    height = 32,
+    scale = 1,
   },
   {
     type = "sprite",
     name = "ltnt_sprite_enter",
-    filename = "__core__/graphics/enter-icon.png",
+    filename = "__core__/graphics/icons/expand-dark.png",
     priority = "high",
-    width = 64,
-    height = 64,
-    scale = 0.5,
+    width = 32,
+    height = 32,
+    scale = 1,
   },
   {
     type = "sprite",
@@ -97,15 +97,15 @@ default_gui["ltnt_button_default"] =
 {
     type = "button_style",
     font = "ltnt_font_default",
-    align = "center",
+    horizontal_align = "center",
     vertical_align = "center"
 }
 default_gui["ltnt_tab_button"] =
 {
   type = "button_style",
   font = "ltnt_font_tab_caption",
-  align = "center",
-  vertical_align = "middle-center",
+  horizontal_align = "center",
+  vertical_align = "center",
   disabled_font_color = {r=1, g=1, b=1},
   disabled_graphical_set =
   {
@@ -131,7 +131,7 @@ default_gui["ltnt_tab_button_highlight"]  =
 {
   type = "button_style",
   font = "ltnt_font_tab_caption",
-  align = "middle-center",
+  horizontal_align = "center",
   padding = 5,
   hovered_font_color = {r=0, g=0, b=0},
   hovered_graphical_set =
@@ -200,16 +200,11 @@ default_gui["ltnt_empty_button"] =
   parent = "slot_button",
   disabled_graphical_set =
   {
-    type = "monolith",
-    monolith_border = 1,
-    monolith_image =
-    {
-      filename = "__core__/graphics/gui.png",
-      priority = "extra-high-no-scale",
-      width = 36,
-      height = 36,
-      x = 111
-    }
+    border = 1,
+    filename = "__core__/graphics/gui.png",
+    position = {111, 0},
+    size = 36,
+    scale = 1
   }
 }
 
@@ -219,17 +214,11 @@ default_gui["ltnt_provided_button"] =
   parent = "green_slot_button",
   disabled_graphical_set =
   {
-    type = "monolith",
-    monolith_border = 1,
-    monolith_image =
-    {
-      filename = "__core__/graphics/gui.png",
-      priority = "extra-high-no-scale",
-      width = 36,
-      height = 36,
-      x = 111,
-      y = 108
-    }
+    border = 1,
+    filename = "__core__/graphics/gui.png",
+    position = {111, 108},
+    size = 36,
+    scale = 1
   },
 }
 
@@ -239,16 +228,11 @@ default_gui["ltnt_requested_button"] =
   parent = "red_slot_button",
   disabled_graphical_set =
   {
-    type = "monolith",
-    monolith_border = 1,
-    monolith_image = {
-      filename = "__core__/graphics/gui.png",
-      priority = "extra-high-no-scale",
-      width = 36,
-      height = 36,
-      x = 111,
-      y = 36
-    }
+    border = 1,
+    filename = "__core__/graphics/gui.png",
+    position = {111, 36},
+    size = 36,
+    scale = 1
   },
 }
 end
@@ -274,7 +258,7 @@ default_gui["ltnt_summary_number"] = {
   type = "label_style",
 	parent = "bold_label",
   font = "ltnt_font_default",
-	align = "right",
+	horizontal_align = "right",
 	width = SUMMARY_NUM_WIDTH,
   vertical_align = "center"
 }
@@ -340,7 +324,7 @@ default_gui["ltnt_lb_hist_col5"] = {
   parent = "ltnt_label_default",
   maximal_width = C.history_tab.col_width[5],
   minimal_width = C.history_tab.col_width[5],
-  align = "right",
+  horizontal_align = "right",
 }
 default_gui["ltnt_lb_hist_col5_red"] = {
   type = "label_style",
@@ -360,7 +344,7 @@ default_gui["ltnt_shipment_table"] =
   type = "table_style",
   parent = "slot_table",
   vertical_align = "center",
-  align = "center",
+  horizontal_align = "center",
   width = 34,
 }
 end

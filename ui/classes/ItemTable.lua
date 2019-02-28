@@ -67,7 +67,7 @@ function ItemTable:_init(name, args)
       caption = frame_caption,
 		},
 		style = {
-      align = "center",
+      horizontal_align = "center",
       minimal_height = height,
       top_padding = 0,
       bottom_padding = 0,
