@@ -19,8 +19,8 @@ CONST.global = {
   mod_prefix = "ltnt",
   gui_events = {defines.events.on_gui_click, defines.events.on_gui_checked_state_changed, defines.events.on_gui_text_changed}, -- events handled by on_gui_event
   mod_name_ltn = "LogisticTrainNetwork",
-  minimal_version_ltn = "01.09.10",
-  current_version_ltn = "01.09.11",
+  minimal_version_ltn = "01.10.0",
+  current_version_ltn = "01.10.0",
 }
 
 -- ui_ctrl.lua
