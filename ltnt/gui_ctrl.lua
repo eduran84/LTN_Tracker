@@ -80,7 +80,6 @@ local function player_init(pind)
   if debug_level > 0 then
     out.info("gui_ctrl.lua", "UI is ready.")
   end
-  global.last_sort[pind] = "name"
 end
 
 local function on_init()
@@ -92,11 +91,7 @@ local function on_init()
     refresh_interval = {},
   }
 
-  global.filter = {}
-  global.last_filter = {}
   global.last_sort = {}
-  global.tempResults = {}
-
   for _,gc in pairs(GC) do
     -- creates and populates global.gui[gc.name]
     gc:on_init(global.gui)
@@ -107,10 +102,11 @@ local function on_init()
   end
 end
 
-local function on_configuration_changed()
+local function reset_ui()
   -- wipe existing UIs and clear global UI storage...
-  for pind,_ in pairs(game.players) do
-    for name, gc in pairs(GC) do
+  out.info("gui_ctrl.lua", "Resetting UI.")
+  for pind in pairs(game.players) do
+    for _, gc in pairs(GC) do
       gc:destroy(pind)
     end
   end
