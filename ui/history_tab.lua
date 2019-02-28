@@ -11,8 +11,7 @@ local HISTORY_LIMIT = require("ltnt.const").proc.history_limit
 local NAME = "hist_tab"
 
 local gcHistTab = require("ui.classes.GuiComposition")(NAME, {
-  params = {type = "flow", direction = "vertical"},
-  style = {visible = false},
+  params = {type = "flow", direction = "vertical", visible = false},
 })
 
 -- header row
@@ -133,9 +132,6 @@ function gcHistTab:update(pind, index)
         -- shipement and residual items, if any
         if delivery.residuals then
           local tb = hist_table.add{type = "table", column_count = 1, style = "slot_table"}
-          --tb.style.align = "center"
-          --tb.style.cell_spacing = 0
-          --tb.style.vertical_spacing = 0
           build_item_table{
             parent = tb,
             provided = delivery.shipment,

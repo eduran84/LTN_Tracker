@@ -101,7 +101,7 @@ end
 
 function gcOuterFrame:show(pind)
 	if self:get(pind) then
-		self:get(pind).style.visible = true
+		self:get(pind).visible = true
 		game.players[pind].opened = self:get(pind)
     global.gui.is_gui_open[pind] = true
 	end

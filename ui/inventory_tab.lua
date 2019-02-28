@@ -7,8 +7,7 @@ local N_SUBPANES = 4
 local IT_COL_COUNT = require("ltnt.const").inventory_tab.item_table_column_count
 
 local gcInvTab= require("ui.classes.GuiComposition")(NAME, {
-  params = {type = "flow", direction = "vertical"},
-  style = {visible = false},
+  params = {type = "flow", direction = "vertical", visible = false}
 })
 
 -- add ID selector

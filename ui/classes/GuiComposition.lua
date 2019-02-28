@@ -191,25 +191,25 @@ end
 
 function GuiComposition:show(pind)
   if self:get(pind) then
-    self:get(pind).style.visible = true
+    self:get(pind).visible = true
   end
 end
 
 function GuiComposition:hide(pind)
   if self:get(pind) then
-    self:get(pind).style.visible = false
+    self:get(pind).visible = false
   end
 end
 
 function GuiComposition:is_visible(pind)
-  return self:get(pind).style.visible
+  return self:get(pind).visible
 end
 
 function GuiComposition:toggle(pind)
   local root = self:get(pind)
   if root then
-   root.style.visible = not root.style.visible
-   return root.style.visible
+   root.visible = not root.visible
+   return root.visible
  else
    return nil
  end

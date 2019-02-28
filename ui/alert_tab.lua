@@ -8,8 +8,7 @@ local COL_WIDTH_R = require("ltnt.const").alert_tab.col_width_r
 -- object creation
 local GC = require("ui.classes.GuiComposition")
 local gcAlertTab= GC(NAME, {
-  params = {type = "flow", direction = "horizontal"},
-  style = {visible = false},
+  params = {type = "flow", direction = "horizontal", visible = false},
 })
 gcAlertTab.tab_index = require("ltnt.const").alert_tab.tab_index
 
@@ -81,8 +80,8 @@ local build_item_table = require("ui.util").build_item_table
 local function build_route_labels(parent, route) -- helper function for gcAlertTab:update
   if route[2] and route[3] then
     local inner_tb = parent.add{type = "table", column_count = 1}
-    inner_tb.style.align = "center"
-    inner_tb.style.cell_spacing = 0
+    inner_tb.style.horizontal_align = "center"
+    inner_tb.style.horizontal_spacing = 0
     inner_tb.style.vertical_spacing = 0
     local elem = inner_tb.add{
       type = "label",

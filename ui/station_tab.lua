@@ -21,8 +21,7 @@ local MAX_ROWS = require("ltnt.const").station_tab.item_table_max_rows
 local COL_COUNTS = require("ltnt.const").station_tab.item_table_col_count
 local GC = require("ui.classes.GuiComposition")
 local gcStopTab= GC(NAME, {
-  params = {type = "flow", direction = "vertical"},
-  style = {visible = false},
+  params = {type = "flow", direction = "vertical", visible = false},
 })
 do -- build static part of UI
 -- network id selector

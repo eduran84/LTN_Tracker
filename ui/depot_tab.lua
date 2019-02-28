@@ -5,8 +5,7 @@ local N_COLS_RIGHT = 3
 
 local GC = require("ui.classes.GuiComposition")
 local gcDepotTab= GC(NAME, {
-  params = {type = "flow", direction = "horizontal"},
-  style = {visible = false},
+  params = {type = "flow", direction = "horizontal", visible = false},
 })
 gcDepotTab.tab_index = DEPOT_CONST.tab_index
 
@@ -213,7 +212,7 @@ function gcDepotTab:update(pind, index)
       }
       local elem = subflow.add{type = "frame", style = "ltnt_slot_table_frame"}
       elem.ignored_by_interaction = true
-      elem.style.maximal_height = 38
+      elem.style.maximal_height = 44
       elem = elem.add{type = "table", column_count = 4, style = "slot_table"}
       local hash = {}
       for _, id in pairs(depot_data.network_ids) do
@@ -304,8 +303,8 @@ function gcDepotTab:show_details(pind)
       label.style.font_color = color -- update color for first column
       -- second column: train status / current route
       local flow = tb.add{type = "table", column_count = 1}
-      flow.style.align = "center"
-      flow.style.cell_spacing = 0
+      flow.style.horizontal_align = "center"
+      flow.style.horizontal_spacing = 0
       flow.style.vertical_spacing = 0
       label = flow.add{
         type = "label",

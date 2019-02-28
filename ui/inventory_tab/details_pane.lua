@@ -110,7 +110,7 @@ gcDetails:add{
   name = "stoptb",
   parent_name = "scroll",
   params = {type = "table", column_count = 1},
-  style = {vertical_align = "center", cell_spacing = 0},
+  style = {vertical_align = "center", horizontal_spacing = 0},
 }
 gcDetails:add{
   name = "desc",
@@ -129,7 +129,7 @@ gcDetails:add{
   name = "deltb",
   parent_name = "scroll",
   params = {type = "table", column_count = 1},
-  style = {vertical_align = "center", cell_spacing = 0},
+  style = {vertical_align = "center", horizontal_spacing = 0},
 }
 
 -- overloaded methods
