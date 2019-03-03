@@ -26,11 +26,11 @@ local function build_item_table(args)
 	local frame = args.parent.add{type = "frame", style = "ltnt_slot_table_frame"}
 
   if args.max_rows then
-    frame.style.maximal_height = args.max_rows * 35
-    frame.style.width = columns * 35+23
-    frame = frame.add{type = "scroll-pane", style = "ltnt_sp_vertical"}
+    frame.style.maximal_height = args.max_rows * 42
+    frame.style.width = columns * 42+10
+    frame = frame.add{type = "scroll-pane"}
     frame.horizontal_scroll_policy = "never"
-    frame.vertical_scroll_policy = "auto"
+    frame.vertical_scroll_policy = "auto-and-reserve-space"
   end
 
   -- table for item sprites

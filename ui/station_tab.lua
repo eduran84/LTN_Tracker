@@ -150,20 +150,13 @@ gcStopTab.tab_index = require("ltnt.const").station_tab.tab_index
 end
 
 -- overloaded methods
-function gcStopTab:on_init(storage_tb)
-  self.mystorage = self.mystorage
-  self.mystorage =  self.mystorage or {}
-  self.mystorage.root = self.mystorage.root or {}
+function gcStopTab:on_init(storage_tb, reset_ui_event_id)
+  GC.on_init(self, storage_tb, reset_ui_event_id)
   self.mystorage.checkbox = self.mystorage.checkbox or {}
   self.mystorage.sort_by = self.mystorage.sort_by or {}
   self.mystorage.filter = self.mystorage.filter or {}
   self.mystorage.last_filter = self.mystorage.last_filter or {}
   self.mystorage.cached_results = self.mystorage.cached_results or {}
-
-
-  for _,gc in pairs(self.sub_gc) do
-    gc:on_init(storage_tb)
-  end
 end
 
 function gcStopTab:build(parent, pind)
@@ -180,11 +173,11 @@ end
 function gcStopTab:on_header_click(event, index, data_string)
   local name = event.element.name
   if data_string == "1" then
-    self.mystorage.sort_by[event.player_index] = "state"
+    self.mystorage.sort_by[event.player_index] = "name"
     self:get_el(event.player_index, "arrow1").style = ARROW_STYLE_ON
     self:get_el(event.player_index, "arrow2").style = ARROW_STYLE_OFF
   elseif data_string == "2"  then
-    self.mystorage.sort_by[event.player_index] = "name"
+    self.mystorage.sort_by[event.player_index] = "state"
     self:get_el(event.player_index, "arrow2").style = ARROW_STYLE_ON
     self:get_el(event.player_index, "arrow1").style = ARROW_STYLE_OFF
   else
@@ -264,6 +257,7 @@ local function eqtest(a,b) return a==b end
 local build_item_table = require("ui.util").build_item_table
 function gcStopTab:update(pind, index)
   if index == self.tab_index then
+    out.info("DEBUG", "gc name:", self.name, "mystorage:", self.mystorage)
     self:show(pind)
     global.gui.active_tab[pind] = index
 
@@ -273,7 +267,6 @@ function gcStopTab:update(pind, index)
     -- table main body
     local selected_network_id = tonumber(self.sub_gc.idSelector:get_current_value(pind))
     local testfun
-    out.info("DEBUG", "gc name:", self.name, "mystorage:", self.mystorage)
     if self.mystorage.checkbox[pind].state then
       testfun = eqtest
     else
