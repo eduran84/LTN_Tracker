@@ -180,7 +180,7 @@ function GuiComposition:get_el(pind, element_name)
 end
 
 function GuiComposition:destroy(pind)
-  if self.mystorage.root[pind] then
+  if self.mystorage and self.mystorage.root and self.mystorage.root[pind] then
     self.mystorage.root[pind].destroy()
     self.mystorage.root[pind] = nil
     return true

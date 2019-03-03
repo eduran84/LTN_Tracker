@@ -60,7 +60,7 @@ data:extend({
   {
     type = "sprite",
     name = "ltnt_sprite_search",
-    filename = "__core__/graphics/search-icon.png",
+    filename = "__core__/graphics/icons/search.png",
     priority = "high",
     width = 32,
     height = 32,
@@ -247,110 +247,60 @@ default_gui["ltnt_requested_button"] =
 default_gui["ltnt_sort_button_on"] =
 {
   type = "button_style",
-  width = 22,
-  height = 12,
+  size = {8, 8},
   default_graphical_set =
   {
-    type = "monolith",
-    monolith_border = 0,
-    monolith_image =
-    {
-      filename = "__core__/graphics/arrows/indication-arrow-gui-descending.png",
-      priority = "extra-high-no-scale",
-      width = 44,
-      height = 24
-    }
+    filename = "__core__/graphics/arrows/table-header-sort-arrow-down-active.png",
+    size = {16, 16},
+    scale = 0.5
   },
   hovered_graphical_set =
   {
-    type = "monolith",
-    monolith_border = 0,
-    monolith_image =
-    {
-      filename = "__core__/graphics/arrows/indication-arrow-gui-descending.png",
-      priority = "extra-high-no-scale",
-      width = 44,
-      height = 24
-    }
+    filename = "__core__/graphics/arrows/table-header-sort-arrow-down-hover.png",
+    size = {16, 16},
+    scale = 0.5
   },
   clicked_graphical_set =
   {
-    type = "monolith",
-    monolith_border = 0,
-    monolith_image =
-    {
-      filename = "__core__/graphics/arrows/indication-arrow-gui-descending.png",
-      priority = "extra-high-no-scale",
-      width = 44,
-      height = 24
-    }
+    filename = "__core__/graphics/arrows/table-header-sort-arrow-down-active.png",
+    size = {16, 16},
+    scale = 0.5
   },
   disabled_graphical_set =
   {
-    type = "monolith",
-    monolith_border = 0,
-    monolith_image =
-    {
-      filename = "__core__/graphics/arrows/indication-arrow-gui-descending.png",
-      priority = "extra-high-no-scale",
-      width = 44,
-      height = 24
-    }
+    filename = "__core__/graphics/arrows/table-header-sort-arrow-down-white.png",
+    size = {16, 16},
+    scale = 0.5
   }
 }
 
 default_gui["ltnt_sort_button_off"] =
 {
   type = "button_style",
-  width = 22,
-  height = 12,
+  size = {8, 8},
   default_graphical_set =
   {
-    type = "monolith",
-    monolith_border = 0,
-    monolith_image =
-    {
-      filename = "__core__/graphics/arrows/inactive-arrow-gui-descending.png",
-      priority = "extra-high-no-scale",
-      width = 44,
-      height = 24
-    }
+    filename = "__core__/graphics/arrows/table-header-sort-arrow-down-white.png",
+    size = {16, 16},
+    scale = 0.5
   },
   hovered_graphical_set =
   {
-    type = "monolith",
-    onolith_border = 0,
-    monolith_image =
-    {
-      filename = "__core__/graphics/arrows/inactive-arrow-gui-descending-hovered.png",
-      priority = "extra-high-no-scale",
-      width = 44,
-      height = 24
-    }
+    filename = "__core__/graphics/arrows/table-header-sort-arrow-down-hover.png",
+    size = {16, 16},
+    scale = 0.5
   },
   clicked_graphical_set =
   {
-    type = "monolith",
-    monolith_border = 0,
-    monolith_image =
-    {
-      filename = "__core__/graphics/arrows/inactive-arrow-gui-descending.png",
-      priority = "extra-high-no-scale",
-      width = 44,
-      height = 24
-    }
+    filename = "__core__/graphics/arrows/table-header-sort-arrow-down-white.png",
+    size = {16, 16},
+    scale = 0.5
   },
   disabled_graphical_set =
   {
-    type = "monolith",
-    monolith_border = 0,
-    monolith_image =
-    {
-      filename = "__core__/graphics/arrows/inactive-arrow-gui-descending.png",
-      priority = "extra-high-no-scale",
-      width = 44,
-      height = 24
-    }
+    filename = "__core__/graphics/arrows/table-header-sort-arrow-down-white.png",
+    size = {16, 16},
+    scale = 0.5
   }
 }
 end
