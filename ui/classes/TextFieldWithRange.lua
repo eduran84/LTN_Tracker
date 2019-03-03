@@ -44,7 +44,7 @@ function TFWR:_init(name, args)
   local label_style = args.label_style or "ltnt_summary_label"
   local label_style_params = args.label_style_params or {vertical_align = "center"}
   self.tf_style = args.textfield_style or "long_number_textfield"
-  self.tf_invalid_style = args.textfield_invalid_style or "invalid_value_textfield"
+  self.tf_invalid_style = args.textfield_invalid_style or "ltnt_invalid_value_tf"
   local tf_style_params = args.textfield_style_params or {width = 100}
   local default_text = args.default_text or -1
   self.is_input_valid = args.valid_func or (function(input)
@@ -128,6 +128,7 @@ function TFWR:get_event_handler(event, index, data_string)
 end
 -- additional methods
 function TFWR:set_invalid(pind)
+  out.info("DEBUG", "new style:", self.tf_invalid_style, "element:", self:get_tf(pind))
 	self:get_tf(pind).style = self.tf_invalid_style
 end
 

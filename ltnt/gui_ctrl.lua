@@ -296,4 +296,5 @@ return {
   on_ui_closed = on_ui_closed,
   on_new_alert = on_new_alert,
   update_ui = update_ui,
+  reset_ui = reset_ui,
   }

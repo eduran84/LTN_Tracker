@@ -79,7 +79,7 @@ gcStopTab:add{
   name = "header_table",
   parent_name = "root",
   params = {type = "table", column_count = N_COLS, style = "slot_table"},
-  style = {cell_spacing = 0, horizontal_spacing = 0},
+  style = {horizontal_spacing = 0},
 }
 
 
@@ -237,7 +237,7 @@ do --create closure
   }
 
 	get_stops = function(self, pind)
-		if not global.filter[pind] then
+		if not self.mystorage.filter[pind] then
       sort(global.data.stop_ids, get_sort_func[self.mystorage.sort_by[pind]])
       return global.data.stop_ids
 		else
@@ -273,7 +273,8 @@ function gcStopTab:update(pind, index)
     -- table main body
     local selected_network_id = tonumber(self.sub_gc.idSelector:get_current_value(pind))
     local testfun
-    if global.gui[self.name].checkbox[pind].state then
+    out.info("DEBUG", "gc name:", self.name, "mystorage:", self.mystorage)
+    if self.mystorage.checkbox[pind].state then
       testfun = eqtest
     else
       testfun = btest
