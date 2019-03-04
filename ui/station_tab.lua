@@ -257,7 +257,6 @@ local function eqtest(a,b) return a==b end
 local build_item_table = require("ui.util").build_item_table
 function gcStopTab:update(pind, index)
   if index == self.tab_index then
-    out.info("DEBUG", "gc name:", self.name, "mystorage:", self.mystorage)
     self:show(pind)
     global.gui.active_tab[pind] = index
 

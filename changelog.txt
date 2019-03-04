@@ -1,4 +1,15 @@
 -------------------------------------------------------------
+Version: 0.9.1
+Date: 2019-02-28
+
+New features:
+  - station tab can be sorted by station name or state by
+    clicking the corresponding column header
+  - stations can be filtered by name
+Bugfixes:
+  - adjusted various UI components to look better with 0.17
+
+-------------------------------------------------------------
 Version: 0.9.0
 Date: 2019-02-28
 
