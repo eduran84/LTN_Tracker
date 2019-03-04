@@ -128,7 +128,6 @@ function TFWR:get_event_handler(event, index, data_string)
 end
 -- additional methods
 function TFWR:set_invalid(pind)
-  out.info("DEBUG", "new style:", self.tf_invalid_style, "element:", self:get_tf(pind))
 	self:get_tf(pind).style = self.tf_invalid_style
 end
 
