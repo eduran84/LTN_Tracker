@@ -153,7 +153,7 @@ function gcDepotTab:update(pind, index)
         style = "ltnt_depot_button",
         name = self:_create_name(index, depot_name),
       }
-      bt.style.width = DEPOT_CONST.pane_width_left - 28
+      bt.style.width = DEPOT_CONST.pane_width_left - 20
       index = index+1
       local flow = bt.add{
         type = "flow",
@@ -335,7 +335,7 @@ function gcDepotTab:show_details(pind)
         build_item_table{
           parent = tb,
           provided = data.deliveries[train.id].shipment,
-          columns = 4,
+          columns = 5,
           max_rows = 2,
         }
       else
@@ -344,7 +344,7 @@ function gcDepotTab:show_details(pind)
           label = build_item_table{
             parent = tb,
             requested = residuals[2],
-            columns = 4,
+            columns = 5,
             max_rows = 2,
             type = residuals[1],
             no_negate = true,

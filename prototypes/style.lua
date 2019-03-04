@@ -247,60 +247,60 @@ default_gui["ltnt_requested_button"] =
 default_gui["ltnt_sort_button_on"] =
 {
   type = "button_style",
-  size = {8, 8},
+  size = {16, 16},
   default_graphical_set =
   {
     filename = "__core__/graphics/arrows/table-header-sort-arrow-down-active.png",
     size = {16, 16},
-    scale = 0.5
+    scale = 1
   },
   hovered_graphical_set =
   {
     filename = "__core__/graphics/arrows/table-header-sort-arrow-down-hover.png",
     size = {16, 16},
-    scale = 0.5
+    scale = 1
   },
   clicked_graphical_set =
   {
     filename = "__core__/graphics/arrows/table-header-sort-arrow-down-active.png",
     size = {16, 16},
-    scale = 0.5
+    scale = 1
   },
   disabled_graphical_set =
   {
     filename = "__core__/graphics/arrows/table-header-sort-arrow-down-white.png",
     size = {16, 16},
-    scale = 0.5
+    scale = 1
   }
 }
 
 default_gui["ltnt_sort_button_off"] =
 {
   type = "button_style",
-  size = {8, 8},
+  size = {16, 16},
   default_graphical_set =
   {
     filename = "__core__/graphics/arrows/table-header-sort-arrow-down-white.png",
     size = {16, 16},
-    scale = 0.5
+    scale = 1
   },
   hovered_graphical_set =
   {
     filename = "__core__/graphics/arrows/table-header-sort-arrow-down-hover.png",
     size = {16, 16},
-    scale = 0.5
+    scale = 1
   },
   clicked_graphical_set =
   {
     filename = "__core__/graphics/arrows/table-header-sort-arrow-down-white.png",
     size = {16, 16},
-    scale = 0.5
+    scale = 1
   },
   disabled_graphical_set =
   {
     filename = "__core__/graphics/arrows/table-header-sort-arrow-down-white.png",
     size = {16, 16},
-    scale = 0.5
+    scale = 1
   }
 }
 end

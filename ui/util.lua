@@ -26,7 +26,7 @@ local function build_item_table(args)
 	local frame = args.parent.add{type = "frame", style = "ltnt_slot_table_frame"}
 
   if args.max_rows then
-    frame.style.maximal_height = args.max_rows * 42
+    frame.style.maximal_height = args.max_rows * 36 + 18
     frame.style.width = columns * 42+10
     frame = frame.add{type = "scroll-pane"}
     frame.horizontal_scroll_policy = "never"

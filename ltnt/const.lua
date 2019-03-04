@@ -39,7 +39,7 @@ CONST.proc = {
 -- UI layout
 CONST.main_frame = {
 	n_tabs = 5,
-  button_width = 165,
+  button_width = 185,
   button_sprite_bare = "ltnt_bt_sprite",
   button_sprite_alert = "ltnt_bt_alert_sprite",
   button_highlight_style = "ltnt_tab_button_highlight",
@@ -48,19 +48,19 @@ CONST.main_frame = {
 
 CONST.depot_tab = {
 	tab_index = 1,
-  pane_width_left = 350,
-	col_width_left = {300, 50, 50, 53, 150},
+  pane_width_left = 355,
+	col_width_left = {325, 50, 50, 53, 170},
 
-  pane_width_right = 494,
-	col_width_right = {140, 170, 101},
+  pane_width_right = 580,
+	col_width_right = {160, 190, 101},
   -- parked / error / on delivery
   color_dict = {{r=0,g=1,b=0}, {r=1,g=0,b=0}, {r=1,g=1,b=1}},
 }
 
 CONST.station_tab = {
 	tab_index = 2,
-  header_col_width = {172, 41, 35*5+26, 34*4+30, 34*6},
-  station_col_width = 173,
+  header_col_width = {207, 29, 40*5+27, 40*4+21, 40*6},
+  station_col_width = 195,
   item_table_col_count = {5, 4, 7},
   item_table_max_rows = {4, 4, 1},
 }
@@ -69,25 +69,25 @@ CONST.inventory_tab = {
 	tab_index = 3,
   item_table_column_count = 14,
   details_item_tb_col_count = 9,
-  details_width = 360,
-  details_tb_col_width_stations = {275, 45},
-  details_tb_col_width_deliveries = {140, 25, 140}
+  details_width = 380,
+  details_tb_col_width_stations = {290, 45},
+  details_tb_col_width_deliveries = {150, 25, 150}
 }
 
 CONST.history_tab = {
 	tab_index = 4,
-	header_col_width = {162, 162, 158, 35, 55, 110},
-	col_width = {162, 162, 162,  40, 40, 150},
+	header_col_width = {180, 180, 180, 35, 50, 140},
+	col_width = {180, 180, 180, 40, 40, 150},
 	n_columns = 6,
   n_cols_shipment = 5,
 }
 
 CONST.alert_tab = {
 	tab_index = 5,
-  frame_width = {375, 470},
+  frame_width = {385, 500},
   n_columns = {3, 4},
 	col_width_l = {150, 20, 149},
-	col_width_r = {110, 109, 130, 0},
+	col_width_r = {120, 119, 140, 0},
 }
 
 -- misc stuff
