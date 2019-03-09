@@ -150,9 +150,15 @@ function gcDepotTab:update(pind, index)
       -- create button for each depot
       local bt = left_frame.add{
         type = "button",
-        style = "ltnt_depot_button",
+        --style = "ltnt_depot_button",
         name = self:_create_name(index, depot_name),
       }
+      bt.style.height = 100
+      bt.style.top_padding = 0
+      bt.style.bottom_padding = 0
+      bt.style.left_padding = 0
+      bt.style.right_padding = 0
+      --bt.style.hovered_font_color = {r=0, g=0, b=0}
       bt.style.width = DEPOT_CONST.pane_width_left - 20
       index = index+1
       local flow = bt.add{
@@ -168,6 +174,7 @@ function gcDepotTab:update(pind, index)
         style = "ltnt_summary_label",
         ignored_by_interaction = true,
       }
+      label.style.font_color = {r=0, g=0, b=0}
       label.style.width = DEPOT_CONST.col_width_left[1]
 
       -- second row: number of trains and capacity
@@ -176,10 +183,11 @@ function gcDepotTab:update(pind, index)
         type = "label",
         caption = {"depot.header-col-2"},
         tooltip = {"depot.header-col-2-tt"},
-        style = "ltnt_label_default",
+        style = "ltnt_depot_caption",
         ignored_by_interaction = true,
       }
       label.style.width = DEPOT_CONST.col_width_left[2]
+
       label = subflow.add{
         type = "label",
         caption = depot_data.n_parked .. "/" .. depot_data.n_all_trains,
@@ -187,14 +195,16 @@ function gcDepotTab:update(pind, index)
         ignored_by_interaction = true,
       }
       label.style.width = DEPOT_CONST.col_width_left[3]
+
       label = subflow.add{
         type = "label",
         caption = {"depot.header-col-3"},
         tooltip = {"depot.header-col-3-tt"},
-        style = "ltnt_label_default",
+        style = "ltnt_depot_caption",
         ignored_by_interaction = true,
       }
       label.style.width = DEPOT_CONST.col_width_left[4]
+      label.style.font_color = {0, 0, 0}
       label = subflow.add{
         type = "label",
         caption =  format("%d stacks + %dk fluid", depot_data.cap,  depot_data.fcap/1000),

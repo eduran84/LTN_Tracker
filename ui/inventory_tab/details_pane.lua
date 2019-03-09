@@ -95,7 +95,7 @@ gcDetails:add{
   parent_name = "root",
   params = {
     type = "scroll-pane",
-    vertical_scroll_policy = "auto",
+    vertical_scroll_policy = "auto-and-reserve-space",
     horizontal_scroll_policy = "never",
   },
 }

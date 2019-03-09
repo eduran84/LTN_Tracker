@@ -118,44 +118,44 @@ local function update_stops(raw, stop_id) -- state 1
   for stop_id, stop in pairs(stops) do
     --stop_id, stop = next(stops, stop_id)
     --if stop then
-      if stop.entity.valid then
-        -- list in name lookup table
-        local name = stop.entity.backer_name
-        if stop.isDepot then
-          if raw.depots[name] then
-            local depot = raw.depots[name]
-            -- add stop to depot
-            depot.network_ids[#depot.network_ids+1] = stop.network_id
-            depot.signals[get_lamp_color(stop)] = (depot.signals[get_lamp_color(stop)] or 0) + 1
-          else
-            --create new depot
-            raw.depots[name] = {
-              parked_trains = {},
-              signals = {[get_lamp_color(stop)] = 1},
-              network_ids = {stop.network_id},
-              all_trains = stop.entity.get_train_stop_trains(),
-              n_parked = 0,
-              n_all_trains = 0,
-              cap = 0,
-              fcap = 0,
-            }
-          end
+    if stop.entity.valid then
+      -- list in name lookup table
+      local name = stop.entity.backer_name
+      if stop.isDepot then
+        if raw.depots[name] then
+          local depot = raw.depots[name]
+          -- add stop to depot
+          depot.network_ids[#depot.network_ids+1] = stop.network_id
+          depot.signals[get_lamp_color(stop)] = (depot.signals[get_lamp_color(stop)] or 0) + 1
+        else
+          --create new depot
+          raw.depots[name] = {
+            parked_trains = {},
+            signals = {[get_lamp_color(stop)] = 1},
+            network_ids = {stop.network_id},
+            all_trains = stop.entity.get_train_stop_trains(),
+            n_parked = 0,
+            n_all_trains = 0,
+            cap = 0,
+            fcap = 0,
+          }
         end
-        raw.name2id[name] = stop_id
-        if stop.errorCode ~= 0 then
-          -- add to table with error stops
-          stop.name = name
-          stop.signals = {[LTN_CONSTANTS.error_color_lookup[stop.errorCode]] = 1}
-          raw.stops_error[stop_id] = stop
-        elseif not stop.isDepot then
-          -- add extra fields to normal stops
-          stop.name = name
-          stop.signals = get_control_signals(stop)
-          stop.incoming = {}
-          stop.outgoing = {}
-          raw.stop_ids[#raw.stop_ids+1] = stop_id
-        end -- if stop.errorCode ~= 0
-      end   -- if stop.valid
+      end
+      raw.name2id[name] = stop_id
+      if stop.errorCode ~= 0 then
+        -- add to table with error stops
+        stop.name = name
+        stop.signals = {[LTN_CONSTANTS.error_color_lookup[stop.errorCode]] = 1}
+        raw.stops_error[stop_id] = stop
+      elseif not stop.isDepot then
+        -- add extra fields to normal stops
+        stop.name = name
+        stop.signals = get_control_signals(stop)
+        stop.incoming = {}
+        stop.outgoing = {}
+        raw.stop_ids[#raw.stop_ids+1] = stop_id
+      end -- if stop.errorCode ~= 0
+    end   -- if stop.valid
    -- else
     --  return nil -- all stops done
     --end --if stop_id then
@@ -164,7 +164,7 @@ local function update_stops(raw, stop_id) -- state 1
 end
 
 local function update_depots(raw, depot_name) -- state 3
-  local av_trains = raw.dispatch.availableTrains
+  local av_trains = raw.available_trains
   local counter = 0
   while counter < TRAINS_PER_TICK do -- for depot_name, depot in pairs(raw.depots) do
     local depot
@@ -194,10 +194,10 @@ end
 local function update_provided(raw) -- state 4
   -- sort provided items by network id
   local i2s = raw.item2stop
-  for item, stops in pairs(raw.dispatch.Provided) do
-    for stop_id, count in pairs(stops) do
-      local stop = raw.stops[stop_id]
-      if stop then
+  for stop_id, provided in pairs(raw.provided_by_stop) do
+    local stop = raw.stops[stop_id]
+    if stop then
+      for item, count in pairs(provided) do
         -- list stop as provider for item
         i2s[item] = i2s[item] or {}
         i2s[item][#i2s[item]+1] = stop_id
@@ -208,23 +208,23 @@ local function update_provided(raw) -- state 4
       end
     end
   end
-  return nil
 end
 
 local function update_requested(raw) -- state 5
     -- sort requested items by network id
   local i2s = raw.item2stop
-  local requests= raw.dispatch.Requests
-  for rq_idx, request in pairs(requests) do
-    if raw.stops[request.stopID] then
-      local item = request.item
-      -- list stop as requester for item
-      i2s[item] = i2s[item] or {}
-      i2s[item][#i2s[item]+1] = request.stopID
-      local networkID = raw.stops[request.stopID].network_id
-      -- store requested amount for each network id and item
-      raw.requested[networkID] = raw.requested[networkID] or {}
-      raw.requested[networkID][item] = (raw.requested[networkID][item] or 0) - request.count
+  local requests = raw.requests_by_stop
+  for stop_id, request in pairs(requests) do
+    if raw.stops[stop_id] then
+      local networkID = raw.stops[stop_id].network_id
+      for item, count in pairs(request) do
+        -- list stop as requester for item
+        i2s[item] = i2s[item] or {}
+        i2s[item][#i2s[item]+1] = stop_id
+        -- store requested amount for each network id and item
+        raw.requested[networkID] = raw.requested[networkID] or {}
+        raw.requested[networkID][item] = (raw.requested[networkID][item] or 0) - count
+      end
     end
   end
   return nil
@@ -252,7 +252,7 @@ local function add_new_deliveries(raw, delivery_id) -- state 7
   while counter < DELIVERIES_PER_TICK do
     counter = counter + 1
     local delivery
-    delivery_id, delivery = next(raw.dispatch.Deliveries, delivery_id)
+    delivery_id, delivery = next(raw.deliveries, delivery_id)
     if delivery then
       delivery.from_id = raw.name2id[delivery.from]
       delivery.to_id = raw.name2id[delivery.to]
@@ -272,10 +272,13 @@ local data_processor -- defined later
 
 -- on_dispatcher_updated is always triggered right after on_stops_updated
 local function on_stops_updated(event)
-  raw.stops = event.data
+  raw.stops = event.logistic_train_stops
 end
 local function on_dispatcher_updated(event)
-  raw.dispatch = event.data
+  raw.deliveries = event.deliveries
+  raw.available_trains =  event.available_trains
+  raw.requests_by_stop = event.requests_by_stop
+  raw.provided_by_stop = event.provided_by_stop
   data_processor()
 end
 
@@ -315,9 +318,9 @@ data_processor = function(event)
 
     proc.state = 1 -- set next state
 
-    --[[if debug_level >= 3 then
-      out.info("data_processor", "Raw data follows:\n", global.raw)
-    end --]]
+    --if debug_level >= 3 then
+    --  out.info("data_processor", "Raw data follows:\n", global.raw)
+    --end
 
   -- processing functions for each state can take multiple ticks to complete
   -- if those functions return a value, they will be called again next tick, with that value as input
@@ -378,12 +381,12 @@ data_processor = function(event)
     data.provided =  raw.provided
     data.requested = raw.requested
     data.in_transit = raw.in_transit
-    data.deliveries = raw.dispatch.Deliveries
+    data.deliveries = raw.deliveries
     data.name2id =  raw.name2id
     data.item2stop =  raw.item2stop
     data.item2delivery = raw.item2delivery
-    data.provided_by_stop = raw.dispatch.Provided_by_Stop
-    data.requested_by_stop = raw.dispatch.Requests_by_Stop
+    data.provided_by_stop = raw.provided_by_stop
+    data.requested_by_stop = raw.requests_by_stop
     data.stop_ids = raw.stop_ids
 
     -- stop on_tick updates, start listening for LTN interface
@@ -405,6 +408,7 @@ local get_main_loco = require("ltnt.util").get_main_loco
 
 local function store_history(history)
   history.runtime = game.tick - history.started
+  history.networkID = history.networkID > 2147483648 and history.networkID - 4294967296 or history.networkID
   data.delivery_hist[data.newest_history_index] = history
   data.newest_history_index = (data.newest_history_index % HISTORY_LIMIT) + 1
 end

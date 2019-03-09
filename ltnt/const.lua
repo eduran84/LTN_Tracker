@@ -19,8 +19,12 @@ CONST.global = {
   mod_prefix = "ltnt",
   gui_events = {defines.events.on_gui_click, defines.events.on_gui_checked_state_changed, defines.events.on_gui_text_changed}, -- events handled by on_gui_event
   mod_name_ltn = "LogisticTrainNetwork",
-  minimal_version_ltn = "01.10.0",
-  current_version_ltn = "01.10.0",
+  minimal_version_ltn = "01.10.02",
+  current_version_ltn = "01.10.02",
+}
+
+CONST.styles = {
+  font_color_black = {40, 39, 40}
 }
 
 -- ui_ctrl.lua
@@ -49,7 +53,7 @@ CONST.main_frame = {
 CONST.depot_tab = {
 	tab_index = 1,
   pane_width_left = 355,
-	col_width_left = {325, 50, 50, 53, 170},
+	col_width_left = {325, 55, 50, 52, 180},
 
   pane_width_right = 580,
 	col_width_right = {160, 190, 101},
@@ -67,11 +71,11 @@ CONST.station_tab = {
 
 CONST.inventory_tab = {
 	tab_index = 3,
-  item_table_column_count = 14,
+  item_table_column_count = 13,
   details_item_tb_col_count = 9,
-  details_width = 380,
-  details_tb_col_width_stations = {290, 45},
-  details_tb_col_width_deliveries = {150, 25, 150}
+  details_width = 400,
+  details_tb_col_width_stations = {300, 45},
+  details_tb_col_width_deliveries = {160, 25, 160}
 }
 
 CONST.history_tab = {
@@ -104,11 +108,13 @@ local ltn = {
   MINTRAINLENGTH = "ltn-min-train-length",
   MAXTRAINLENGTH = "ltn-max-train-length",
   MAXTRAINS = "ltn-max-trains",
-  MINREQUESTED = "ltn-requester-threshold",
-  REQPRIORITY = "ltn-requester-priority",
+  REQUESTED_THRESHOLD = "ltn-requester-threshold",
+  REQUESTED_STACK_THRESHOLD = "ltn-requester-stack-threshold",
+  REQUESTED_PRIORITY = "ltn-requester-priority",
   NOWARN = "ltn-disable-warnings",
-  MINPROVIDED = "ltn-provider-threshold",
-  PROVPRIORITY = "ltn-provider-priority",
+  PROVIDED_THRESHOLD = "ltn-provider-threshold",
+  PROVIDED_STACK_THRESHOLD = "ltn-provider-stack-threshold",
+  PROVIDED_PRIORITY = "ltn-provider-priority",
   LOCKEDSLOTS = "ltn-locked-slots",
 }
 ltn.is_control_signal = {
@@ -117,11 +123,13 @@ ltn.is_control_signal = {
   [ltn.MINTRAINLENGTH] = true,
   [ltn.MAXTRAINLENGTH] = true,
   [ltn.MAXTRAINS] = true,
-  [ltn.MINREQUESTED] = true,
-  [ltn.REQPRIORITY] = true,
+  [ltn.REQUESTED_THRESHOLD] = true,
+  [ltn.REQUESTED_STACK_THRESHOLD] = true,
+  [ltn.REQUESTED_PRIORITY] = true,
   [ltn.NOWARN] = true,
-  [ltn.MINPROVIDED] = true,
-  [ltn.PROVPRIORITY] = true,
+  [ltn.PROVIDED_THRESHOLD] = true,
+  [ltn.PROVIDED_STACK_THRESHOLD] = true,
+  [ltn.PROVIDED_PRIORITY] = true,
   [ltn.LOCKEDSLOTS] = true,
 }
 ltn.ctrl_signal_var_name_bool = {
@@ -133,15 +141,17 @@ ltn.ctrl_signal_var_name_num = {
   [ltn.MINTRAINLENGTH] = "minTraincars",
   [ltn.MAXTRAINLENGTH] = "maxTraincars",
   [ltn.MAXTRAINS] = "trainLimit",
-  [ltn.MINREQUESTED] = "minRequested",
-  [ltn.REQPRIORITY] = "requestPriority",
-  [ltn.MINPROVIDED] = "minProvided",
-  [ltn.PROVPRIORITY] = "providePriority",
+  [ltn.REQUESTED_THRESHOLD] = "requestThreshold",
+  [ltn.REQUESTED_STACK_THRESHOLD] = "requestStackThreshold",
+  [ltn.REQUESTED_PRIORITY] = "requestPriority",
+  [ltn.PROVIDED_THRESHOLD] = "provideThreshold",
+  [ltn.PROVIDED_STACK_THRESHOLD] = "provideStackThreshold",
+  [ltn.PROVIDED_PRIORITY] = "providePriority",
   [ltn.LOCKEDSLOTS] = "lockedSlots",
 }
 ltn.error_color_lookup = {
   [-1]= "signal-white",
-  [0] = "signal-white", -- this is a modification, used when entity became invalid
+  [0] = "signal-white", -- this is a modification, used when entity becomes invalid
   [1] = "signal-red",
   [2] = "signal-pink",
 }

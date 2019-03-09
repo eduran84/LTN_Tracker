@@ -2,6 +2,22 @@
 data:extend({
   {
     type = "font",
+    name = "ltnt_font_depot_caption",
+    from = "default-semibold",
+    font_color = {0, 0, 0},
+    size = 14,
+  },
+  {
+    type = "font",
+    name = "ltnt_font_depot_value",
+    from = "default-semibold",
+    font_color = {255, 255, 255},
+    size = 14,
+    border = true,
+    border_color = {0, 0, 0},
+  },
+  {
+    type = "font",
     name = "ltnt_font_default",
     from = "default",
     size = 14
@@ -190,16 +206,9 @@ default_gui["ltnt_depot_button"]  =
   padding = 0,
   minimal_height = 100,
   maximal_height = 100,
-  hovered_font_color = {r=0.5, g=0.5, b=0.5},
-  hovered_graphical_set =
-  {
-    type = "composition",
-    filename = "__core__/graphics/gui.png",
-    priority = "extra-high-no-scale",
-    load_in_minimal_mode = true,
-    corner_size = {3, 3},
-    position = {0, 16}
-  },
+  default_font_color = C.styles.font_color_black,
+  hovered_font_color = C.styles.font_color_black,
+  clicked_font_color = C.styles.font_color_black,
 }
 
 default_gui["ltnt_empty_button"] =
@@ -333,8 +342,13 @@ default_gui["ltnt_summary_number"] = {
 
 default_gui["ltnt_number_label"] = {
   type = "label_style",
-  font = "ltnt_font_default",
-  font_color = default_orange_color,
+  font = "ltnt_font_depot_value",
+}
+
+default_gui["ltnt_depot_caption"] = {
+  type = "label_style",
+  font = "ltnt_font_depot_caption",
+  font_color = {},
 }
 
 default_gui["ltnt_hoverable_label"] = {

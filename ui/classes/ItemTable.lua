@@ -58,7 +58,7 @@ function ItemTable:_init(name, args)
   -- call super constructor and add elements
   GuiComposition._init(self, name)
   -- frame around the table
-	local width = 34*self.columns+2
+	--local width = 34*self.columns+2
   self:add{
     name = "root",
     params = {
@@ -83,7 +83,7 @@ function ItemTable:_init(name, args)
 			column_count = self.columns,
 			style = "slot_table",
 		},
-		style = {width = width},
+		--style = {width = width},
 	}
 end
 

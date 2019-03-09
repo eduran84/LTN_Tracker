@@ -132,7 +132,7 @@ script.on_configuration_changed(
           out.info("control.lua", "LTN version changed from ", ov, " to ", nv)
         end
       else
-        out.error("LTN version was changed from ", ov, " to ", nv ".", MOD_NAME, "requires version",  LTN_MINIMAL_VERSION, " or later of Logistic Train Network to run.")
+        out.error("LTN version was changed from ", ov, " to ", nv, ".", MOD_NAME, "requires version",  LTN_MINIMAL_VERSION, " or later of Logistic Train Network to run.")
       end
     end
     if data and data.mod_changes[MOD_NAME] then

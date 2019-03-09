@@ -35,7 +35,8 @@ gcInvTab:add{
   parent_name = "flow",
   params = {
     type = "scroll-pane",
-    horizontal_scroll_policy = "never"
+    horizontal_scroll_policy = "never",
+    vertical_scroll_policy = "auto-and-reserve-space",
   },
 }
 
@@ -73,12 +74,7 @@ gcInvTab:add{
     use_placeholders = IT_COL_COUNT*2-1,
   })
 }
---[[
-gcInvTab:add{
-  name = "spacer_flow",
-  parent_name = "flow",
-  params = {type = "flow", horizontally_stretchable = "true"}
-}--]]
+
 gcInvTab.tab_index = require("ltnt.const").inventory_tab.tab_index
 -- details pane on the right side
 gcInvTab:add{
@@ -86,7 +82,6 @@ gcInvTab:add{
   parent_name = "flow",
   gui_composition = require("ui.inventory_tab.details_pane"),
 }
-gcInvTab.tab_index = require("ltnt.const").inventory_tab.tab_index
 
 -- additional methods
 function gcInvTab:update(pind, index)

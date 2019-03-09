@@ -86,8 +86,6 @@ function gcOuterFrame:toggle(pind)
 	local new_state = GC.toggle(self, pind)
 	if new_state then
 		game.players[pind].opened = self:get(pind)
-  else
-		game.players[pind].opened = nil
 	end
   global.gui.is_gui_open[pind] = new_state
 	return new_state
@@ -95,7 +93,6 @@ end
 
 function gcOuterFrame:hide(pind)
 	GC.hide(self, pind)
-	game.players[pind].opened = nil
   global.gui.is_gui_open[pind] = false
 end
 

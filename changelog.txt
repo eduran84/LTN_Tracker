@@ -1,77 +1,83 @@
--------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
+Version: 0.9.2
+Date: 2019-03-07
+
+  Changes:
+    - Updated to LTN 1.10.2.
+    - Improved depot tab layout.
+  Bugfixes:
+    - Fixed changelog to be compliant with Factorio's parser.
+    - Fixed negative networks IDs not being displayed correctly in history tab.
+
+---------------------------------------------------------------------------------------------------
 Version: 0.9.1
 Date: 2019-02-28
 
-New features:
-  - station tab can be sorted by station name or state by
-    clicking the corresponding column header
-  - stations can be filtered by name
-Bugfixes:
-  - adjusted various UI components to look better with 0.17
+  Features:
+    - Station tab can be sorted by station name or state by clicking the corresponding column header.
+    - Stations can be filtered by name.
 
--------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
 Version: 0.9.0
 Date: 2019-02-28
 
-New features:
-  - updated to work with Factorio 0.17
+  Changes:
+    - Updated to Factorio 0.17.
 
--------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
 Version: 0.8.6
 Date: 2019-02-21
 
-Bugfixes:
-  - deleting train schedules no longer causes an error
-  - fixed missing localized string
+  Bugfixes:
+    - Fixed error caused by deleting train schedules.
+    - Fixed missing localized string.
 
--------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
 Version: 0.8.5
 Date: 2019-02-20
 
-Bugfixes:
-  - renaming depots should no longer cause issues
+  Bugfixes:
+    - Fixed error caused by renaming depots.
 
--------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
 Version: 0.8.4
 Date: 2019-02-19
 
-Bugfixes:
-  - removing items from a save (by removing other mods)
-    should no longer cause errors
-  - workaround added for UI elements being invalidated by
-    other mods
+  Bugfixes:
+    - Removing items from a save (by removing other mods) should no longer cause errors.
+    - Workaround added for UI elements being invalidated by other mods.
 
--------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
 Version: 0.8.3
 Date: 2019-02-13
 
-Bugfixes:
-  - fixed broken .zip file
+  Bugfixes:
+    - Fixed broken .zip file.
 
--------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
 Version: 0.8.2
 Date: 2019-02-12
 
-New features:
-  - added setting to allow automatic refresh of currently
-    displayed tab
+  Features:
+    - Added setting to allow automatic refresh of currently displayed tab.
 
-Misc:
-  - changed default debug level to "off"
+  Changes:
+    - Changed default debug level to "off".
 
--------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
 Version: 0.8.1
 Date: 2019-02-11
 
-Bugfixeses:
-	- cleanup when mod configuration changes works properly now
+  Bugfixes:
+    - Cleanup when mod configuration changes works properly now.
 
-Misc:
-	- added changelog
-	- added homepage and description to info.json
+  Changes:
+    - Added changelog.
+    - Added homepage and description to info.json.
 
--------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
 Version: 0.8.0
 Date: 2019-02-10
 
-Initial release to Factorio mod portal.
+  Features:
+    - Initial release to Factorio mod portal.
