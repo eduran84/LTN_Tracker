@@ -80,8 +80,8 @@ CONST.inventory_tab = {
 
 CONST.history_tab = {
 	tab_index = 4,
-	header_col_width = {180, 180, 180, 35, 50, 140},
-	col_width = {180, 180, 180, 40, 40, 150},
+	header_col_width = {175, 175, 175, 35, 50, 140},
+	col_width = {175, 175, 175, 40, 40, 150},
 	n_columns = 6,
   n_cols_shipment = 5,
 }
