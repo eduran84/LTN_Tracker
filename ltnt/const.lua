@@ -88,10 +88,10 @@ CONST.history_tab = {
 
 CONST.alert_tab = {
 	tab_index = 5,
-  frame_width = {385, 500},
+  frame_width = {410, 525},
   n_columns = {3, 4},
-	col_width_l = {150, 20, 149},
-	col_width_r = {120, 119, 140, 0},
+	col_width_l = {170, 20, 160},
+	col_width_r = {130, 120, 140, 0},
 }
 
 -- misc stuff
