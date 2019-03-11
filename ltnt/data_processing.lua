@@ -402,24 +402,78 @@ data_processor = function(event)
   end
 end
 
--- history tracking
---local delivery_timeout = settings.global["ltn-dispatcher-delivery-timeout"].value
+-- delivery tracking
+
 local get_main_loco = require("ltnt.util").get_main_loco
+local function item_match(strg)
+  return string.match(strg, "(%w+),([%w_%-]+)")
+end
 
 local function store_history(history)
   if debug_level >= 2 then
     out.info("store_history", "New history record:", history)
   end
   history.runtime = game.tick - history.started
-  history.networkID = history.networkID and history.networkID > 2147483648 and history.networkID - 4294967296 or history.networkID
+  history.networkID = history.networkID and history.networkID > 2147483648 and history.networkID - 4294967296 or history.networkID -- convert from uint32 to int32
   data.delivery_hist[data.newest_history_index] = history
   data.newest_history_index = (data.newest_history_index % HISTORY_LIMIT) + 1
 end
 
-local function on_delivery_completed(event_data)
+local function raise_alert(delivery, train, alert_type, incorrect_item)
+  local loco = get_main_loco(train)
+  data.trains_error[train.id] = {
+    type = alert_type,
+    loco = loco,
+    route = {delivery.depot, delivery.from, delivery.to},
+    cargo = incorrect_item,
+  }
+  if debug_level >= 2 then
+    out.info("raise_alert", "New alert:", data.trains_error[train.id])
+  end
+  script.raise_event(events.on_train_alert, data.trains_error[train.id])
+end
+
+local function on_pickup_completed(event)
+  -- compare train content to planned shipment
+  local delivery = event.delivery
+  local train = delivery.train
+  local item_cargo = train.get_contents() -- does return empty table when train is empty, not nil
+  local fluid_cargo = train.get_fluid_contents()
+  local shipment = delivery.shipment
+
+  local keys = {}
+  for item, amount in pairs(shipment) do
+    local item_type, item_name = item_match(item)
+    local amt_expected
+    if item_type == "item" then
+      amt_expected = item_cargo[item_name]
+    else
+      amt_expected = fluid_cargo[item_name]
+    end
+    if amt_expected ~= amount then
+      raise_alert(delivery, train, "incorrect_cargo", {item_type, {[item_name] = amount}})
+      return
+    end
+    keys[item_name] = true
+  end
+  for item_name, amount in pairs(item_cargo) do
+    if not keys[item_name] then
+      raise_alert(delivery, train, "incorrect_cargo", {"item", {[item_name] = amount}})
+      return
+    end
+  end
+  for fluid_name, amount in pairs(fluid_cargo) do
+    if not keys[fluid_name] then
+      raise_alert(delivery, train, "incorrect_cargo", {"fluid", {[fluid_name] = amount}})
+      return
+    end
+  end
+end
+
+local function on_delivery_completed(event)
   -- check train for residual content
   -- if a train has fluid and items, only item residue is logged
-  local delivery = event_data.delivery
+  local delivery = event.delivery
   local train = delivery.train
   delivery.depot = train.schedule and train.schedule.records[1] and train.schedule.records[1].station or "unknown"
   local res = train.get_contents() -- does return empty table when train is empty, not nil
@@ -430,19 +484,12 @@ local function on_delivery_completed(event_data)
     else
       delivery.residuals = {"fluid", fres}
     end
-    local loco = get_main_loco(train)
-    data.trains_error[train.id] = {
-      type = "residuals",
-      loco = loco,
-      route = {delivery.depot, delivery.from, delivery.to},
-      cargo = delivery.residuals,
-    }
-    script.raise_event(events.on_train_alert, data.trains_error[train.id])
+    raise_alert(delivery, train, "residuals", delivery.residuals)
   end
   store_history(delivery)
 end
-local function on_delivery_failed(event_data)
-  local delivery = event_data.delivery
+local function on_delivery_failed(event)
+  local delivery = event.delivery
   local train = delivery.train
   if train.valid then
     -- train still valid -> delivery timed out
@@ -457,7 +504,7 @@ local function on_delivery_failed(event_data)
     script.raise_event(events.on_train_alert, data.trains_error[train.id])
   else
     -- train became invalid during delivery
-    data.trains_error[event_data.trainID] = {
+    data.trains_error[event.trainID] = {
       type = "train_invalid",
       loco = nil,
       route = {"", delivery.from, delivery.to},
@@ -481,6 +528,7 @@ local function on_load(custom_events)
   events.on_dispatcher_updated_event = remote.call("logistic-train-network", "get_on_dispatcher_updated_event")
   events.on_delivery_completed_event = remote.call("logistic-train-network", "get_on_delivery_completed_event")
   events.on_delivery_failed_event = remote.call("logistic-train-network", "get_on_delivery_failed_event")
+  events.on_pickup_completed = remote.call("logistic-train-network", "get_on_delivery_pickup_complete_event")
 
   -- register for conditional events
   if global.proc.state == 0 then
@@ -491,6 +539,7 @@ local function on_load(custom_events)
   end
   script.on_event(events.on_delivery_completed_event, on_delivery_completed)
   script.on_event(events.on_delivery_failed_event, on_delivery_failed)
+  script.on_event(events.on_pickup_completed, on_pickup_completed)
   if debug_level >= 1 then
     out.info("data_processing.lua", "data processor status after on_load:", global.proc)
   end
