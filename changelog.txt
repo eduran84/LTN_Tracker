@@ -4,6 +4,7 @@ Date: 2019-03-13
 
   Bugfixes:
     - Fixed #15: crash after UI being deleted by other mods.
+    - Fixed error caused by histories with invalid network ID.
 
 ---------------------------------------------------------------------------------------------------
 Version: 0.9.2

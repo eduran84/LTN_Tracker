@@ -408,7 +408,7 @@ local get_main_loco = require("ltnt.util").get_main_loco
 
 local function store_history(history)
   history.runtime = game.tick - history.started
-  history.networkID = history.networkID > 2147483648 and history.networkID - 4294967296 or history.networkID
+  history.networkID = history.networkID and history.networkID > 2147483648 and history.networkID - 4294967296 or history.networkID
   data.delivery_hist[data.newest_history_index] = history
   data.newest_history_index = (data.newest_history_index % HISTORY_LIMIT) + 1
 end

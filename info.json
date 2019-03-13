@@ -7,5 +7,5 @@
 "homepage": "https://forums.factorio.com/viewtopic.php?f=190&t=64842",
 "description": "A GUI for LTN. Displays information about LTN stops, available items and trains controlled by LTN.",
 "factorio_version": "0.17",
-"dependencies": ["base >= 0.17.4", "LogisticTrainNetwork >= 1.10.2"]
+"dependencies": ["base >= 0.17.11", "LogisticTrainNetwork >= 1.10.2"]
 }
