@@ -155,7 +155,7 @@ function GuiComposition:get(pind)
     return self.mystorage.root[pind]
   else
     out.warn("UI element", self.name, "invalidated by incompatible mod. Resetting UI.")
-    script.raise_event()
+    script.raise_event(self.reset_ui_event_id, self.name)
     return nil
   end
 end
