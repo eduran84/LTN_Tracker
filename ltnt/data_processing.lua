@@ -474,10 +474,10 @@ local function on_load(custom_events)
 
   -- cache event IDs
   events = custom_events
-  events.on_stops_updated_event = remote.call("logistic-train-network", "get_on_stops_updated_event")
-  events.on_dispatcher_updated_event = remote.call("logistic-train-network", "get_on_dispatcher_updated_event")
-  events.on_delivery_completed_event = remote.call("logistic-train-network", "get_on_delivery_completed_event")
-  events.on_delivery_failed_event = remote.call("logistic-train-network", "get_on_delivery_failed_event")
+  events.on_stops_updated_event = remote.call("logistic-train-network", "on_stops_updated")
+  events.on_dispatcher_updated_event = remote.call("logistic-train-network", "on_dispatcher_updated")
+  events.on_delivery_completed_event = remote.call("logistic-train-network", "on_delivery_completed")
+  events.on_delivery_failed_event = remote.call("logistic-train-network", "on_delivery_failed")
 
   -- register for conditional events
   if global.proc.state == 0 then
