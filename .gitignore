@@ -1,3 +1,4 @@
 *.zip
 *.py
 .git
+.vscode/tasks.json
