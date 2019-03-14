@@ -80,18 +80,18 @@ CONST.inventory_tab = {
 
 CONST.history_tab = {
 	tab_index = 4,
-	header_col_width = {180, 180, 180, 35, 50, 140},
-	col_width = {180, 180, 180, 40, 40, 150},
+	header_col_width = {175, 175, 175, 35, 50, 140},
+	col_width = {175, 175, 175, 40, 40, 150},
 	n_columns = 6,
   n_cols_shipment = 5,
 }
 
 CONST.alert_tab = {
 	tab_index = 5,
-  frame_width = {385, 500},
+  frame_width = {410, 525},
   n_columns = {3, 4},
-	col_width_l = {150, 20, 149},
-	col_width_r = {120, 119, 140, 0},
+	col_width_l = {170, 20, 160},
+	col_width_r = {130, 120, 140, 0},
 }
 
 -- misc stuff

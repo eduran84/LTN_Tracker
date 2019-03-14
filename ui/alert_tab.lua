@@ -177,6 +177,16 @@ function gcAlertTab:update(pind, index)
             no_negate = true,
           }
           self:build_buttons(tb, index, train_id, true)
+        elseif error_data.type == "incorrect_cargo" then
+          -- residual item overview
+          build_item_table{
+            parent = tb,
+            requested = error_data.cargo[2],
+            columns = 4,
+            type = error_data.cargo[1],
+            no_negate = true,
+          }
+          self:build_buttons(tb, index, train_id, true)
         elseif error_data.type == "timeout" then
           local elem = tb.add{
             type = "label",
