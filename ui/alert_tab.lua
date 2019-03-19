@@ -86,12 +86,14 @@ local function build_route_labels(parent, route) -- helper function for gcAlertT
     local elem = inner_tb.add{
       type = "label",
       caption = route[2],
+      tooltip = route[2],
       style = "ltnt_label_default",
     }
     elem.style.width = COL_WIDTH_R[1]
     elem = inner_tb.add{
       type = "label",
       caption = route[3],
+      tooltip = route[3],
       style = "ltnt_label_default",
     }
     elem.style.width = COL_WIDTH_R[1]
@@ -107,6 +109,7 @@ local function build_route_labels(parent, route) -- helper function for gcAlertT
   local elem = parent.add{
     type = "label",
     caption = route[1],
+    tooltip = route[1],
     style = "ltnt_label_default",
   }
   elem.style.vertical_align = "center"

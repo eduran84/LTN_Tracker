@@ -403,8 +403,9 @@ data_processor = function(event)
 end
 
 -- delivery tracking
-
 local get_main_loco = require("ltnt.util").get_main_loco
+local FLUID_TOL = require("ltnt.const").proc.fluid_tolerance
+local abs = math.abs
 local function item_match(strg)
   return string.match(strg, "(%w+),([%w_%-]+)")
 end
@@ -428,7 +429,7 @@ local function raise_alert(delivery, train, alert_type, incorrect_item)
     cargo = incorrect_item,
   }
   if debug_level >= 2 then
-    out.info("raise_alert", "New alert:", data.trains_error[train.id])
+    out.info("raise_alert", "Intended delivery:", delivery, "\nNew alert:", data.trains_error[train.id])
   end
   script.raise_event(events.on_train_alert, data.trains_error[train.id])
 end
@@ -442,16 +443,16 @@ local function on_pickup_completed(event)
   local shipment = delivery.shipment
 
   local keys = {}
-  for item, amount in pairs(shipment) do
+  for item, expected_amount in pairs(shipment) do
     local item_type, item_name = item_match(item)
-    local amt_expected
+    local real_amount
     if item_type == "item" then
-      amt_expected = item_cargo[item_name]
+      real_amount = item_cargo[item_name]
     else
-      amt_expected = fluid_cargo[item_name]
+      real_amount = fluid_cargo[item_name]
     end
-    if amt_expected ~= amount then
-      raise_alert(delivery, train, "incorrect_cargo", {item_type, {[item_name] = amount}})
+    if abs(real_amount - expected_amount) > FLUID_TOL then
+      raise_alert(delivery, train, "incorrect_cargo", {item_type, {[item_name] = real_amount}})
       return
     end
     keys[item_name] = true

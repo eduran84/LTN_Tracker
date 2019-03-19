@@ -41,10 +41,10 @@ end
 -----------------------------
 -- do not change any of the variables defined above from this point onward
 -- enforced by desync
-local function on_load()
+local function on_load(custom_events)
   for _,gc in pairs(GC) do
     -- restore local references to objects' global storage tables
-    gc:on_load(global.gui)
+    gc:on_load(global.gui, custom_events.on_ui_invalid)
   end
 end
 
@@ -82,7 +82,7 @@ local function player_init(pind)
   end
 end
 
-local function on_init()
+local function on_init(custom_events)
   -- global storage for UI state
   global.gui = {
     is_gui_open = {},
@@ -94,7 +94,7 @@ local function on_init()
   global.last_sort = {}
   for _,gc in pairs(GC) do
     -- creates and populates global.gui[gc.name]
-    gc:on_init(global.gui)
+    gc:on_init(global.gui, custom_events.on_ui_invalid)
   end
   -- initialize present players, they dont trigger on_player_created event
   for pind,_ in pairs(game.players) do
@@ -102,7 +102,7 @@ local function on_init()
   end
 end
 
-local function reset_ui()
+local function reset_ui(custom_events)
   -- wipe existing UIs and clear global UI storage...
   out.info("gui_ctrl.lua", "Resetting UI.")
   for pind in pairs(game.players) do
@@ -112,7 +112,7 @@ local function reset_ui()
   end
   global.gui = nil
   -- ... and rebuild
-  on_init()
+  on_init(custom_events)
 end
 
 ------------------------------
@@ -176,9 +176,6 @@ local function ui_event_handler(event)
     end
     if GC[gc_name] then -- should not be necessary, but let's be extra safe in case another mod uses exactly the same naming pattern
       local handler, data = GC[gc_name]:get_event_handler(event, s2n(elem_index), data_string)
-      --if debug_level > 2 then -- !DEBUG
-      --  out.info("ui_event_handler", "handler:", handler, "data:", data, "\nfull GC object state:\n", GC[gc_name])
-      --end
       if type(handler) == "string" then
         if data then
           handlers[handler](event, data)

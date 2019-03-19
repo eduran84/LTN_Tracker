@@ -1,9 +1,28 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.9.5
+Date: 2019-03-16
+
+  Features:
+    - Added tooltips to station names on alert tab to display long names (https://forums.factorio.com/viewtopic.php?f=214&t=64842&start=40#p413677).
+  Bugfixes:
+    - Another fix for UI elements being deleted by other mods (https://forums.factorio.com/viewtopic.php?f=214&t=64842&start=40#p413143).
+    - Fixed fluid shipments marked as incorrect cargo incorrectly (#17).
+
+---------------------------------------------------------------------------------------------------
+Version: 0.9.4
+Date: 2019-03-15
+
+  Features:
+    - Improved cargo alert: cargo is now also checked after leaving the provider.
+  Changes:
+    - Updated to LTN 1.10.3: new interface names, new event.
+
+---------------------------------------------------------------------------------------------------
 Version: 0.9.3
 Date: 2019-03-13
 
   Bugfixes:
-    - Fixed #15: crash after UI being deleted by other mods.
+    - Fixed crash after UI being deleted by other mods (#15).
     - Fixed error caused by histories with invalid network ID.
 
 ---------------------------------------------------------------------------------------------------

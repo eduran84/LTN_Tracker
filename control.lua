@@ -44,9 +44,6 @@ end
 -----------------------------
 
 local function on_init()
-  -- !DEBUG delete old log, for convenience during debugging
-  -- game.write_file("ltnt.log", "", false, 1)
-
   -- check for LTN
   local ltn_version = nil
   local ltn_version_string = game.active_mods[LTN_MOD_NAME]
@@ -65,7 +62,7 @@ local function on_init()
   end
 
   -- module init
-  ui.on_init()
+  ui.on_init(custom_events)
   prc.on_init(custom_events)
 
 
@@ -109,7 +106,7 @@ script.on_init(on_init)
 
 script.on_load(
   function()
-    ui.on_load()
+    ui.on_load(custom_events)
     prc.on_load(custom_events)
     if debug_level > 0 then
       out.info("control.lua", "on_load finished.")
@@ -136,7 +133,7 @@ script.on_configuration_changed(
       end
     end
     if data and data.mod_changes[MOD_NAME] then
-      ui.reset_ui(data)
+      ui.reset_ui(custom_events)
       out.info("control.lua", MOD_NAME .. " updated to version " .. tostring(game.active_mods[MOD_NAME]))
     end
   end

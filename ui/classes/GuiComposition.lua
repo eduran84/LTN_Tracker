@@ -126,6 +126,7 @@ function GuiComposition:on_init(storage_tb, reset_ui_event_id)
     gc:on_init(storage_tb, reset_ui_event_id)
   end
 end
+
 function GuiComposition:on_load(storage_tb, reset_ui_event_id)
   self.mystorage = storage_tb[self.name]
   self.reset_ui_event_id = reset_ui_event_id
@@ -143,7 +144,6 @@ end
 function GuiComposition:build(parent, pind)
   out.assert(self.elem[1], "Root not set for GuiComposition", self.name)
   self:destroy(pind)
-  --out.info("GuiComposition:build", "Pre-build status:\n", self)
   out.assert(parent and parent.valid, "Invalid parent specified when calling build method of GuiComposition object with name", self.name)
   self.mystorage.root[pind] = self:_build_single_element(1, parent, pind)
 end
@@ -155,7 +155,7 @@ function GuiComposition:get(pind)
     return self.mystorage.root[pind]
   else
     out.warn("UI element", self.name, "invalidated by incompatible mod. Resetting UI.")
-    script.raise_event(self.reset_ui_event_id, self.name)
+    script.raise_event(self.reset_ui_event_id, {["element_name"] = self.name})
     return nil
   end
 end
