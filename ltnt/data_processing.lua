@@ -447,9 +447,9 @@ local function on_pickup_completed(event)
     local item_type, item_name = item_match(item)
     local real_amount
     if item_type == "item" then
-      real_amount = item_cargo[item_name]
+      real_amount = item_cargo[item_name] or 0
     else
-      real_amount = fluid_cargo[item_name]
+      real_amount = fluid_cargo[item_name] or 0
     end
     if abs(real_amount - expected_amount) > FLUID_TOL then
       raise_alert(delivery, train, "incorrect_cargo", {item_type, {[item_name] = real_amount}})

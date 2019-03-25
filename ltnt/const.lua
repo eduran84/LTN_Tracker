@@ -19,8 +19,8 @@ CONST.global = {
   mod_prefix = "ltnt",
   gui_events = {defines.events.on_gui_click, defines.events.on_gui_checked_state_changed, defines.events.on_gui_text_changed}, -- events handled by on_gui_event
   mod_name_ltn = "LogisticTrainNetwork",
-  minimal_version_ltn = "01.10.03",
-  current_version_ltn = "01.10.03",
+  minimal_version_ltn = "01.10.04",
+  current_version_ltn = "01.10.04",
 }
 
 CONST.styles = {
@@ -34,7 +34,7 @@ CONST.ui_ctrl = {
 
 -- data_processing.lua
 CONST.proc = {
-  fluid_tolerance = 0.001,
+  fluid_tolerance = 0.1,
   stops_per_tick = 20,
   deliveries_per_tick = 20,
   trains_per_tick = 30,

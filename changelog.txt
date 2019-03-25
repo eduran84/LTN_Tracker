@@ -1,6 +1,13 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.9.6
+Date: 2019-03-19
+
+  Bugfixes:
+    - Fixed trains leaving a fluid provider empty would cause crash.
+
+---------------------------------------------------------------------------------------------------
 Version: 0.9.5
-Date: 2019-03-16
+Date: 2019-03-18
 
   Features:
     - Added tooltips to station names on alert tab to display long names (https://forums.factorio.com/viewtopic.php?f=214&t=64842&start=40#p413677).
