@@ -15,11 +15,6 @@ GUI_EVENTS = require("ltnt.const").global.gui_events
 local LTN_MOD_NAME = require("ltnt.const").global.mod_name_ltn
 local LTN_MINIMAL_VERSION = require("ltnt.const").global.minimal_version_ltn
 local LTN_CURRENT_VERSION = require("ltnt.const").global.current_version_ltn
-local custom_events = {
-  on_data_updated = script.generate_event_name(),
-  on_train_alert= script.generate_event_name(),
-  on_ui_invalid= script.generate_event_name(),
-}
 
 -- debugging / logging
 -- levels:
@@ -39,6 +34,14 @@ local ui = require("ltnt.gui_ctrl")
 local function format_version(version_string)
   return string.format("%02d.%02d.%02d", string.match(version_string, "(%d+).(%d+).(%d+)"))
 end
+
+  --create custom events
+  custom_events = {
+    on_data_updated = script.generate_event_name(),
+    on_train_alert = script.generate_event_name(),
+    on_ui_invalid = script.generate_event_name(),
+  }
+
 -----------------------------
 ------ event handlers  ------
 -----------------------------
@@ -50,8 +53,8 @@ local function on_init()
   if ltn_version_string then
     ltn_version = format_version(ltn_version_string)
   end
-  if not ltn_version or ltn_version < "01.09.02" then
-    out.error(MOD_NAME, "requires version 1.9.2 or later of Logistic Train Network to run.")
+  if not ltn_version or ltn_version < LTN_MINIMAL_VERSION then
+    out.error(MOD_NAME, "requires version", LTN_MINIMAL_VERSION, "later of Logistic Train Network to run.")
   end
   -- also check for LTN interface, just in case
   if not remote.interfaces["logistic-train-network"] then
@@ -62,9 +65,8 @@ local function on_init()
   end
 
   -- module init
-  ui.on_init(custom_events)
-  prc.on_init(custom_events)
-
+  ui.on_init()
+  prc.on_init()
 
   if debug_level > 0 then
     out.info("control.lua", "Initialization finished.")
@@ -106,15 +108,15 @@ script.on_init(on_init)
 
 script.on_load(
   function()
-    ui.on_load(custom_events)
-    prc.on_load(custom_events)
+    ui.on_load()
+    prc.on_load()
     if debug_level > 0 then
       out.info("control.lua", "on_load finished.")
     end
   end
 )
 
-
+local LTNC_MOD_NAME = require("ltnt.const").global.mod_name_ltnc
 script.on_configuration_changed(
   function(data)
     if data and data.mod_changes[LTN_MOD_NAME] then
@@ -132,8 +134,9 @@ script.on_configuration_changed(
         out.error("LTN version was changed from ", ov, " to ", nv, ".", MOD_NAME, "requires version",  LTN_MINIMAL_VERSION, " or later of Logistic Train Network to run.")
       end
     end
-    if data and data.mod_changes[MOD_NAME] then
-      ui.reset_ui(custom_events)
+    if data and (data.mod_changes[MOD_NAME] or data.mod_changes[LTNC_MOD_NAME]) then
+      global.gui.ltnc_is_active = game.active_mods[LTNC_MOD_NAME] and true or false
+      ui.reset_ui()
       out.info("control.lua", MOD_NAME .. " updated to version " .. tostring(game.active_mods[MOD_NAME]))
     end
   end

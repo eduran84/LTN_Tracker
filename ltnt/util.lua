@@ -1,4 +1,5 @@
-local util = {}
+local util = require("__OpteraLib__.script.train")
+util.ticks_to_timestring = require("__OpteraLib__.script.misc").ticks_to_timestring
 
 function util.select_entity(pind, entity)
 	if entity and entity.valid then
@@ -8,7 +9,7 @@ end
 
 function util.select_train(pind, train)
   if train then
-    local loco = util.get_main_loco(train)
+    local loco = util.get_main_locomotive(train)
     if loco and loco.valid then
       game.players[pind].opened = loco
     end
@@ -47,23 +48,6 @@ function util.build_train_composition_string(train)
 	return comp_string
 end
 
--- convert a tick value to a readable string in format "mm:ss"
-local floor = math.floor
-local format = string.format
-local format_string = "%d:%02d"
-function util.tick2timestring(tick)
-	local total_seconds = tick/60
-	local minutes = floor(total_seconds/60)
-	local seconds = floor(total_seconds % 60)
-	return format(format_string, minutes, seconds)
-end
-
--- copy/paste from Optera's LTN
-function util.get_main_loco(train)
-  if train.valid and train.locomotives and (#train.locomotives.front_movers > 0 or #train.locomotives.back_movers > 0) then
-    return train.locomotives.front_movers and train.locomotives.front_movers[1] or train.locomotives.back_movers[1]
-  end
-end
 -- copy/paste from Optera's LTN-Content-Reader
 local btest = bit32.btest
 function util.get_items_in_network(ltn_item_list, selected_networkID)
@@ -76,24 +60,6 @@ function util.get_items_in_network(ltn_item_list, selected_networkID)
 		end
   end
 	return items
-end
-
-function util.compare_tables(tb1, tb2)
-  if tb1 == tb2 then return true end
-  local t1_type = type(tb1)
-  if t1_type ~= type(tb2) then return false end
-  if t1_type ~= 'table' then return false end
-
-  local keys = {}
-  for key1, value1 in pairs(tb1) do
-    local value2 = tb2[key1]
-    if value2 == nil or value2 ~= value1 then return false end
-    keys[key1] = true
-  end
-  for key2 in pairs(tb2) do
-    if not keys[key2] then return false end
-  end
-  return true
 end
 
 return util

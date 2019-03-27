@@ -1,6 +1,6 @@
 -- localize helper functions
 local build_item_table = require("ui.util").build_item_table
-local tick2timestring = require("ltnt.util").tick2timestring
+local tick2timestring = require("ltnt.util").ticks_to_timestring
 
 -- set/get constants
 local N_COLS = require("ltnt.const").history_tab.n_columns
@@ -75,6 +75,7 @@ function gcHistTab:update(pind, index)
     self:show(pind)
     global.gui.active_tab[pind] = index
     local hist_table = self:get_el(pind, "table")
+    if not hist_table then return end
     local history_data = global.data.delivery_hist
     hist_table.clear()
 

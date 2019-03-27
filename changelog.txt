@@ -1,4 +1,16 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.9.7
+Date: 2019-03-25
+
+  Features:
+    - Added support for LTN Combinator: Clicking a new button on the right side of the station tab will open the LTN Combinator connected to the station, if it exists.
+  Changes:
+    - Minor layout tweaks.
+    - Moved functionality to Opteras Library.
+  Bugfixes:
+    - Fixed crash caused by invalid UI element (#19).
+
+---------------------------------------------------------------------------------------------------
 Version: 0.9.6
 Date: 2019-03-19
 

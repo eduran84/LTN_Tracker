@@ -12,10 +12,8 @@ end
 -- display a shipment of items as icons
 local function build_item_table(args)
   -- !TODO go over this once more, should be as efficient as possible
-  -- !TODO disable assert for release
   --required arguments: parent, columns (without any of provided / requested / signals an empty frame is produced)
   --optional arguments: provided, requested, signals, enabled, type, no_negate, max_rows
-
 
   out.assert(args.parent, "Parent not defined.\nArgs provided:", args)
   -- parse arguments
@@ -23,16 +21,12 @@ local function build_item_table(args)
   local type = args.type
 
   -- outer frame
-	local frame = args.parent.add{type = "frame", style = "ltnt_slot_table_frame"}
-
+  local frame =  args.parent.add{type = "frame", style = "ltnt_slot_table_frame"}
   if args.max_rows then
     frame.style.maximal_height = args.max_rows * 36 + 18
-    frame.style.width = columns * 42+10
-    frame = frame.add{type = "scroll-pane"}
-    frame.horizontal_scroll_policy = "never"
-    frame.vertical_scroll_policy = "auto-and-reserve-space"
+    frame.style.width = columns * 38 + 18
+    frame = frame.add{type = "scroll-pane", style = "ltnt_it_scroll_pane"}
   end
-
   -- table for item sprites
 	local tble = frame.add{type = "table", column_count = columns, style = "slot_table"}
   local enabled

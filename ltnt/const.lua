@@ -19,7 +19,8 @@ CONST.global = {
   mod_prefix = "ltnt",
   gui_events = {defines.events.on_gui_click, defines.events.on_gui_checked_state_changed, defines.events.on_gui_text_changed}, -- events handled by on_gui_event
   mod_name_ltn = "LogisticTrainNetwork",
-  minimal_version_ltn = "01.10.04",
+  mod_name_ltnc = "LTN_Combinator",
+  minimal_version_ltn = "01.10.03",
   current_version_ltn = "01.10.04",
 }
 
@@ -64,10 +65,10 @@ CONST.depot_tab = {
 
 CONST.station_tab = {
 	tab_index = 2,
-  header_col_width = {207, 29, 40*5+27, 40*4+21, 40*6},
+  header_col_width = {207, 29, 38*5+27, 38*4+21, 38*6, 1},
   station_col_width = 195,
-  item_table_col_count = {5, 4, 7},
-  item_table_max_rows = {4, 4, 1},
+  item_table_col_count = {5, 4, 6},
+  item_table_max_rows = {4, 4, 2},
 }
 
 CONST.inventory_tab = {
@@ -81,8 +82,8 @@ CONST.inventory_tab = {
 
 CONST.history_tab = {
 	tab_index = 4,
-	header_col_width = {175, 175, 175, 35, 50, 140},
-	col_width = {175, 175, 175, 40, 40, 150},
+	header_col_width = {175, 175, 175, 35, 55, 152},
+	col_width = {175, 175, 175, 40, 45, 145},
 	n_columns = 6,
   n_cols_shipment = 5,
 }

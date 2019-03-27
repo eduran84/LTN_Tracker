@@ -446,6 +446,14 @@ default_gui["ltnt_sp_vertical"] =
   horizontal_scroll_policy = "never",
 }
 
+default_gui["ltnt_it_scroll_pane"] =
+{
+  type = "scroll_pane_style",
+  vertical_scroll_policy = "auto-and-reserve-space",
+  horizontal_scroll_policy = "never",
+  vertical_align = "center",
+}
+
 -- frame styles
 default_gui["ltnt_slot_table_frame"] =
 {

@@ -107,23 +107,28 @@ end
 function gcOuterFrame:set_alert(pind)
   if global.gui.active_tab[pind] ~= 5 then
     local bt = self:get_el(pind, "tabbutton_5")
-    bt.style = HIGHLIGHT_STYLE
-    bt.style.width = BUTTON_WIDTH
+    if bt then
+      bt.style = HIGHLIGHT_STYLE
+      bt.style.width = BUTTON_WIDTH
+    end
   end
 end
 
 function gcOuterFrame:clear_alert(pind)
   local bt = self:get_el(pind, "tabbutton_5")
-  bt.style = DEFAULT_STYLE
-  bt.style.width = BUTTON_WIDTH
+  if bt then
+    bt.style = DEFAULT_STYLE
+    bt.style.width = BUTTON_WIDTH
+  end
 end
 -- additional methods
 function gcOuterFrame:update_buttons(pind, new_tab)
 	local tab_buttons = self:get_buttons(pind)
 	for i = 1, N_TABS do
-		tab_buttons[i].enabled = true
+    if tab_buttons[i] then
+      tab_buttons[i].enabled = (i ~= new_tab)
+    end
 	end
-	tab_buttons[new_tab].enabled = false
   global.gui.active_tab[pind] = new_tab
   if new_tab == 5 then
     self:clear_alert(pind)

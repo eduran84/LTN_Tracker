@@ -285,10 +285,6 @@ end
 -- data_processor starts running on_tick when new data arrives and stops when processing is finished
 data_processor = function(event)
   local proc = global.proc
-  --log(proc.state)
-  if debug_level >= 2 then
-    out.info("data_processor", "Processing data on tick:", game.tick, "\nCurrent processor state:", proc)
-  end
   if proc.state == 0 then -- new data arrived, init processing
     script.on_event(defines.events.on_tick, data_processor)
     -- suspend LTN interface during data processing
@@ -306,7 +302,6 @@ data_processor = function(event)
     raw.item2delivery = {}
     raw.stop_ids = {}
 
-
     -- reset state
     -- could be condensed down to just one variable, but it's more readable this way
     proc.next_stop_id = nil
@@ -317,10 +312,6 @@ data_processor = function(event)
     proc.next_depot_name = nil
 
     proc.state = 1 -- set next state
-
-    --if debug_level >= 3 then
-    --  out.info("data_processor", "Raw data follows:\n", global.raw)
-    --end
 
   -- processing functions for each state can take multiple ticks to complete
   -- if those functions return a value, they will be called again next tick, with that value as input
@@ -396,14 +387,11 @@ data_processor = function(event)
     script.raise_event(events.on_data_updated, {})
 
     proc.state = 0
-    --if debug_level >= 3 then
-    --  out.info("data_processor", "Processed data follows:\n", global.data)
-    --end
   end
 end
 
 -- delivery tracking
-local get_main_loco = require("ltnt.util").get_main_loco
+local get_main_loco = require("ltnt.util").get_main_locomotive
 local FLUID_TOL = require("ltnt.const").proc.fluid_tolerance
 local abs = math.abs
 local function item_match(strg)
@@ -518,7 +506,7 @@ end
 ----------------------
 -- PUBLIC FUNCTIONS --
 ----------------------
-local function on_load(custom_events)
+local function on_load()
   -- cache globals
   raw = global.raw
   data = global.data
@@ -546,7 +534,7 @@ local function on_load(custom_events)
   end
 end
 
-local function on_init(event_id)
+local function on_init()
   global.raw = global.raw or {}
   global.proc = global.proc or {state = 0}
 
@@ -566,7 +554,7 @@ local function on_init(event_id)
   global.data.item2delivery = global.data.item2delivery or {}
   global.data.history_limit = HISTORY_LIMIT
   global.data.stop_ids = global.data.stop_ids or {}
-  on_load(event_id)
+  on_load()
 end
 
 local function on_settings_changed(event)

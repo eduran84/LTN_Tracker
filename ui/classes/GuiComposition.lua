@@ -117,21 +117,19 @@ end
 -- on_init, on_load --
 ----------------------
 
-function GuiComposition:on_init(storage_tb, reset_ui_event_id)
+function GuiComposition:on_init(storage_tb)
   storage_tb[self.name] =  storage_tb[self.name] or {}
   storage_tb[self.name].root = storage_tb[self.name].root or {}
   self.mystorage = storage_tb[self.name]
-  self.reset_ui_event_id = reset_ui_event_id
   for _,gc in pairs(self.sub_gc) do
-    gc:on_init(storage_tb, reset_ui_event_id)
+    gc:on_init(storage_tb)
   end
 end
 
-function GuiComposition:on_load(storage_tb, reset_ui_event_id)
+function GuiComposition:on_load(storage_tb)
   self.mystorage = storage_tb[self.name]
-  self.reset_ui_event_id = reset_ui_event_id
   for _,gc in pairs(self.sub_gc) do
-    gc:on_load(storage_tb, reset_ui_event_id)
+    gc:on_load(storage_tb)
   end
 end
 
@@ -155,7 +153,7 @@ function GuiComposition:get(pind)
     return self.mystorage.root[pind]
   else
     out.warn("UI element", self.name, "invalidated by incompatible mod. Resetting UI.")
-    script.raise_event(self.reset_ui_event_id, {["element_name"] = self.name})
+    script.raise_event(custom_events.on_ui_invalid, {["element_name"] = self.name})
     return nil
   end
 end
@@ -170,19 +168,30 @@ function GuiComposition:get_el(pind, element_name)
     return nil
   else
     local element = self:get(pind)
+    if not element then return nil end
+    local valid = true
     local path = self.elem[element_index].path
     for i = #path,1,-1 do
       element = element[path[i]]
+      if not element then valid = false break end
     end
-    element = element[self.elem[element_index].params.name]
-    return element
+    if valid then
+      element = element[self.elem[element_index].params.name]
+      valid = element and element.valid
+    end
+    if valid then
+      return element
+    else
+      out.warn("UI element", self.name, "is invalid. Resetting UI.")
+      script.raise_event(custom_events.on_ui_invalid, {["element_name"] = self.name})
+    end
   end
 end
 
 function GuiComposition:destroy(pind)
   if self.mystorage and self.mystorage.root and self.mystorage.root[pind] then
     self.mystorage.root[pind].destroy()
-    self.mystorage.root[pind] = nil
+    --self.mystorage.root[pind] = nil
     return true
   else
     return false

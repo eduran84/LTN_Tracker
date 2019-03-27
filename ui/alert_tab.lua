@@ -139,6 +139,7 @@ function gcAlertTab:update(pind, index)
 
     -- left side: table listing stops with error state
     local tb = self:get_el(pind, "table_l")
+    if not tb then return end
     tb.clear()
     local index = #self.elem + 1
     if next(global.data.stops_error) then
@@ -166,6 +167,7 @@ function gcAlertTab:update(pind, index)
 
     -- right side: table listing trains with residual items or error state
     tb = self:get_el(pind, "table_r")
+    if not tb then return end
     tb.clear()
     if next(global.data.trains_error) then
       for train_id, error_data in pairs(global.data.trains_error) do

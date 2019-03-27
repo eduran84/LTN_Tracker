@@ -11,7 +11,7 @@ Layout:
 
 --]]
 local NAME = "stop_tab"
-local N_COLS = 5
+local N_COLS = 6
 local ROW_HEIGHT = 34
 local ARROW_STYLE_ON = "ltnt_sort_button_on"
 local ARROW_STYLE_OFF = "ltnt_sort_button_off"
@@ -90,7 +90,7 @@ for i = 1,N_COLS do
     params = {type = "flow", direction = "horizontal"},
     style = {width = COL_WIDTH[i], vertical_align = "center"},
   }
-  if i ~= 1 then
+  if i ~= 1 and i ~= N_COLS then
   gcStopTab:add{
     name = "header_sep"..i,
     parent_name = "header_flow"..i,
@@ -150,8 +150,8 @@ gcStopTab.tab_index = require("ltnt.const").station_tab.tab_index
 end
 
 -- overloaded methods
-function gcStopTab:on_init(storage_tb, reset_ui_event_id)
-  GC.on_init(self, storage_tb, reset_ui_event_id)
+function gcStopTab:on_init(storage_tb)
+  GC.on_init(self, storage_tb)
   self.mystorage.checkbox = self.mystorage.checkbox or {}
   self.mystorage.sort_by = self.mystorage.sort_by or {}
   self.mystorage.filter = self.mystorage.filter or {}
@@ -261,7 +261,10 @@ function gcStopTab:update(pind, index)
     global.gui.active_tab[pind] = index
 
     local tb = self:get_el(pind, "table")
+    if not tb then return end
     tb.clear()
+    local ltnc_active = global.gui.ltnc_is_active
+    local signal_col_count = COL_COUNTS[3] + (ltnc_active and 0 or 1)
 
     -- table main body
     local selected_network_id = tonumber(self.sub_gc.idSelector:get_current_value(pind))
@@ -315,7 +318,24 @@ function gcStopTab:update(pind, index)
             enabled = false,
           }
           -- fifth column: control signals
-          build_item_table{parent = tb, signals = stopdata.signals[2], columns = COL_COUNTS[3], enabled = false}
+          build_item_table{
+            parent = tb,
+            signals = stopdata.signals[2],
+            columns = signal_col_count,
+            max_rows = MAX_ROWS[3],
+            enabled = false,
+          }
+          -- LTNC button
+          if ltnc_active then
+            tb.add{
+              type = "sprite-button",
+              name = self:_create_name(i+n, "cc_"..stop_id),
+              sprite = "item/ltn-combinator",
+              tooltip = {"station.combinator-tt"},
+            }
+          else
+            tb.add{type = "flow"}
+          end
         end
       end
     end
@@ -323,9 +343,13 @@ function gcStopTab:update(pind, index)
     self:hide(pind)
   end
 end
-
+local match = string.match
 function gcStopTab:event_handler(event, index, data_string)
-  return "on_stop_name_clicked"
+  if match(data_string, "cc_") then
+    return "on_cc_button_clicked"
+  else
+    return "on_stop_name_clicked"
+  end
 end
 
 return gcStopTab

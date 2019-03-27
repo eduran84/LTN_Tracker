@@ -41,10 +41,10 @@ end
 -----------------------------
 -- do not change any of the variables defined above from this point onward
 -- enforced by desync
-local function on_load(custom_events)
+local function on_load()
   for _,gc in pairs(GC) do
     -- restore local references to objects' global storage tables
-    gc:on_load(global.gui, custom_events.on_ui_invalid)
+    gc:on_load(global.gui)
   end
 end
 
@@ -82,27 +82,33 @@ local function player_init(pind)
   end
 end
 
-local function on_init(custom_events)
+local LTNC_MOD_NAME = require("ltnt.const").global.mod_name_ltnc
+local function on_init()
   -- global storage for UI state
   global.gui = {
     is_gui_open = {},
     active_tab = {},
     last_refresh_tick = {},
     refresh_interval = {},
+    ltnc_is_active = game.active_mods[LTNC_MOD_NAME] and true or false,
+    is_ltnc_open = {},
   }
 
   global.last_sort = {}
   for _,gc in pairs(GC) do
     -- creates and populates global.gui[gc.name]
-    gc:on_init(global.gui, custom_events.on_ui_invalid)
+    gc:on_init(global.gui)
   end
   -- initialize present players, they dont trigger on_player_created event
   for pind,_ in pairs(game.players) do
     player_init(pind)
   end
+  if debug_level > 0 then
+    out.info("gui_ctrl.lua", "Initializtaion finished.")
+  end
 end
 
-local function reset_ui(custom_events)
+local function reset_ui()
   -- wipe existing UIs and clear global UI storage...
   out.info("gui_ctrl.lua", "Resetting UI.")
   for pind in pairs(game.players) do
@@ -112,7 +118,7 @@ local function reset_ui(custom_events)
   end
   global.gui = nil
   -- ... and rebuild
-  on_init(custom_events)
+  on_init()
 end
 
 ------------------------------
@@ -156,7 +162,11 @@ local function on_toggle_button_click(event)
 end
 
 local function close_gui(pind)
-	GC.outer_frame:hide(pind)
+  game.players[pind].opened = nil
+  GC.outer_frame:hide(pind)
+  if debug_level > 0 then
+    out.info("Closing UI for player", pind)
+  end
 end
 
 -- handler for all events defined in global constant GUI_EVENTS
@@ -206,15 +216,22 @@ end
 -- handler for on_gui_closed event
 local function on_ui_closed(event)
   -- event triggers whenever any UI element is closed, so check if it is actually the ltnt UI that is supposed to close
-	if event.element and event.element.valid and event.element.index == GC.outer_frame:get(event.player_index).index then
-    close_gui(event.player_index)
+  local pind = event.player_index
+	if event.element and event.element.valid and event.element.index == GC.outer_frame:get(pind).index then
+    if global.gui.ltnc_is_active and global.gui.is_ltnc_open and global.gui.is_ltnc_open[pind] then
+      global.gui.is_ltnc_open[pind] = nil
+      remote.call("ltn-combinator", "close_ltn_combinator", pind)
+      game.players[pind].opened = GC.outer_frame:get(pind)
+    else
+      close_gui(event.player_index)
+    end
 	end
 end
 
 -- handler for on_new_alert custom event
 local function on_new_alert(event)
   if event and event.type then
-    for pind, p in pairs(game.players) do
+    for pind in pairs(game.players) do
       GC.toggle_button:set_alert(pind)
       GC.outer_frame:set_alert(pind)
     end
@@ -246,20 +263,41 @@ end
 -- and even more helper functions
 local select_entity = require("ltnt.util").select_entity
 local select_train = require("ltnt.util").select_train
+local function select_combinator(pind, stop_entity, lamp_control)
+  if global.gui.ltnc_is_active then
+    if remote.call("ltn-combinator", "open_ltn_combinator", pind, lamp_control, false) then
+      global.gui.is_ltnc_open = {[pind] = true}
+      return true
+    end
+    local player = game.players[pind]
+    player.surface.create_entity{name="flying-text", position=player.position, text={"ltnt.no-ltnc-found-msg"}, color={r=1,g=0,b=0}}
+    return false
+  end
+  return false
+end
 
 function handlers.on_stop_name_clicked(event, data_string)
   local stop = global.data.stops[s2n(data_string)]
-  if stop and stop.entity and stop. entity.valid then
+  if stop and stop.entity and stop.entity.valid then
     close_gui(event.player_index)
-    select_entity(event.player_index, global.data.stops[s2n(data_string)].entity)
+    select_entity(event.player_index, stop.entity)
+  end
+end
+
+function handlers.on_cc_button_clicked(event, data_string)
+  local stop =  global.data.stops[s2n(match(data_string, "cc_(.*)"))]
+  if stop and stop.entity and stop.entity.valid then
+    select_combinator(event.player_index, stop.entity, stop.lampControl)
   end
 end
 
 function handlers.on_error_stop_clicked(event, data_string)
   local stop = global.data.stops_error[s2n(data_string)]
   if stop and stop.entity and stop. entity.valid then
-    close_gui(event.player_index)
-    select_entity(event.player_index, global.data.stops_error[s2n(data_string)].entity)
+    if not select_combinator(event.player_index, stop.entity, stop.lampControl) then
+      close_gui(event.player_index)
+      select_entity(event.player_index, stop.entity)
+    end
   end
 end
 
@@ -285,7 +323,6 @@ end
 return {
   on_init = on_init,
   on_load = on_load,
-  on_configuration_changed = on_configuration_changed,
   on_toggle_button_click = on_toggle_button_click,
   on_settings_changed = on_settings_changed,
   player_init = player_init,
