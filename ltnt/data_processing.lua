@@ -429,10 +429,16 @@ local function on_pickup_completed(event)
   local item_cargo = train.get_contents() -- does return empty table when train is empty, not nil
   local fluid_cargo = train.get_fluid_contents()
   local shipment = delivery.shipment
-
+    if debug_level >= 2 then
+    out.info("on_pickup_completed", "Event data:", event, "\nItem cargo:", item_cargo, "\nfluid cargo:", fluid_cargo)
+  end
   local keys = {}
   for item, expected_amount in pairs(shipment) do
     local item_type, item_name = item_match(item)
+    if not item_name then
+      out.warn("unable to parse item name:", item)
+      return
+    end
     local real_amount
     if item_type == "item" then
       real_amount = item_cargo[item_name] or 0
