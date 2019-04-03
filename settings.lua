@@ -32,9 +32,8 @@ data:extend({
 	{
 		name = "ltnt-debug-level",
     setting_type = "runtime-global",
-		type = "string-setting",
-    default_value = "0",
-    allowed_values = {"0", "1", "2"},
+		type = "bool-setting",
+    default_value = false,
 	},
 	{
 		name = "ltnt-debug-print",

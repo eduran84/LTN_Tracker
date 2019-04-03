@@ -38,7 +38,7 @@ function TFWR:_init(name, args)
 
   -- input parsing
   args = args or {}
-  out.assert(type(args) == "table", "Optional input arguments have to be provided in a single table. Arguments provided:", args)
+  if not(type(args) == "table") then error(out.log("Optional input arguments have to be provided in a single table. Arguments provided:", args)) end
   local label_caption = args.caption or ""
   local tooltip = args.tooltip or ""
   local label_style = args.label_style or "ltnt_summary_label"
@@ -51,8 +51,8 @@ function TFWR:_init(name, args)
     local n = tonumber(input)
       return n and n == math.floor(n)
     end)
-  out.assert(type(self.is_input_valid) == "function", "Optional input argument valid_func has to be a function. Provided valid_func:", args.valid_func)
-  out.assert(self.is_input_valid(default_text), "Default text \"", default_text, "\" is not valid according to validation function", self.is_input_valid)
+  if not(type(self.is_input_valid) == "function") then error(out.log("Optional input argument valid_func has to be a function. Provided valid_func:", args.valid_func)) end
+  if not(self.is_input_valid(default_text)) then error(out.log("Default text \"", default_text, "\" is not valid according to validation function", self.is_input_valid)) end
 
   -- call super constructor and add elements
   GuiComposition._init(self, name)
@@ -137,8 +137,8 @@ function TFWR:set_valid(pind, new_text)
 end
 
 function TFWR:get_tf(pind)
-  out.assert(self.mystorage, "GuiComposition object", self.name, "has not been initialized.")
-  out.assert(type(pind) == "number", "Argument has to be a player index. Argument received:", pind)
+  if not(self.mystorage) then error(out.log("GuiComposition object", self.name, "has not been initialized.")) end
+  if not(type(pind) == "number") then error(out.log("Argument has to be a player index. Argument received:", pind)) end
   return self.mystorage.textfield[pind]
 end
 

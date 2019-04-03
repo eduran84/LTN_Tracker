@@ -1,8 +1,8 @@
 local GC = require("ui.classes.GuiComposition")
-local N_TABS = require("ltnt.const").main_frame.n_tabs
-local BUTTON_WIDTH = require("ltnt.const").main_frame.button_width
-local HIGHLIGHT_STYLE = require("ltnt.const").main_frame.button_highlight_style
-local DEFAULT_STYLE = require("ltnt.const").main_frame.button_default_style
+local N_TABS = require("script.constants").main_frame.n_tabs
+local BUTTON_WIDTH = require("script.constants").main_frame.button_width
+local HIGHLIGHT_STYLE = require("script.constants").main_frame.button_highlight_style
+local DEFAULT_STYLE = require("script.constants").main_frame.button_default_style
 local name = "outer_frame"
 
 local gcOuterFrame = GC(name)

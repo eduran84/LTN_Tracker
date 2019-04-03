@@ -21,7 +21,7 @@ CONST.global = {
   mod_name_ltn = "LogisticTrainNetwork",
   mod_name_ltnc = "LTN_Combinator",
   minimal_version_ltn = "01.10.03",
-  current_version_ltn = "01.10.04",
+  current_version_ltn = "01.10.05",
 }
 
 CONST.styles = {

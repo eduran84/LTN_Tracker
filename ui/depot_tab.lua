@@ -1,5 +1,5 @@
 local NAME = "depot_tab"
-local DEPOT_CONST = require("ltnt.const").depot_tab
+local DEPOT_CONST = require("script.constants").depot_tab
 local N_COLS_LEFT = 3
 local N_COLS_RIGHT = 3
 
@@ -135,7 +135,7 @@ function gcDepotTab:event_handler(event, index, name_or_id)
 end
 
 local mixed_id_sprite = "ltnt_unclear_id_sprite"
-local network_id_sprite = "virtual-signal/" .. require("ltnt.const").ltn.NETWORKID
+local network_id_sprite = "virtual-signal/" .. require("script.constants").ltn.NETWORKID
 local build_item_table = require("ui.util").build_item_table
 local format = string.format
 function gcDepotTab:update(pind, index)
@@ -244,8 +244,8 @@ function gcDepotTab:update(pind, index)
   end
 end
 
-local build_train_composition_string = require("ltnt.util").build_train_composition_string
-local train_state_dict = require("ltnt.const").train_error_state_dict
+local build_train_composition_string = require("__OpteraLib__.script.train").get_train_composition_string
+local train_state_dict = require("script.constants").train_error_state_dict
 function gcDepotTab:show_details(pind)
   local depot_name = global.gui[self.name].selected_depot[pind]
   if not depot_name then return end

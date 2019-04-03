@@ -14,10 +14,10 @@ Layout:
 --]]
 
 -- set/get constants
-local TOTAL_WIDTH = require("ltnt.const").inventory_tab.details_width
-local COL_COUNT =  require("ltnt.const").inventory_tab.details_item_tb_col_count
-local COL_WIDTH_STN = require("ltnt.const").inventory_tab.details_tb_col_width_stations
-local COL_WIDTH_DEL = require("ltnt.const").inventory_tab.details_tb_col_width_deliveries
+local TOTAL_WIDTH = require("script.constants").inventory_tab.details_width
+local COL_COUNT =  require("script.constants").inventory_tab.details_item_tb_col_count
+local COL_WIDTH_STN = require("script.constants").inventory_tab.details_tb_col_width_stations
+local COL_WIDTH_DEL = require("script.constants").inventory_tab.details_tb_col_width_deliveries
 local SUM_LABEL_WIDTH =  TOTAL_WIDTH - 150
 local NAME = "inv_details"
 
@@ -146,7 +146,7 @@ end
 -- cache functions
 local btest = bit32.btest
 local match = string.match
-local get_items_in_network = require("ltnt.util").get_items_in_network
+local get_items_in_network = require("script.util").get_items_in_network
 local build_item_table = require("ui.util").build_item_table
 
 function gcDetails:set_item(pind, network_id, ltn_item)

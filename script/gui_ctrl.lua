@@ -23,14 +23,20 @@ local GC = {}
 local tab_list = {}
 for _,path in pairs(gc_pathes) do
   local gc = require(path)
-  out.assert(not(GC[gc.name]), "GuiComposition object with name", gc.name, "does already exist.")
+  if GC[gc.name] then
+    error(out.log("GuiComposition object with name", gc.name, "does already exist."))
+  end
   GC[gc.name] = gc
   for _,sub_gc in pairs(gc.sub_gc) do
-    out.assert(not(GC[sub_gc.name]), "GuiComposition object with name", sub_gc.name, "does already exist.")
+    if GC[sub_gc.name] then
+      error(out.log("GuiComposition object with name", sub_gc.name, "does already exist."))
+    end
     GC[sub_gc.name] = sub_gc
   end
   if gc.tab_index then
-    out.assert(not tab_list[gc.tab_index], "Tab index", gc.tab_index, "is already registerd by another GC object.\ntab_list =", tab_list)
+    if tab_list[gc.tab_index] then
+      error(out.log("Tab index", gc.tab_index, "is already registerd by another GC object.\ntab_list:", tab_list))
+    end
     tab_list[gc.tab_index] = gc
     N_TABS = N_TABS + 1
   end
@@ -52,8 +58,8 @@ local function player_init(pind)
   local player = game.players[pind]
   local frame_flow = mod_gui.get_frame_flow(player)
   local button_flow = mod_gui.get_button_flow(player)
-  if debug_level > 0 then
-    out.info("gui_ctrl.lua", "Preparing UI for player", player.name)
+  if debug_log then
+    out.log("Building UI for player", player.name)
   end
 
   -- set UI state globals
@@ -77,12 +83,9 @@ local function player_init(pind)
   GC.inv_tab:build(outer_frame, pind)
   GC.hist_tab:build(outer_frame, pind)
   GC.alert_tab:build(outer_frame, pind)
-  if debug_level > 0 then
-    out.info("gui_ctrl.lua", "UI is ready.")
-  end
 end
 
-local LTNC_MOD_NAME = require("ltnt.const").global.mod_name_ltnc
+local LTNC_MOD_NAME = require("script.constants").global.mod_name_ltnc
 local function on_init()
   -- global storage for UI state
   global.gui = {
@@ -103,14 +106,11 @@ local function on_init()
   for pind,_ in pairs(game.players) do
     player_init(pind)
   end
-  if debug_level > 0 then
-    out.info("gui_ctrl.lua", "Initializtaion finished.")
-  end
 end
 
 local function reset_ui()
   -- wipe existing UIs and clear global UI storage...
-  out.info("gui_ctrl.lua", "Resetting UI.")
+  out.log("Resetting UI.")
   for pind in pairs(game.players) do
     for _, gc in pairs(GC) do
       gc:destroy(pind)
@@ -164,8 +164,8 @@ end
 local function close_gui(pind)
   game.players[pind].opened = nil
   GC.outer_frame:hide(pind)
-  if debug_level > 0 then
-    out.info("Closing UI for player", pind)
+  if debug_log then
+    out.log("Closing UI for player", pind)
   end
 end
 
@@ -181,11 +181,11 @@ local function ui_event_handler(event)
   -- "ltnt_<name of GC object>_<index of element in the GC object>_<[optional]any string>"
   local gc_name, elem_index, data_string = match(event.element.name, match_string)
   if gc_name then -- this element belongs to ltnt, so continue (or some other mod with the same prefix xX)
-    if debug_level > 1 then
-      out.info("ui_event_handler", "Gui event received. Event:", event, "\ngc_name =", gc_name, "elem_index =", elem_index, "data_string=", data_string)
-    end
     if GC[gc_name] then -- should not be necessary, but let's be extra safe in case another mod uses exactly the same naming pattern
       local handler, data = GC[gc_name]:get_event_handler(event, s2n(elem_index), data_string)
+      if debug_log then
+        out.log("Gui event received.\nEvent:", event, "\ngc_name:", gc_name, "\nelem_index:", elem_index, "\ndata_string:", data_string, "\nhandler:", handler, "\ndata:", data)
+      end
       if type(handler) == "string" then
         if data then
           handlers[handler](event, data)
@@ -194,9 +194,7 @@ local function ui_event_handler(event)
         end
       end
     else
-      if debug_level > 0 then
-        out.warn("Gui event registerd for UI element with name", event.element.name, ", but corresponding GC object was not found.\nCurrent state of GC:\n", GC, "\nTriggering event:", event)
-      end
+      out.log("Gui event registerd for UI element with name", event.element.name, ", but corresponding GC object was not found.\nCurrent state of GC:\n", GC, "\nTriggering event:", event)
     end
   end
 end
@@ -222,6 +220,7 @@ local function on_ui_closed(event)
       global.gui.is_ltnc_open[pind] = nil
       remote.call("ltn-combinator", "close_ltn_combinator", pind)
       game.players[pind].opened = GC.outer_frame:get(pind)
+      update_tab(pind)
     else
       close_gui(event.player_index)
     end
@@ -245,7 +244,6 @@ function handlers.on_tab_changed(event, data_string)
   update_tab(event.player_index)
 end
 
--- !ToDo: have another look at this when you are thinking straight, does not seem safe
 function handlers.clear_history(event, data_string)
   global.data.delivery_hist = {}
   global.data.newest_history_index = 1
@@ -260,60 +258,78 @@ function handlers.on_refresh_bt_click(event, data_string)
   end
 end
 
--- and even more helper functions
-local select_entity = require("ltnt.util").select_entity
-local select_train = require("ltnt.util").select_train
-local function select_combinator(pind, stop_entity, lamp_control)
-  if global.gui.ltnc_is_active then
-    if remote.call("ltn-combinator", "open_ltn_combinator", pind, lamp_control, false) then
-      global.gui.is_ltnc_open = {[pind] = true}
-      return true
+do -- handle button/label clicks that are supposed to select a train/station/cc
+  local get_main_loco
+  do
+    require("__OpteraLib__.script.train")
+    get_main_loco = get_main_locomotive
+  end
+  local function select_entity(pind, entity)
+    if entity and entity.valid and game.players[pind] then
+      game.players[pind].opened = entity
     end
-    local player = game.players[pind]
-    player.surface.create_entity{name="flying-text", position=player.position, text={"ltnt.no-ltnc-found-msg"}, color={r=1,g=0,b=0}}
+  end
+  local function select_train(pind, train)
+    if train and train.valid and game.players[pind] then
+      local loco = get_main_loco(train)
+      if loco and loco.valid then
+        game.players[pind].opened = loco
+      end
+    end
+  end
+  local function select_combinator(pind, stop_entity, input_lamp)
+    if global.gui.ltnc_is_active then
+      if remote.call("ltn-combinator", "open_ltn_combinator", pind, input_lamp, false) then
+        global.gui.is_ltnc_open = {[pind] = true}
+        return true
+      end
+      local player = game.players[pind]
+      player.surface.create_entity{name="flying-text", position=player.position, text={"ltnt.no-ltnc-found-msg"}, color={r=1,g=0,b=0}}
+      return false
+    end
     return false
   end
-  return false
-end
 
-function handlers.on_stop_name_clicked(event, data_string)
-  local stop = global.data.stops[s2n(data_string)]
-  if stop and stop.entity and stop.entity.valid then
-    close_gui(event.player_index)
-    select_entity(event.player_index, stop.entity)
-  end
-end
-
-function handlers.on_cc_button_clicked(event, data_string)
-  local stop =  global.data.stops[s2n(match(data_string, "cc_(.*)"))]
-  if stop and stop.entity and stop.entity.valid then
-    select_combinator(event.player_index, stop.entity, stop.lampControl)
-  end
-end
-
-function handlers.on_error_stop_clicked(event, data_string)
-  local stop = global.data.stops_error[s2n(data_string)]
-  if stop and stop.entity and stop. entity.valid then
-    if not select_combinator(event.player_index, stop.entity, stop.lampControl) then
+-- data_string should be stop ID as a string
+  function handlers.on_stop_name_clicked(event, data_string)
+    local stop = global.data.stops[s2n(data_string)]
+    if stop and stop.entity and stop.entity.valid then
       close_gui(event.player_index)
       select_entity(event.player_index, stop.entity)
     end
   end
-end
 
-function handlers.on_entity_clicked(event, entity)
-  if entity and entity.valid then
-    close_gui(event.player_index)
-    select_entity(event.player_index, entity)
+  function handlers.on_cc_button_clicked(event, data_string)
+    local stop =  global.data.stops[s2n(match(data_string, "cc_(.*)"))]
+    if stop and stop.entity and stop.entity.valid then
+      select_combinator(event.player_index, stop.entity, stop.input)
+    end
   end
-end
 
-function handlers.on_train_clicked(event, train)
-  if train and train.valid then
-    close_gui(event.player_index)
-    select_train(event.player_index, train)
+  function handlers.on_error_stop_clicked(event, data_string)
+    local stop = global.data.stops_error[s2n(data_string)]
+    if stop and stop.entity and stop. entity.valid then
+      if not select_combinator(event.player_index, stop.entity, stop.input) then
+        close_gui(event.player_index)
+        select_entity(event.player_index, stop.entity)
+      end
+    end
   end
-end
+
+  function handlers.on_entity_clicked(event, entity)
+    if entity and entity.valid then
+      close_gui(event.player_index)
+      select_entity(event.player_index, entity)
+    end
+  end
+
+  function handlers.on_train_clicked(event, train)
+    if train and train.valid then
+      close_gui(event.player_index)
+      select_train(event.player_index, train)
+    end
+  end
+end --do
 
 function handlers.on_item_clicked(event, data_string)
   -- item name and amount is encoded in data_string

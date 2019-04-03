@@ -74,12 +74,12 @@ local data
 local events -- custom event ids
 
 -- constants
---local HISTORY_LIMIT = require("ltnt.const").proc.history_limit
-local STOPS_PER_TICK = require("ltnt.const").proc.stops_per_tick
-local DELIVERIES_PER_TICK = require("ltnt.const").proc.deliveries_per_tick
-local TRAINS_PER_TICK = require("ltnt.const").proc.trains_per_tick
-local ITEMS_PER_TICK = require("ltnt.const").proc.items_per_tick
-local LTN_CONSTANTS = require("ltnt.const").ltn
+--local HISTORY_LIMIT = require("script.constants").proc.history_limit
+local STOPS_PER_TICK = require("script.constants").proc.stops_per_tick
+local DELIVERIES_PER_TICK = require("script.constants").proc.deliveries_per_tick
+local TRAINS_PER_TICK = require("script.constants").proc.trains_per_tick
+local ITEMS_PER_TICK = require("script.constants").proc.items_per_tick
+local LTN_CONSTANTS = require("script.constants").ltn
 local HISTORY_LIMIT = settings.global["ltnt-history-limit"].value
 local FILENAME = "data.log"
 
@@ -89,8 +89,8 @@ local out = out
 ---------------------
 -- functions here are called from data_processor, defined below
 
-local ctrl_signal_var_name_bool = require("ltnt.const").ltn.ctrl_signal_var_name_bool
-local ctrl_signal_var_name_num = require("ltnt.const").ltn.ctrl_signal_var_name_num
+local ctrl_signal_var_name_bool = require("script.constants").ltn.ctrl_signal_var_name_bool
+local ctrl_signal_var_name_num = require("script.constants").ltn.ctrl_signal_var_name_num
 local function get_lamp_color(stop) -- helper functions for state 1
   --local color_signal = stop.lampControl.get_control_behavior().get_signal(1)
   --return color_signal and color_signal.signal.name
@@ -305,11 +305,8 @@ data_processor = function(event)
     -- reset state
     -- could be condensed down to just one variable, but it's more readable this way
     proc.next_stop_id = nil
-    --proc.next_train_id = nil
-    proc.next_delivery_id = nil
-    --proc.next_item = nil
-    --proc.next_req = nil
     proc.next_depot_name = nil
+    proc.next_delivery_id = nil
 
     proc.state = 1 -- set next state
 
@@ -318,7 +315,7 @@ data_processor = function(event)
   -- the returned value should allow the function to continue from where it stopped
   -- they must return nil when their job is done, in which case proc.state is incremented
 
-  ---- state 3 and 6 currently unused ------
+  ---- state 2 and 6 unused ------
   elseif proc.state == 1 then
   -- processing stops first, information gathered here is required for other steps
     local stop_id = update_stops(raw, proc.next_stop_id)
@@ -356,14 +353,6 @@ data_processor = function(event)
       proc.state = 100
     end
 
-  elseif proc.state == 8 then
-    sort_stops_by_name(raw)
-    proc.state = 9
-
-  elseif proc.state == 9 then
-    sort_stops_by_state(raw)
-    proc.state = 100
-
   elseif proc.state == 100 then -- update finished
     -- update globals
     data.stops =  raw.stops
@@ -390,17 +379,21 @@ data_processor = function(event)
   end
 end
 
--- delivery tracking
-local get_main_loco = require("ltnt.util").get_main_locomotive
-local FLUID_TOL = require("ltnt.const").proc.fluid_tolerance
+-- delivery tracking  local get_main_loco
+local get_main_loco
+do
+  require("__OpteraLib__.script.train")
+  get_main_loco = get_main_locomotive
+end
+local FLUID_TOL = require("script.constants").proc.fluid_tolerance
 local abs = math.abs
 local function item_match(strg)
   return string.match(strg, "(%w+),([%w_%-]+)")
 end
 
 local function store_history(history)
-  if debug_level >= 2 then
-    out.info("store_history", "New history record:", history)
+  if debug_log then
+    out.log("New history record:\n", history)
   end
   history.runtime = game.tick - history.started
   history.networkID = history.networkID and history.networkID > 2147483648 and history.networkID - 4294967296 or history.networkID -- convert from uint32 to int32
@@ -413,11 +406,11 @@ local function raise_alert(delivery, train, alert_type, incorrect_item)
   data.trains_error[train.id] = {
     type = alert_type,
     loco = loco,
-    route = {delivery.depot, delivery.from, delivery.to},
+    route = {delivery.depot or "unknown", delivery.from, delivery.to},
     cargo = incorrect_item,
   }
-  if debug_level >= 2 then
-    out.info("raise_alert", "Intended delivery:", delivery, "\nNew alert:", data.trains_error[train.id])
+  if debug_log then
+    out.log("Train error state detected.\nIntended delivery:\n", delivery, "\nNew alert:", data.trains_error[train.id])
   end
   script.raise_event(events.on_train_alert, data.trains_error[train.id])
 end
@@ -429,14 +422,14 @@ local function on_pickup_completed(event)
   local item_cargo = train.get_contents() -- does return empty table when train is empty, not nil
   local fluid_cargo = train.get_fluid_contents()
   local shipment = delivery.shipment
-    if debug_level >= 2 then
-    out.info("on_pickup_completed", "Event data:", event, "\nItem cargo:", item_cargo, "\nfluid cargo:", fluid_cargo)
+  if debug_log then
+    out.log("Pickup complete event received.\nEvent data:\n", event, "\nItem cargo:", item_cargo, "\nFluid cargo:", fluid_cargo)
   end
   local keys = {}
   for item, expected_amount in pairs(shipment) do
     local item_type, item_name = item_match(item)
     if not item_name then
-      out.warn("unable to parse item name:", item)
+      out.log("unable to parse item name:", item)
       return
     end
     local real_amount
@@ -466,6 +459,9 @@ local function on_pickup_completed(event)
 end
 
 local function on_delivery_completed(event)
+  if debug_log then
+    out.log("Delivery complete event received.\nEvent data:\n", event)
+  end
   -- check train for residual content
   -- if a train has fluid and items, only item residue is logged
   local delivery = event.delivery
@@ -483,28 +479,21 @@ local function on_delivery_completed(event)
   end
   store_history(delivery)
 end
+
 local function on_delivery_failed(event)
+  if debug_log then
+    out.log("Delivery failed event received.\nEvent data:\n", event)
+  end
   local delivery = event.delivery
   local train = delivery.train
   if train.valid then
     -- train still valid -> delivery timed out
     delivery.timed_out = true
-    delivery.depot = train.schedule and train.schedule.records[1] and train.schedule.records[1].station or "unknown"
-    local loco = get_main_loco(train)
-    data.trains_error[train.id] = {
-      type = "timeout",
-      loco = loco,
-      route = {delivery.depot, delivery.from, delivery.to},
-    }
-    script.raise_event(events.on_train_alert, data.trains_error[train.id])
+    delivery.depot = train.schedule and train.schedule.records[1] and train.schedule.records[1].station
+    raise_alert(delivery, train, "timeout")
   else
     -- train became invalid during delivery
-    data.trains_error[event.trainID] = {
-      type = "train_invalid",
-      loco = nil,
-      route = {"", delivery.from, delivery.to},
-    }
-    script.raise_event(events.on_train_alert, data.trains_error[train.id])
+    raise_alert(delivery, train, "train_invalid")
   end
   store_history(delivery)
 end
@@ -535,8 +524,8 @@ local function on_load()
   script.on_event(events.on_delivery_completed_event, on_delivery_completed)
   script.on_event(events.on_delivery_failed_event, on_delivery_failed)
   script.on_event(events.on_pickup_completed, on_pickup_completed)
-  if debug_level >= 1 then
-    out.info("data_processing.lua", "data processor status after on_load:", global.proc)
+  if debug_log then
+    out.log("data processor status after on_load:", global.proc)
   end
 end
 

@@ -15,10 +15,10 @@ local N_COLS = 6
 local ROW_HEIGHT = 34
 local ARROW_STYLE_ON = "ltnt_sort_button_on"
 local ARROW_STYLE_OFF = "ltnt_sort_button_off"
-local COL_WIDTH = require("ltnt.const").station_tab.header_col_width
-local STATION_WIDTH = require("ltnt.const").station_tab.station_col_width
-local MAX_ROWS = require("ltnt.const").station_tab.item_table_max_rows
-local COL_COUNTS = require("ltnt.const").station_tab.item_table_col_count
+local COL_WIDTH = require("script.constants").station_tab.header_col_width
+local STATION_WIDTH = require("script.constants").station_tab.station_col_width
+local MAX_ROWS = require("script.constants").station_tab.item_table_max_rows
+local COL_COUNTS = require("script.constants").station_tab.item_table_col_count
 local GC = require("ui.classes.GuiComposition")
 local gcStopTab= GC(NAME, {
   params = {type = "flow", direction = "vertical", visible = false},
@@ -146,7 +146,7 @@ gcStopTab:add{
   params = {type = "table", column_count = N_COLS, draw_horizontal_lines = true},
   style = {vertical_align = "top"}
 }
-gcStopTab.tab_index = require("ltnt.const").station_tab.tab_index
+gcStopTab.tab_index = require("script.constants").station_tab.tab_index
 end
 
 -- overloaded methods

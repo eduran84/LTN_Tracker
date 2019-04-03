@@ -1,4 +1,16 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.9.9
+Date: 2019-04-03
+
+  Changes:
+    - Improved usage of LTN Combinator interface.
+    - Displayed signals in station tab update after closing a LTN Combinator.
+    - "Debug Level" setting replaced with "Enable debug logging" setting.
+    - Improved debug logging.
+  Bugfixes:
+    - Fix for "attempt to call upvalue 'get_main_loco' (a nil value)" error (#21)
+
+---------------------------------------------------------------------------------------------------
 Version: 0.9.8
 Date: 2019-03-30
 

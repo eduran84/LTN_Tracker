@@ -11,11 +11,9 @@ local function item2sprite(iname, itype)
 end
 -- display a shipment of items as icons
 local function build_item_table(args)
-  -- !TODO go over this once more, should be as efficient as possible
   --required arguments: parent, columns (without any of provided / requested / signals an empty frame is produced)
   --optional arguments: provided, requested, signals, enabled, type, no_negate, max_rows
 
-  out.assert(args.parent, "Parent not defined.\nArgs provided:", args)
   -- parse arguments
   local columns = args.columns
   local type = args.type

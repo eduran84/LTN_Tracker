@@ -1,16 +1,16 @@
 -- constants
 local NAME = "alert_tab"
-local FRAME_WIDTH = require("ltnt.const").alert_tab.frame_width
-local N_COLS = require("ltnt.const").alert_tab.n_columns
-local COL_WIDTH_L = require("ltnt.const").alert_tab.col_width_l
-local COL_WIDTH_R = require("ltnt.const").alert_tab.col_width_r
+local FRAME_WIDTH = require("script.constants").alert_tab.frame_width
+local N_COLS = require("script.constants").alert_tab.n_columns
+local COL_WIDTH_L = require("script.constants").alert_tab.col_width_l
+local COL_WIDTH_R = require("script.constants").alert_tab.col_width_r
 
 -- object creation
 local GC = require("ui.classes.GuiComposition")
 local gcAlertTab= GC(NAME, {
   params = {type = "flow", direction = "horizontal", visible = false},
 })
-gcAlertTab.tab_index = require("ltnt.const").alert_tab.tab_index
+gcAlertTab.tab_index = require("script.constants").alert_tab.tab_index
 
 -- left side: table with stations
 gcAlertTab:add{
@@ -74,8 +74,8 @@ gcAlertTab:add{
 }
 
 -- additional functions
-local error_string = require("ltnt.const").ltn.error_string_lookup
-local state_dict = require("ltnt.const").train_state_dict
+local error_string = require("script.constants").ltn.error_string_lookup
+local state_dict = require("script.constants").train_state_dict
 local build_item_table = require("ui.util").build_item_table
 local function build_route_labels(parent, route) -- helper function for gcAlertTab:update
   if route[2] and route[3] then

@@ -111,7 +111,7 @@ data:extend({
 })
 
 -- GuiElement styles
-local C = require("ltnt.const")
+local C = require("script.constants")
 local default_gui = data.raw["gui-style"].default
 local SUMMARY_NUM_WIDTH = 100
 
@@ -418,6 +418,9 @@ default_gui["ltnt_lb_hist_col5_red"] = {
   type = "label_style",
   parent = "ltnt_label_default",
   font_color = {r = 1, g = 0, b = 0},
+  horizontal_align = "right",
+  maximal_width = C.history_tab.col_width[5],
+  minimal_width = C.history_tab.col_width[5],
 }
 end
 -- table styles

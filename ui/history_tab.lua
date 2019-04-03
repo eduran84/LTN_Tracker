@@ -1,13 +1,13 @@
 -- localize helper functions
 local build_item_table = require("ui.util").build_item_table
-local tick2timestring = require("ltnt.util").ticks_to_timestring
+local tick2timestring = require("__OpteraLib__.script.misc").ticks_to_timestring
 
 -- set/get constants
-local N_COLS = require("ltnt.const").history_tab.n_columns
-local N_COLS_SHIP = require("ltnt.const").history_tab.n_cols_shipment
-local COL_WIDTH = require("ltnt.const").history_tab.col_width
-local H_COL_WIDTH = require("ltnt.const").history_tab.header_col_width
-local HISTORY_LIMIT = require("ltnt.const").proc.history_limit
+local N_COLS = require("script.constants").history_tab.n_columns
+local N_COLS_SHIP = require("script.constants").history_tab.n_cols_shipment
+local COL_WIDTH = require("script.constants").history_tab.col_width
+local H_COL_WIDTH = require("script.constants").history_tab.header_col_width
+local HISTORY_LIMIT = require("script.constants").proc.history_limit
 local NAME = "hist_tab"
 
 local gcHistTab = require("ui.classes.GuiComposition")(NAME, {
@@ -62,7 +62,7 @@ gcHistTab:add{
   },
   style = {vertical_align = "center"}
 }
-gcHistTab.tab_index = require("ltnt.const").history_tab.tab_index
+gcHistTab.tab_index = require("script.constants").history_tab.tab_index
 
 -- overloaded methods
 function gcHistTab:event_handler(event, index, data_string)
@@ -112,15 +112,10 @@ function gcHistTab:update(pind, index)
         }
         -- runtime, possibly with time-out warning
         if delivery.timed_out then
-          local inner_tb = hist_table.add{type = "table", column_count = 1, style = "slot_table"}
-          label = inner_tb.add{
+          label = hist_table.add{
             type = "label",
             caption = tick2timestring(delivery.runtime),
-            style = "ltnt_lb_hist_col5_red",
-          }
-          label = inner_tb.add{
-            type = "label",
-            caption = {"error.train-timeout"},
+            tooltip = {"error.train-timeout"},
             style = "ltnt_lb_hist_col5_red",
           }
         else

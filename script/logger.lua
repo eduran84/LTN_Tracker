@@ -1,48 +1,19 @@
--- hardcoded parameters
-local filename = "ltnt.log"
-local mod_tag = "[" .. MOD_PREFIX:upper() .. "]"
-local ERROR = "ERROR"
-local WARN = "WARN"
-local INFO = "INFO"
 local debug_print = settings.global["ltnt-debug-print"].value
-local max_depth = 6 -- maximum depth up to which nested objects are converted
+local max_depth = 4 -- maximum depth up to which nested objects are converted
 
--- define factorio objects and properties the logger should convert
-local class_dict = {
-  LuaGuiElement = {
-    name = {"name"},
-    valid = {"valid"},
-    type = {"type"},
-    parent = {"parent", "name"},
-    children = {"children"},
-  },
-  LuaTrain = {
-    id = {"id"},
-    valid = {"valid"},
-    locomotives = {"locomotives"}
-    --carriages = {"carriages"},
-    --schedule = {"schedule"},
-  },
-  LuaPlayer = {
-    name = {"name"},
-    index = {"index"},
-    opened = {"opened"},
-  },
-  LuaEntity = {
-    backer_name = {"backer_name"},
-    name = {"name"},
-    type = {"type"},
-  },
-}
-
--- private functions of this module
+-- define factorio objects and properties logger should convert to tables
+local class_dict = require("script.logger_class_dict")
 
 -- cache functions
 local match = string.match
 local format = string.format
 local getinfo = debug.getinfo
-local function serpb(arg)  -- custom formatting for serpent.block output when handling factorio classes
-   return serpent.block(
+local log = log
+local select = select
+local block = serpent.block
+-- custom formatting for serpent.block output when handling factorio classes
+local function serpb(arg)
+   return block(
     arg, {
       sortkeys = false,
       custom = (function(tag,head,body,tail)
@@ -63,14 +34,9 @@ end
 local function help2name(str)
   return match(str, "Help for%s([^:]*)")
 end
--- catch nils in variable length function input
-local function pack_varargs(...)
-  return { n = select("#", ...); ... }
-end
 
 -- Factorio lua objects are tables with key "__self" and a userdata value; most of them have a .help() method
 local function is_object(tb)
-  -- !ISSUE if the object does not have a help method (LuaBootstrap, LuaRemote, probably others) checking existence of .help will throw an error
   if tb["__self"] and type(tb["__self"]) == "userdata" and tb.valid and tb.help then
     return true
   else
@@ -88,15 +54,22 @@ local function factorio_obj_to_table(obj)
   local tb = nil
   if class_dict[class_name] then
     tb = {}
-    for k,v in pairs(class_dict[class_name]) do
-      local value = obj
-      for _,w in pairs(class_dict[class_name][k]) do
-        value = value[w]
-        if type(value) ~= "table" then
-          break
+    for property_name, property in pairs(class_dict[class_name]) do
+      local value
+      if property == true then
+        value = obj[property_name]
+      elseif type(property) == "table" then
+        value = obj
+        for _,v in pairs(property) do
+          value = value[v]
+          if type(value) ~= "table" then
+            break
+          end
         end
+      elseif type(property) == "string" then
+        value = obj[property]()
       end
-      tb[k] = value
+      tb[property_name] = value
     end
   end
   return {["FOBJ_"..class_name] = tb} -- prefix for formatting with serpent.block
@@ -143,65 +116,30 @@ local function _tostring(arg)
   elseif t == "userdata" then
     return serpb(arg)
   else
-    _log("WARN", "Unknown data type: " .. t)
+    log("Unknown data type: " .. t)
   end
 end
 
 -- main function to generate output
-local function _log(msg_type, tag, pargs)
-  local message = ""
+local function _log(...)
+  local info = getinfo(2, "Sl")
+  local msg_tag = format("%s:%d", info.short_src, info.currentline)
 
-  if msg_type == "ERROR" or msg_type == "WARN" then
-    local info = getinfo(3, "Sl")
-    tag = format("%s:%d", info.short_src, info.currentline)
-  end
   -- build prefix
-  if tag and type(tag) == "string" then
-    message = mod_tag .. "[".. msg_type .."]<" .. tag .. "> "
-  else
-    message = mod_tag .. "[".. msg_type .."]" .. _tostring(tag)
-  end
+  local message = "<" .. msg_tag .. ">\n"
+
   -- convert all arguments to strings and concatenate
   local string_tb = {}
-  for i = 1, pargs.n do
-    string_tb[i] = _tostring(pargs[i])
+  for i = 1, select("#", ...) do
+    string_tb[i] = _tostring(select(i, ...))
   end
   message = message .. table.concat(string_tb, " ")
 
-  -- add a traceback if it is an error
-  if msg_type == "ERROR" then
-    message = message.."\n"..debug.traceback(nil, 3)
-  end
-
-  if (debug_print or msg_type == "WARN") and game then
+  if debug_print and game then
     game.print(message)
   end
-  if debug_level > 0 then
-    log(message)
-  end
+  log(message)
   return message
-end
-
--- public module functions
--- wrappers for _log
-local function _error(...)
-  local message = _log(ERROR, "", pack_varargs(...))
-  error(message)
-end
-local function warn(...)
-  _log(WARN, "",  pack_varargs(...))
-end
-local function info(tag, ...)
-  _log(INFO, tag, pack_varargs(...))
-end
--- custom assert
-local function _assert(arg, ...)
-  if not arg then
-    local message = _log("ERROR", "", pack_varargs(...))
-    error(message)
-  else
-    return arg
-  end
 end
 
 local function on_debug_settings_changed(event)
@@ -209,11 +147,7 @@ local function on_debug_settings_changed(event)
 end
 
 -- return public functions
-local logger = {
-  error = _error,
-  info = info,
-  warn = warn,
-  assert = _assert,
+return {
   on_debug_settings_changed = on_debug_settings_changed,
-  }
-return logger
+  log = _log,
+}

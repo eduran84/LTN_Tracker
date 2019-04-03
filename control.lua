@@ -9,26 +9,19 @@
 -- gui_ctrl.lua module: handles UI events and displays data provided in global.data
 
 -- constants
-MOD_NAME = require("ltnt.const").global.mod_name
-MOD_PREFIX = require("ltnt.const").global.mod_prefix
-GUI_EVENTS = require("ltnt.const").global.gui_events
-local LTN_MOD_NAME = require("ltnt.const").global.mod_name_ltn
-local LTN_MINIMAL_VERSION = require("ltnt.const").global.minimal_version_ltn
-local LTN_CURRENT_VERSION = require("ltnt.const").global.current_version_ltn
+MOD_NAME = require("script.constants").global.mod_name
+MOD_PREFIX = require("script.constants").global.mod_prefix
+GUI_EVENTS = require("script.constants").global.gui_events
+local LTN_MOD_NAME = require("script.constants").global.mod_name_ltn
+local LTN_MINIMAL_VERSION = require("script.constants").global.minimal_version_ltn
+local LTN_CURRENT_VERSION = require("script.constants").global.current_version_ltn
 
--- debugging / logging
--- levels:
---  0 =  no logging at all;
---  1 = log only important events;
---  2 = lots of logging;
---  3 = not available as setting, only for use during development
-
-out = require("ltnt.logger")
-debug_level = tonumber(settings.global["ltnt-debug-level"].value)
+debug_log = settings.global["ltnt-debug-level"].value
 
 -- modules
-local prc = require("ltnt.data_processing")
-local ui = require("ltnt.gui_ctrl")
+out = require("script.logger")
+local prc = require("script.data_processing")
+local ui = require("script.gui_ctrl")
 
 -- helper functions
 local function format_version(version_string)
@@ -54,35 +47,35 @@ local function on_init()
     ltn_version = format_version(ltn_version_string)
   end
   if not ltn_version or ltn_version < LTN_MINIMAL_VERSION then
-    out.error(MOD_NAME, "requires version", LTN_MINIMAL_VERSION, "later of Logistic Train Network to run.")
+    error(out.log(MOD_NAME, "requires version", LTN_MINIMAL_VERSION, "later of Logistic Train Network to run."))
   end
   -- also check for LTN interface, just in case
   if not remote.interfaces["logistic-train-network"] then
-    out.error("LTN interface is not registered.")
+    error(out.log("LTN interface is not registered."))
   end
-  if debug_level > 0 then
-    out.info("control.lua", "Starting mod initialization for mod", MOD_NAME .. ". LTN version", ltn_version_string, "has been detected.")
+  if debug_log then
+    out.log("Starting mod initialization for mod", MOD_NAME .. ". LTN version", ltn_version_string, "has been detected.")
   end
 
   -- module init
   ui.on_init()
   prc.on_init()
 
-  if debug_level > 0 then
-    out.info("control.lua", "Initialization finished.")
+  if debug_log then
+    out.log("Initialization finished.")
   end
 end -- on_init()
 
 do --handle runtime settings
-  local setting_dict = require("ltnt.const").settings
+  local setting_dict = require("script.constants").settings
   local function on_settings_changed(event)
     -- notifies modules if one of their settings changed
     if not event then return end
     local pind = event.player_index
     local player = game.players[pind]
     local setting = event.setting
-    if debug_level > 0 then
-      out.info("control.lua", "Player", player.name, "changed setting", setting)
+    if debug_log then
+      out.log("Player", player.name, "changed setting", setting)
     end
     if setting_dict.ui[setting] then
       ui.on_settings_changed(pind, event)
@@ -92,7 +85,7 @@ do --handle runtime settings
     end
     -- debug settings
     if setting_dict.debug[setting] then
-      debug_level = tonumber(settings.global["ltnt-debug-level"].value)
+      debug_log = settings.global["ltnt-debug-level"].value
       out.on_debug_settings_changed(event)
     end
   end
@@ -110,13 +103,13 @@ script.on_load(
   function()
     ui.on_load()
     prc.on_load()
-    if debug_level > 0 then
-      out.info("control.lua", "on_load finished.")
+    if debug_log then
+      out.log("on_load finished")
     end
   end
 )
 
-local LTNC_MOD_NAME = require("ltnt.const").global.mod_name_ltnc
+local LTNC_MOD_NAME = require("script.constants").global.mod_name_ltnc
 script.on_configuration_changed(
   function(data)
     if data and data.mod_changes[LTN_MOD_NAME] then
@@ -126,18 +119,18 @@ script.on_configuration_changed(
       nv = nv and format_version(nv) or "0.0.0 (not present)"
       if nv >= LTN_MINIMAL_VERSION then
         if nv > LTN_CURRENT_VERSION then
-          out.warn("LTN version changed from ", ov, " to ", nv, ". That version is not supported, yet. Depending on the changes to LTN, this could result in issues with LTNT.")
+          out.log("LTN version changed from ", ov, " to ", nv, ". That version is not supported, yet. Depending on the changes to LTN, this could result in issues with LTNT.")
         else
-          out.info("control.lua", "LTN version changed from ", ov, " to ", nv)
+          out.log("LTN version changed from ", ov, " to ", nv)
         end
       else
-        out.error("LTN version was changed from ", ov, " to ", nv, ".", MOD_NAME, "requires version",  LTN_MINIMAL_VERSION, " or later of Logistic Train Network to run.")
+        error(out.log("LTN version was changed from ", ov, " to ", nv, ".", MOD_NAME, "requires version",  LTN_MINIMAL_VERSION, " or later of Logistic Train Network to run."))
       end
     end
     if data and (data.mod_changes[MOD_NAME] or data.mod_changes[LTNC_MOD_NAME]) then
       global.gui.ltnc_is_active = game.active_mods[LTNC_MOD_NAME] and true or false
       ui.reset_ui()
-      out.info("control.lua", MOD_NAME .. " updated to version " .. tostring(game.active_mods[MOD_NAME]))
+      out.log(MOD_NAME .. " updated to version " .. tostring(game.active_mods[MOD_NAME]))
     end
   end
 )
