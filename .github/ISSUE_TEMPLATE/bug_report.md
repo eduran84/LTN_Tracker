@@ -3,12 +3,12 @@ name: Bug report
 about: Report a bug.
 title: ''
 labels: bug
-assignees: ''
+assignees: eduran84
 
 ---
 
 **Error message or bug description**
-If LTNT caused an error message: screenshot or text of that message.
+If LTNT caused an error: screenshot or text of that message.
 If something did not work as expected: Description of the behavior and what you expected instead.
 
 **To Reproduce**
