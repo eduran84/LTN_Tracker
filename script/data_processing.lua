@@ -52,7 +52,6 @@ global.proc  >> stores the current state of processing
 .item2delivery  >> key = item,        value = table with delivery IDs currently transporting that item
 
 -- DATA TABLES --
-.stops_error    >> key = stop_id,     value = stopdata, as for stops
 .depots         >> key = depot_name,  value = table with stopsdata for each depot stop
 .provided       >> keys= network_id>item,  value = total amount provided of item in network_id
 .deliveries     >> key = train_id,    value = table listing delviery data
@@ -140,21 +139,14 @@ local function update_stops(raw, stop_id) -- state 1
             fcap = 0,
           }
         end
-      end
-      raw.name2id[name] = stop_id
-      if stop.errorCode ~= 0 then
-        -- add to table with error stops
-        stop.name = name
-        stop.signals = {[LTN_CONSTANTS.error_color_lookup[stop.errorCode]] = 1}
-        raw.stops_error[stop_id] = stop
-      elseif not stop.isDepot then
-        -- add extra fields to normal stops
+      else -- non-depot stop
+        raw.name2id[name] = stop_id
         stop.name = name
         stop.signals = get_control_signals(stop)
         stop.incoming = {}
         stop.outgoing = {}
         raw.stop_ids[#raw.stop_ids+1] = stop_id
-      end -- if stop.errorCode ~= 0
+      end
     end   -- if stop.valid
    -- else
     --  return nil -- all stops done
@@ -293,7 +285,6 @@ data_processor = function(event)
 
     -- reset raw data
     raw.depots = {}
-    raw.stops_error = {}
     raw.provided = {}
     raw.requested = {}
     raw.in_transit = {}
@@ -357,7 +348,6 @@ data_processor = function(event)
     -- update globals
     data.stops =  raw.stops
     data.depots = raw.depots
-    data.stops_error =  raw.stops_error
     data.provided =  raw.provided
     data.requested = raw.requested
     data.in_transit = raw.in_transit
@@ -388,12 +378,12 @@ end
 local FLUID_TOL = require("script.constants").proc.fluid_tolerance
 local abs = math.abs
 local function item_match(strg)
-  return string.match(strg, "(%w+),([%w_%-]+)")
+  return string.match(strg, "%w+,([%w_%-]+)")
 end
 
 local function store_history(history)
   if debug_log then
-    out.log("New history record:\n", history)
+    log2("New history record:\n", history)
   end
   history.runtime = game.tick - history.started
   history.networkID = history.networkID and history.networkID > 2147483648 and history.networkID - 4294967296 or history.networkID -- convert from uint32 to int32
@@ -401,18 +391,21 @@ local function store_history(history)
   data.newest_history_index = (data.newest_history_index % HISTORY_LIMIT) + 1
 end
 
-local function raise_alert(delivery, train, alert_type, incorrect_item)
+local function raise_alert(delivery, train, alert_type, actual_cargo)
   local loco = get_main_loco(train)
-  data.trains_error[train.id] = {
+  delivery.to_id = data.name2id[delivery.to]
+  delivery.from_id = data.name2id[delivery.from]
+  data.trains_error[data.train_error_count] = {
     type = alert_type,
     loco = loco,
-    route = {delivery.depot or "unknown", delivery.from, delivery.to},
-    cargo = incorrect_item,
+    delivery = delivery,
+    cargo = actual_cargo,
   }
   if debug_log then
-    out.log("Train error state detected.\nIntended delivery:\n", delivery, "\nNew alert:", data.trains_error[train.id])
+    log2("Train error state detected:\n", data.trains_error[data.train_error_count])
   end
-  script.raise_event(events.on_train_alert, data.trains_error[train.id])
+  script.raise_event(events.on_train_alert, data.trains_error[data.train_error_count])
+  data.train_error_count = data.train_error_count + 1
 end
 
 local function on_pickup_completed(event)
@@ -421,46 +414,56 @@ local function on_pickup_completed(event)
   local train = delivery.train
   local item_cargo = train.get_contents() -- does return empty table when train is empty, not nil
   local fluid_cargo = train.get_fluid_contents()
-  local shipment = delivery.shipment
+  local old_delivery = data.deliveries[train.id]
+  local actual_cargo = {}
   if debug_log then
-    out.log("Pickup complete event received.\nEvent data:\n", event, "\nItem cargo:", item_cargo, "\nFluid cargo:", fluid_cargo)
+    log2("Pickup complete event received.\nEvent data:\n", event, "\nItem cargo:", item_cargo, "\nFluid cargo:", fluid_cargo, "\nOld delivery:\n", old_delivery)
   end
   local keys = {}
-  for item, expected_amount in pairs(shipment) do
-    local item_type, item_name = item_match(item)
-    if not item_name then
-      out.log("unable to parse item name:", item)
-      return
+  local alert = false
+  if old_delivery then
+    for item, new_amount in pairs(delivery.shipment) do
+      local old_amount = old_delivery.shipment[item]
+      if new_amount < old_amount  then
+        alert = true
+      end
+      actual_cargo[item] = new_amount
+      keys[item_match(item) or ""] = true
     end
-    local real_amount
-    if item_type == "item" then
-      real_amount = item_cargo[item_name] or 0
-    else
-      real_amount = fluid_cargo[item_name] or 0
+  else
+    for item, new_amount in pairs(delivery.shipment) do
+      keys[item_match(item) or ""] = true
     end
-    if abs(real_amount - expected_amount) > FLUID_TOL then
-      raise_alert(delivery, train, "incorrect_cargo", {item_type, {[item_name] = real_amount}})
-      return
-    end
-    keys[item_name] = true
+    actual_cargo = delivery.shipment
   end
+
   for item_name, amount in pairs(item_cargo) do
     if not keys[item_name] then
-      raise_alert(delivery, train, "incorrect_cargo", {"item", {[item_name] = amount}})
-      return
+      actual_cargo["item,"..item_name] = amount
+      alert = true
     end
   end
   for fluid_name, amount in pairs(fluid_cargo) do
     if not keys[fluid_name] then
-      raise_alert(delivery, train, "incorrect_cargo", {"fluid", {[fluid_name] = amount}})
-      return
+      actual_cargo["fluid,"..fluid_name] = amount
+      alert = true
+    end
+  end
+  log2("Actual cargo:", actual_cargo)
+  if alert then
+    if old_delivery then
+      old_delivery.depot = train.schedule and train.schedule.records[1] and train.schedule.records[1].station or "unknown"
+      raise_alert(old_delivery, train, "incorrect_cargo", actual_cargo)
+    else
+      delivery.depot = train.schedule and train.schedule.records[1] and train.schedule.records[1].station or "unknown"
+      raise_alert(delivery, train, "incorrect_cargo", actual_cargo)
     end
   end
 end
 
 local function on_delivery_completed(event)
   if debug_log then
-    out.log("Delivery complete event received.\nEvent data:\n", event)
+    log2("Delivery complete event received.\nEvent data:\n", event)
   end
   -- check train for residual content
   -- if a train has fluid and items, only item residue is logged
@@ -482,7 +485,7 @@ end
 
 local function on_delivery_failed(event)
   if debug_log then
-    out.log("Delivery failed event received.\nEvent data:\n", event)
+    log2("Delivery failed event received.\nEvent data:\n", event)
   end
   local delivery = event.delivery
   local train = delivery.train
@@ -525,7 +528,7 @@ local function on_load()
   script.on_event(events.on_delivery_failed_event, on_delivery_failed)
   script.on_event(events.on_pickup_completed, on_pickup_completed)
   if debug_log then
-    out.log("data processor status after on_load:", global.proc)
+    log2("data processor status after on_load:", global.proc)
   end
 end
 
@@ -536,8 +539,8 @@ local function on_init()
   global.data = global.data or {} -- storage for processed data, ready to be used by UI
   global.data.stops = global.data.stops or {}
   global.data.depots = global.data.depots or {}
-  global.data.stops_error = global.data.stops_error or {}
   global.data.trains_error = global.data.trains_error or {}
+  global.data.train_error_count = 1
   global.data.provided = global.data.provided or {}
   global.data.requested = global.data.requested or {}
   global.data.in_transit = global.data.in_transit or {}

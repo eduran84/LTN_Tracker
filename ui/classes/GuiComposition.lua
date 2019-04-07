@@ -21,9 +21,9 @@ setmetatable(GuiComposition, {
 })
 
 function GuiComposition:_init(name, args)
-  if game then error(out.log("Forbidden at runtime.")) end
+  if game then error(log2("Forbidden at runtime.")) end
   if not(type(name) == "string" and name == name:match("[%w_]+")) then
-    error(out.log("Name must be a valid lua variable name, i.e. a string consisting of only letters, digits and underscores.\nname:", name, "\narguments:", args))
+    error(log2("Name must be a valid lua variable name, i.e. a string consisting of only letters, digits and underscores.\nname:", name, "\narguments:", args))
   end
   self.name = name
   self.elem = {}   -- stores UI element definitions in an indexed array
@@ -43,26 +43,26 @@ end
 end
 
 function GuiComposition:add(args) -- parent_name, name, params, style, event
-  if game then error(out.log("Forbidden at runtime.")) end
+  if game then error(log2("Forbidden at runtime.")) end
   -- lengthy input check, because I suck at using my own code
-  if not(args) then error(out.log(":add method called without input arguments or with a dot instead of a colon.")) end
-  if not(args.name) then error(out.log("Name missing.\narguments:", args)) end
+  if not(args) then error(log2(":add method called without input arguments or with a dot instead of a colon.")) end
+  if not(args.name) then error(log2("Name missing.\narguments:", args)) end
 
   if not(type(args.name) == "string" and args.name == args.name:match("[%w_]+")) then
-    error(out.log("Name must be a valid lua variable name, i.e. a string consisting of only letters, digits and underscores.\narguments:", args))
+    error(log2("Name must be a valid lua variable name, i.e. a string consisting of only letters, digits and underscores.\narguments:", args))
   end
   local name = args.name
   if name ~= "root" then
     if not(args.parent_name and type(args.parent_name) == "string") then
-      error(out.log("Invalid parent name or parent_name missing.\narguments:", args))
+      error(log2("Invalid parent name or parent_name missing.\narguments:", args))
     end
     if not(self.elem[self.n2i[args.parent_name]]) then
-      error(out.log("Parent", args.parent_name, "does not exist in GuiComposition", self.name, ".\nself:", self))
+      error(log2("Parent", args.parent_name, "does not exist in GuiComposition", self.name, ".\nself:", self))
     end
   end
   local parent_name = args.parent_name
   if self.n2i[name] then
-    error(out.log("Element with name", name, "does already exist and cannot be added again."))
+    error(log2("Element with name", name, "does already exist and cannot be added again."))
   end
 
   if args.gui_composition then
@@ -73,11 +73,11 @@ function GuiComposition:add(args) -- parent_name, name, params, style, event
   else
     -- some additional input checks for normal elements
     if not (args.params and args.params.type) then
-      error(out.log("The following parameter list is invalid:", args and args.params))
+      error(log2("The following parameter list is invalid:", args and args.params))
     end
     if args.style then
       if not(type(args.style) == "table") then
-        error(out.log("Style argument has to be a table. Provided style argument:", args.style))
+        error(log2("Style argument has to be a table. Provided style argument:", args.style))
       end
     end
 
@@ -142,19 +142,19 @@ end
 -- :build must be called for each player in on_init and on_player_created
 
 function GuiComposition:build(parent, pind)
-  if not(self.elem[1]) then error(out.log("Root not set for GuiComposition object", self.name)) end
+  if not(self.elem[1]) then error(log2("Root not set for GuiComposition object", self.name)) end
   self:destroy(pind)
-  if not(parent and parent.valid) then error(out.log("Invalid parent specified when calling build method of GuiComposition object with name", self.name)) end
+  if not(parent and parent.valid) then error(log2("Invalid parent specified when calling build method of GuiComposition object with name", self.name)) end
   self.mystorage.root[pind] = self:_build_single_element(1, parent, pind)
 end
 
 function GuiComposition:get(pind)
-  if not(self.mystorage) then error(out.log("GuiComposition object", self.name, "has not been initialized.")) end
-  if not(type(pind) == "number") then error(out.log("Argument has to be a player index. Argument received:", pind)) end
+  if not(self.mystorage) then error(log2("GuiComposition object", self.name, "has not been initialized.")) end
+  if not(type(pind) == "number") then error(log2("Argument has to be a player index. Argument received:", pind)) end
   if self.mystorage.root[pind].valid then
     return self.mystorage.root[pind]
   else
-    out.log("UI element", self.name, "invalid. Resetting UI.")
+    log2("UI element", self.name, "invalid. Resetting UI.")
     script.raise_event(custom_events.on_ui_invalid, {["element_name"] = self.name})
     return nil
   end
@@ -162,9 +162,9 @@ end
 
 function GuiComposition:get_el(pind, element_name)
   local element_index = self.n2i[element_name]
-  if not(self.mystorage) then error(out.log("GuiComposition object", self.name, "has not been initialized.")) end
+  if not(self.mystorage) then error(log2("GuiComposition object", self.name, "has not been initialized.")) end
   if not (element_name and self.elem[element_index]) then
-    out.log("GC object", self.name, "does not have an element with name", element_name)
+    log2("GC object", self.name, "does not have an element with name", element_name)
     return nil
   else
     local element = self:get(pind)
@@ -182,7 +182,7 @@ function GuiComposition:get_el(pind, element_name)
     if valid then
       return element
     else
-      out.log("UI element", self.name, "is invalid. Resetting UI.")
+      log2("UI element", self.name, "is invalid. Resetting UI.")
       script.raise_event(custom_events.on_ui_invalid, {["element_name"] = self.name})
     end
   end

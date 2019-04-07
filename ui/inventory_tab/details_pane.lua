@@ -169,11 +169,9 @@ function gcDetails:set_item(pind, network_id, ltn_item)
   get(self, pind, "item_icon").sprite = spritepath
 
   -- update totals
-  local provided_items = get_items_in_network(data.provided, network_id)
-	get(self, pind, "tprov_num").caption = provided_items[ltn_item] or 0
-	local requested_items = get_items_in_network(data.requested, network_id)
-	get(self, pind, "treq_num").caption = requested_items[ltn_item] or 0
-	get(self, pind, "ttr_num").caption = data.in_transit[ltn_item] or 0
+	get(self, pind, "tprov_num").caption = get_items_in_network(data.provided, network_id)[ltn_item] or 0
+	get(self, pind, "treq_num").caption = get_items_in_network(data.requested, network_id)[ltn_item] or 0
+	get(self, pind, "ttr_num").caption = get_items_in_network(data.in_transit, network_id)[ltn_item] or 0
 
 
   -- update stop table with relevant stops

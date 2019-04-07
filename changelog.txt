@@ -1,4 +1,20 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.10.0
+Date: 2019-04-04
+
+  Features:
+    - Alert tab overhaul:
+      * Stations with error states are no longer displayed on alert tab. Instead, they have been moved to the station tab.
+      * Train alert descriptions improved.
+      * Made provider and requester station names clickable.
+      * In case of incorrectly loaded trains, planned shipment and actual cargo are displayed.
+      * In case of leftover items after the delivery finishes, planned shipment and leftover items are displayed.
+      * Added a clear all button to clear all alerts with a single click.
+
+  Bugfixes:
+    - Fix for items in transit not being displayed properly in inventory tab (https://forums.factorio.com/viewtopic.php?f=214&t=64842&start=80#p419658)
+
+---------------------------------------------------------------------------------------------------
 Version: 0.9.9
 Date: 2019-04-03
 

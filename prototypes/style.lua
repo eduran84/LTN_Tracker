@@ -390,6 +390,7 @@ default_gui["ltnt_error_label"] = {
 	parent = "ltnt_label_default",
   font = "ltnt_font_bold",
   font_color = bright_red,
+  single_line = false
 }
 
 default_gui["ltnt_lb_inv_station_name"] = {

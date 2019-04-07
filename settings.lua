@@ -35,10 +35,4 @@ data:extend({
 		type = "bool-setting",
     default_value = false,
 	},
-	{
-		name = "ltnt-debug-print",
-    setting_type = "runtime-global",
-		type = "bool-setting",
-		default_value = false,
-	},
 })

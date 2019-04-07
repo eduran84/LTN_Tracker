@@ -9,7 +9,6 @@ CONST.settings = {
   },
   proc = {["ltnt-history-limit"] = true},
   debug = {
-    ["ltnt-debug-print"] = true,
     ["ltnt-debug-level"] = true,
   },
 }
@@ -21,7 +20,7 @@ CONST.global = {
   mod_name_ltn = "LogisticTrainNetwork",
   mod_name_ltnc = "LTN_Combinator",
   minimal_version_ltn = "01.10.03",
-  current_version_ltn = "01.10.05",
+  current_version_ltn = "01.10.06",
 }
 
 CONST.styles = {
@@ -90,17 +89,9 @@ CONST.history_tab = {
 
 CONST.alert_tab = {
 	tab_index = 5,
-  frame_width = {410, 525},
-  n_columns = {3, 4},
-	col_width_l = {170, 20, 160},
-	col_width_r = {130, 120, 140, 0},
-}
-
--- misc stuff
-
-CONST.train_error_state_dict = {
-  ["residuals"] = {"error.train-residual-cargo"},
-  ["timeout"] = {"error.train-timeout"},
+  frame_width = 940,
+  n_columns = 5,
+	col_width = {180, 170, 220, 240},
 }
 
 -- LTN definitions, copied from LTN's control.lua

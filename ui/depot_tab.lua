@@ -245,7 +245,6 @@ function gcDepotTab:update(pind, index)
 end
 
 local build_train_composition_string = require("__OpteraLib__.script.train").get_train_composition_string
-local train_state_dict = require("script.constants").train_error_state_dict
 function gcDepotTab:show_details(pind)
   local depot_name = global.gui[self.name].selected_depot[pind]
   if not depot_name then return end
@@ -298,11 +297,6 @@ function gcDepotTab:show_details(pind)
           color = DEPOT_CONST.color_dict[3]
         end
         state = 1
-      elseif data.trains_error[train_id] then
-        --display error state
-        label_txt_1 = train_state_dict[data.trains_error[train_id].type]
-        color = DEPOT_CONST.color_dict[2]
-        state = 2
       else
         -- train returning to depot is the only option left
         label_txt_1 = {"depot.returning"}
@@ -333,15 +327,8 @@ function gcDepotTab:show_details(pind)
         label.style.width = DEPOT_CONST.col_width_right[2]
       end
 
-      -- third column: shipment or residual items
-      if state == 0 then
-        -- empty label, otherwise table is misaligned
-        label = tb.add{
-          type = "label",
-          caption = "",
-          style = "ltnt_label_default",
-        }
-      elseif state == 1 then
+      -- third column: shipment
+      if state == 1 then
         build_item_table{
           parent = tb,
           provided = data.deliveries[train.id].shipment,
@@ -349,20 +336,13 @@ function gcDepotTab:show_details(pind)
           max_rows = 2,
         }
       else
-        local residuals = data.trains_error[train_id].cargo
-        if residuals and next(residuals) then
-          label = build_item_table{
-            parent = tb,
-            requested = residuals[2],
-            columns = 5,
-            max_rows = 2,
-            type = residuals[1],
-            no_negate = true,
-          }
-          label.style.vertical_align = "top"
-          label.style.horizontally_stretchable = false
-        end -- if residuals and next(residuals) then
-      end -- if state == 0 then
+        -- empty label, otherwise table is misaligned
+        label = tb.add{
+          type = "label",
+          caption = "",
+          style = "ltnt_label_default",
+        }
+      end -- if state == 1 then
     end -- if train.valid then
   end   -- for _, train in pairs(depot_data.all_trains) do
 end

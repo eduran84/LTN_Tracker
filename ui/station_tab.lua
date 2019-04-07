@@ -216,16 +216,14 @@ do --create closure
 	})
   -- sort functions
   local sort = table.sort
-  local color_order = {["signal-blue"] = 1, ["signal-yellow"] = 2, ["signal-green"] = 3}
+  local color_order = {["signal-red"] = 0, ["signal-pink"] = 3, ["signal-blue"] = 4, ["signal-yellow"] = 4.1, ["signal-green"] = 10000}
 
   local get_sort_func = {
     ["name"] = function(a,b) return global.data.stops[a].name < global.data.stops[b].name end,
     ["state"] = function(a,b)
-      if global.data.stops[a].signals[1][2] ~= global.data.stops[b].signals[1][2] then
-        return global.data.stops[a].signals[1][2] > global.data.stops[b].signals[1][2]
-      else
-        return color_order[global.data.stops[a].signals[1][1]] < color_order[global.data.stops[b].signals[1][1]]
-      end
+      local rank_a = color_order[global.data.stops[a].signals[1][1]] + global.data.stops[a].signals[1][2]
+      local rank_b = color_order[global.data.stops[b].signals[1][1]] + global.data.stops[b].signals[1][2]
+      return rank_a < rank_b
     end,
   }
 
@@ -237,7 +235,7 @@ do --create closure
       if self.mystorage.last_filter[pind] or self.mystorage.last_filter[pind] ~= self.mystorage.filter[pind] then
 				self.mystorage.cached_results[pind] = {}
 				local lower = self.mystorage.filter[pind]:lower()
-				for _, station in next, global.data.stop_ids do
+				for _, station in pairs(global.data.stop_ids) do
 					local match = true
 					for word in lower:gmatch("%S+") do
 						if not name2lowercase[station]:find(word, 1, true) then match = false end
@@ -281,7 +279,7 @@ function gcStopTab:update(pind, index)
       local stop_id = stops_to_list[i]
       if stop_id and data.stops[stop_id] then
         local stopdata = data.stops[stop_id]
-        if stopdata.errorCode == 0 and stopdata.isDepot == false and testfun(selected_network_id, stopdata.network_id) then
+        if stopdata.isDepot == false and testfun(selected_network_id, stopdata.network_id) then
           -- stop is in selected network, create table entry
           -- first column: station name
           local label = tb.add{

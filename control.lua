@@ -18,28 +18,26 @@ local LTN_CURRENT_VERSION = require("script.constants").global.current_version_l
 
 debug_log = settings.global["ltnt-debug-level"].value
 
--- modules
-out = require("script.logger")
-local prc = require("script.data_processing")
-local ui = require("script.gui_ctrl")
-
 -- helper functions
 local function format_version(version_string)
   return string.format("%02d.%02d.%02d", string.match(version_string, "(%d+).(%d+).(%d+)"))
 end
 
-  --create custom events
-  custom_events = {
-    on_data_updated = script.generate_event_name(),
-    on_train_alert = script.generate_event_name(),
-    on_ui_invalid = script.generate_event_name(),
-  }
+------------------------------
+------- initialization -------
+------------------------------
+custom_events = {
+  on_data_updated = script.generate_event_name(),
+  on_train_alert = script.generate_event_name(),
+  on_ui_invalid = script.generate_event_name(),
+}
 
------------------------------
------- event handlers  ------
------------------------------
+-- load modules
+log2 = require("script.logger")
+local prc = require("script.data_processing")
+local ui = require("script.gui_ctrl")
 
-local function on_init()
+script.on_init(function()
   -- check for LTN
   local ltn_version = nil
   local ltn_version_string = game.active_mods[LTN_MOD_NAME]
@@ -47,14 +45,14 @@ local function on_init()
     ltn_version = format_version(ltn_version_string)
   end
   if not ltn_version or ltn_version < LTN_MINIMAL_VERSION then
-    error(out.log(MOD_NAME, "requires version", LTN_MINIMAL_VERSION, "later of Logistic Train Network to run."))
+    error(log2(MOD_NAME, "requires version", LTN_MINIMAL_VERSION, "later of Logistic Train Network to run."))
   end
   -- also check for LTN interface, just in case
   if not remote.interfaces["logistic-train-network"] then
-    error(out.log("LTN interface is not registered."))
+    error(log2("LTN interface is not registered."))
   end
   if debug_log then
-    out.log("Starting mod initialization for mod", MOD_NAME .. ". LTN version", ltn_version_string, "has been detected.")
+    log2("Starting mod initialization for mod", MOD_NAME .. ". LTN version", ltn_version_string, "has been detected.")
   end
 
   -- module init
@@ -62,20 +60,34 @@ local function on_init()
   prc.on_init()
 
   if debug_log then
-    out.log("Initialization finished.")
+    log2("Initialization finished.")
   end
-end -- on_init()
+end)
 
-do --handle runtime settings
+script.on_event(defines.events.on_player_created, function(event) ui.player_init(event.player_index) end)
+
+script.on_load(function()
+  ui.on_load()
+  prc.on_load()
+  if debug_log then
+    log2("on_load finished")
+  end
+end)
+
+-----------------------------------
+------- settings and config -------
+-----------------------------------
+
+do
   local setting_dict = require("script.constants").settings
-  local function on_settings_changed(event)
+  script.on_event(defines.events.on_runtime_mod_setting_changed, function(event)
     -- notifies modules if one of their settings changed
     if not event then return end
     local pind = event.player_index
     local player = game.players[pind]
     local setting = event.setting
     if debug_log then
-      out.log("Player", player.name, "changed setting", setting)
+      log2("Player", player.name, "changed setting", setting)
     end
     if setting_dict.ui[setting] then
       ui.on_settings_changed(pind, event)
@@ -83,60 +95,55 @@ do --handle runtime settings
     if setting_dict.proc[setting] then
       prc.on_settings_changed(event)
     end
-    -- debug settings
     if setting_dict.debug[setting] then
       debug_log = settings.global["ltnt-debug-level"].value
-      out.on_debug_settings_changed(event)
     end
-  end
-
-  script.on_event(defines.events.on_runtime_mod_setting_changed, on_settings_changed)
+  end)
 end
------------------------------
-------- STATIC EVENTS -------
------------------------------
--- additional events are (un-)registered dynamically as needed by data_processing.lua
 
-script.on_init(on_init)
-
-script.on_load(
-  function()
-    ui.on_load()
-    prc.on_load()
-    if debug_log then
-      out.log("on_load finished")
-    end
-  end
-)
-
-local LTNC_MOD_NAME = require("script.constants").global.mod_name_ltnc
-script.on_configuration_changed(
-  function(data)
-    if data and data.mod_changes[LTN_MOD_NAME] then
+do
+  local LTNC_MOD_NAME = require("script.constants").global.mod_name_ltnc
+  script.on_configuration_changed(function(data)
+    if not data then return end
+    -- handle changes to LTN
+    if data.mod_changes[LTN_MOD_NAME] then
       local ov = data.mod_changes[LTN_MOD_NAME].old_version
       ov = ov and format_version(ov) or "0.0.0 (not present)"
       local nv = data.mod_changes[LTN_MOD_NAME].new_version
       nv = nv and format_version(nv) or "0.0.0 (not present)"
       if nv >= LTN_MINIMAL_VERSION then
         if nv > LTN_CURRENT_VERSION then
-          out.log("LTN version changed from ", ov, " to ", nv, ". That version is not supported, yet. Depending on the changes to LTN, this could result in issues with LTNT.")
+          log2("LTN version changed from ", ov, " to ", nv, ". That version is not supported, yet. Depending on the changes to LTN, this could result in issues with LTNT.")
         else
-          out.log("LTN version changed from ", ov, " to ", nv)
+          log2("LTN version changed from ", ov, " to ", nv)
         end
       else
-        error(out.log("LTN version was changed from ", ov, " to ", nv, ".", MOD_NAME, "requires version",  LTN_MINIMAL_VERSION, " or later of Logistic Train Network to run."))
+        error(log2("LTN version was changed from ", ov, " to ", nv, ".", MOD_NAME, "requires version",  LTN_MINIMAL_VERSION, " or later of Logistic Train Network to run."))
       end
     end
-    if data and (data.mod_changes[MOD_NAME] or data.mod_changes[LTNC_MOD_NAME]) then
+    -- handle changes to LTN-Combinator
+    if data.mod_changes[LTNC_MOD_NAME] then
       global.gui.ltnc_is_active = game.active_mods[LTNC_MOD_NAME] and true or false
-      ui.reset_ui()
-      out.log(MOD_NAME .. " updated to version " .. tostring(game.active_mods[MOD_NAME]))
+      if not data.mod_changes[MOD_NAME] then ui.reset_ui() end
     end
-  end
-)
+    -- handles changes to LTNT
+    if data.mod_changes[MOD_NAME] then
+      if data.mod_changes[MOD_NAME].old_version and format_version(data.mod_changes[MOD_NAME].old_version) < "00.10.00" then
+        -- remove unused variables from global table and add new ones
+        global.data.train_error_count = 1
+        global.data.stops_error = nil
+        global.raw.stops_error = nil
+      end
+      ui.reset_ui()
+      log2(MOD_NAME .. " updated to version " .. tostring(game.active_mods[MOD_NAME]))
+    end
+  end)
+end
 
-script.on_event(defines.events.on_player_created, function(event) ui.player_init(event.player_index) end)
-
+-----------------------------
+------- STATIC EVENTS -------
+-----------------------------
+-- additional events are (un-)registered dynamically as needed by data_processing.lua
 
 -- gui events
 script.on_event(defines.events.on_gui_closed, ui.on_ui_closed)
@@ -149,4 +156,4 @@ script.on_event(custom_events.on_data_updated, ui.update_ui)
 -- raised when a train with an error is detected
 script.on_event(custom_events.on_train_alert, ui.on_new_alert)
 -- raised when UI element(s) became invalid
-script.on_event(custom_events.on_ui_invalid, ui.reset_ui) -- force full reset for all players
+script.on_event(custom_events.on_ui_invalid, ui.reset_ui)

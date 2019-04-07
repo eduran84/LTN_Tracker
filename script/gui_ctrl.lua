@@ -6,6 +6,7 @@
 local s2n = tonumber
 local match = string.match
 local mod_gui = require("mod-gui")
+local lib_utils = require("__OpteraLib__.script.train")
 
 -- load / set constants
 local N_TABS = 0
@@ -24,18 +25,18 @@ local tab_list = {}
 for _,path in pairs(gc_pathes) do
   local gc = require(path)
   if GC[gc.name] then
-    error(out.log("GuiComposition object with name", gc.name, "does already exist."))
+    error(log2("GuiComposition object with name", gc.name, "does already exist."))
   end
   GC[gc.name] = gc
   for _,sub_gc in pairs(gc.sub_gc) do
     if GC[sub_gc.name] then
-      error(out.log("GuiComposition object with name", sub_gc.name, "does already exist."))
+      error(log2("GuiComposition object with name", sub_gc.name, "does already exist."))
     end
     GC[sub_gc.name] = sub_gc
   end
   if gc.tab_index then
     if tab_list[gc.tab_index] then
-      error(out.log("Tab index", gc.tab_index, "is already registerd by another GC object.\ntab_list:", tab_list))
+      error(log2("Tab index", gc.tab_index, "is already registerd by another GC object.\ntab_list:", tab_list))
     end
     tab_list[gc.tab_index] = gc
     N_TABS = N_TABS + 1
@@ -59,7 +60,7 @@ local function player_init(pind)
   local frame_flow = mod_gui.get_frame_flow(player)
   local button_flow = mod_gui.get_button_flow(player)
   if debug_log then
-    out.log("Building UI for player", player.name)
+    log2("Building UI for player", player.name)
   end
 
   -- set UI state globals
@@ -110,7 +111,7 @@ end
 
 local function reset_ui()
   -- wipe existing UIs and clear global UI storage...
-  out.log("Resetting UI.")
+  log2("Resetting UI.")
   for pind in pairs(game.players) do
     for _, gc in pairs(GC) do
       gc:destroy(pind)
@@ -165,7 +166,7 @@ local function close_gui(pind)
   game.players[pind].opened = nil
   GC.outer_frame:hide(pind)
   if debug_log then
-    out.log("Closing UI for player", pind)
+    log2("Closing UI for player", pind)
   end
 end
 
@@ -184,7 +185,7 @@ local function ui_event_handler(event)
     if GC[gc_name] then -- should not be necessary, but let's be extra safe in case another mod uses exactly the same naming pattern
       local handler, data = GC[gc_name]:get_event_handler(event, s2n(elem_index), data_string)
       if debug_log then
-        out.log("Gui event received.\nEvent:", event, "\ngc_name:", gc_name, "\nelem_index:", elem_index, "\ndata_string:", data_string, "\nhandler:", handler, "\ndata:", data)
+        log2("Gui event received.\nEvent:", event, "\ngc_name:", gc_name, "\nelem_index:", elem_index, "\ndata_string:", data_string, "\nhandler:", handler, "\ndata:", data)
       end
       if type(handler) == "string" then
         if data then
@@ -194,7 +195,7 @@ local function ui_event_handler(event)
         end
       end
     else
-      out.log("Gui event registerd for UI element with name", event.element.name, ", but corresponding GC object was not found.\nCurrent state of GC:\n", GC, "\nTriggering event:", event)
+      log2("Gui event registerd for UI element with name", event.element.name, ", but corresponding GC object was not found.\nCurrent state of GC:\n", GC, "\nTriggering event:", event)
     end
   end
 end
@@ -247,6 +248,12 @@ end
 function handlers.clear_history(event, data_string)
   global.data.delivery_hist = {}
   global.data.newest_history_index = 1
+  update_tab(event.player_index)
+end
+
+function handlers.clear_train_alerts(event, data_string)
+  global.data.trains_error = {}
+  global.data.trains_error_count = 1
   update_tab(event.player_index)
 end
 
@@ -303,16 +310,6 @@ do -- handle button/label clicks that are supposed to select a train/station/cc
     local stop =  global.data.stops[s2n(match(data_string, "cc_(.*)"))]
     if stop and stop.entity and stop.entity.valid then
       select_combinator(event.player_index, stop.entity, stop.input)
-    end
-  end
-
-  function handlers.on_error_stop_clicked(event, data_string)
-    local stop = global.data.stops_error[s2n(data_string)]
-    if stop and stop.entity and stop. entity.valid then
-      if not select_combinator(event.player_index, stop.entity, stop.input) then
-        close_gui(event.player_index)
-        select_entity(event.player_index, stop.entity)
-      end
     end
   end
 
