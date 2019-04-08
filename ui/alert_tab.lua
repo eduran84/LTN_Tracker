@@ -250,9 +250,9 @@ function gcAlertTab:event_handler(event, index, data_string)
     self:update(event.player_index, self.tab_index)
     return nil
   elseif char == "t" or char == "f" then
-    local stop_entity = global.data.stops[tonumber(data_string:sub(2))]
-    if stop_entity then
-      return "on_entity_clicked", stop_entity.entity
+    local stop = global.data.stops[tonumber(data_string:sub(2))]
+    if stop then
+      return "on_entity_clicked", stop.entity
     end
   else
     log2("Invalid data string.\nEvent:", event, "\nindex:", index, "\ndata_string:", data_string, "\nalert_tab state:", self)

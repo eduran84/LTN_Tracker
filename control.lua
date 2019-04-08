@@ -158,10 +158,9 @@ do
         log2("Migrating train error data to version 0.10.1.\nOld data:",  global.data.trains_error, "\nNew data:", temp)
         global.data.train_error_count = count
         global.data.trains_error = temp
-      end
-      ui.reset_ui()
-      log2(MOD_NAME .. " updated to version " .. tostring(game.active_mods[MOD_NAME]))
-    elseif data.mod_changes[MOD_NAME].old_version and format_version(data.mod_changes[MOD_NAME].old_version) == "00.10.00" then
+        ui.reset_ui()
+        log2(MOD_NAME .. " updated to version " .. tostring(game.active_mods[MOD_NAME]))
+      elseif data.mod_changes[MOD_NAME].old_version and format_version(data.mod_changes[MOD_NAME].old_version) == "00.10.00" then
         global.data.stops_error = nil
         global.raw.stops_error = nil
         global.data.train_error_count = 1
@@ -169,6 +168,7 @@ do
         log2("Train error data is invalid and was deleted.")
         ui.reset_ui()
         log2(MOD_NAME .. " updated to version " .. tostring(game.active_mods[MOD_NAME]))
+      end
     end
   end)
 end

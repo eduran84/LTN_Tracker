@@ -1,4 +1,12 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.10.2
+Date: 2019-04-08
+
+  Bugfixes:
+    - Fixed error caused by mod configuration changes (https://forums.factorio.com/viewtopic.php?f=214&t=64842&start=100#p420935).
+    - Fixed error caused by renamed or removed stations (https://forums.factorio.com/viewtopic.php?f=214&t=64842&start=100#p420947).
+
+---------------------------------------------------------------------------------------------------
 Version: 0.10.1
 Date: 2019-04-07 20:30
 
@@ -19,7 +27,7 @@ Date: 2019-04-07 10:30
       * Added a clear all button to clear all alerts with a single click.
 
   Bugfixes:
-    - Fix for items in transit not being displayed properly in inventory tab (https://forums.factorio.com/viewtopic.php?f=214&t=64842&start=80#p419658)
+    - Fix for items in transit not being displayed properly in inventory tab (https://forums.factorio.com/viewtopic.php?f=214&t=64842&start=80#p419658).
 
 ---------------------------------------------------------------------------------------------------
 Version: 0.9.9
@@ -38,7 +46,7 @@ Version: 0.9.8
 Date: 2019-03-30
 
   Bugfixes:
-    - Workaround for crash related to rich text in station names (https://forums.factorio.com/viewtopic.php?f=214&t=64842&start=60#p418220)
+    - Workaround for crash related to rich text in station names (https://forums.factorio.com/viewtopic.php?f=214&t=64842&start=60#p418220).
 
 ---------------------------------------------------------------------------------------------------
 Version: 0.9.7
