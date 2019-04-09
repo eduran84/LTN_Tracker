@@ -72,12 +72,15 @@ function gcAlertTab:build_route_labels(parent, index, delivery) -- helper functi
     inner_tb.style.horizontal_align = "center"
     inner_tb.style.horizontal_spacing = 0
     inner_tb.style.vertical_spacing = 0
+
+    log2("Creating alert tab entry.\nDelivery:", delivery)
     local elem = inner_tb.add{
       type = "label",
       caption =delivery.from,
       tooltip = delivery.from,
       style = "ltnt_hoverable_label",
-      name = self:_create_name(index, "f" .. delivery.from_id)
+      --DEBUG
+      name = self:_create_name(index, "f" .. (delivery.from_id or "0"))
     }
     elem.style.width = COL_WIDTH[1]
     index = index + 1
@@ -86,7 +89,7 @@ function gcAlertTab:build_route_labels(parent, index, delivery) -- helper functi
       caption = delivery.to,
       tooltip = delivery.to,
       style = "ltnt_hoverable_label",
-      name = self:_create_name(index, "t" .. delivery.to_id)
+      name = self:_create_name(index, "t" ..(delivery.to_id or "0"))
     }
     elem.style.width = COL_WIDTH[1]
     index = index + 1
@@ -239,7 +242,6 @@ function gcAlertTab:update(pind, tab_index)
 end
 
 function gcAlertTab:event_handler(event, index, data_string)
-  log2("handler running", event, index, data_string)
   local char = data_string:sub(1, 1)
   if char == "s" then
     -- select train

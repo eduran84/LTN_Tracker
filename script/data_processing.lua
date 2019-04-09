@@ -393,8 +393,8 @@ end
 
 local function raise_alert(delivery, train, alert_type, actual_cargo)
   local loco = get_main_loco(train)
-  delivery.to_id = data.name2id[delivery.to] or 0
-  delivery.from_id = data.name2id[delivery.from] or 0
+  delivery.to_id = delivery.to_id or data.name2id[delivery.to] or 0
+  delivery.from_id = delivery.from_id or data.name2id[delivery.from] or 0
   data.trains_error[data.train_error_count] = {
     type = alert_type,
     loco = loco,

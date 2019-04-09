@@ -6,6 +6,7 @@ CONST.settings = {
     ["ltnt-show-button"] = true,
     ["ltnt-window-height"] = true,
     ["ltnt-refresh-interval"] = true,
+    ["ltnt-station-click-behavior"] = true,
   },
   proc = {["ltnt-history-limit"] = true},
   debug = {
@@ -30,6 +31,7 @@ CONST.styles = {
 -- ui_ctrl.lua
 CONST.ui_ctrl = {
   refresh_delay = 60, -- shortest time in ticks between consecutive ui refreshes
+  marker_circle_color = {r = 1, g = 0, b = 0, a = 0.5}
 }
 
 -- data_processing.lua

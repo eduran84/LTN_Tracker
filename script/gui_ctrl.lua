@@ -68,6 +68,7 @@ local function player_init(pind)
   global.gui.is_gui_open[pind] = false
   global.gui.last_refresh_tick[pind] = 0
   global.gui.refresh_interval[pind] = settings.get_player_settings(player)["ltnt-refresh-interval"].value * 60
+  global.gui.station_select_mode[pind] = tonumber(settings.get_player_settings(player)["ltnt-station-click-behavior"].value)
 
   -- build UI
   GC.toggle_button:build(button_flow, pind)
@@ -96,6 +97,7 @@ local function on_init()
     refresh_interval = {},
     ltnc_is_active = game.active_mods[LTNC_MOD_NAME] and true or false,
     is_ltnc_open = {},
+    station_select_mode = {},
   }
 
   global.last_sort = {}
@@ -141,6 +143,9 @@ local function on_settings_changed(pind, event)
   end
   if setting == "ltnt-refresh-interval" then
     global.gui.refresh_interval[pind] = settings.get_player_settings(player)[setting].value * 60 -- convert seconds to ticks
+  end
+  if setting == "ltnt-station-click-behavior" then
+    global.gui.station_select_mode[pind] = tonumber(settings.get_player_settings(player)["ltnt-station-click-behavior"].value)
   end
 end
 
@@ -274,6 +279,7 @@ do -- handle button/label clicks that are supposed to select a train/station/cc
   local function select_entity(pind, entity)
     if entity and entity.valid and game.players[pind] then
       game.players[pind].opened = entity
+      return true
     end
   end
   local function select_train(pind, train)
@@ -298,11 +304,33 @@ do -- handle button/label clicks that are supposed to select a train/station/cc
   end
 
 -- data_string should be stop ID as a string
+  local draw_circle = rendering.draw_circle
+  local get_player_settings = settings.get_player_settings
+  local marker_color = require("script.constants").ui_ctrl.marker_circle_color
   function handlers.on_stop_name_clicked(event, data_string)
     local stop = global.data.stops[s2n(data_string)]
+    local pind = event.player_index
     if stop and stop.entity and stop.entity.valid then
-      close_gui(event.player_index)
-      select_entity(event.player_index, stop.entity)
+      close_gui(pind)
+      log2("station select mode:", global.gui.station_select_mode[pind]) --DEBUG
+      if global.gui.station_select_mode[pind] < 3  then
+        select_entity(pind, stop.entity)
+      end
+
+      if global.gui.station_select_mode[pind] > 1 then
+        game.players[pind].zoom_to_world({stop.entity.position.x+40, stop.entity.position.y+0}, 0.4)
+        local render_id = rendering.draw_circle({
+          color = marker_color,
+          radius = 3,
+          width = 10,
+          surface = "nauvis",
+          filled = false,
+          target = stop.entity,
+          target_offset  = {-1, -1},
+          time_to_live = 300,
+          players = {pind},
+        })
+      end
     end
   end
 

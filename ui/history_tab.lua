@@ -82,6 +82,7 @@ function gcHistTab:update(pind, index)
     ---- repopulate table ----
     local offset = global.data.newest_history_index
     local max = global.data.history_limit
+    local idx = #self.elem
     for i = offset-1, (offset-max+1), -1 do
       -- start at (offset - 1), counting down
       -- on reaching 0, jump back up to HISTORY_LIMIT
@@ -94,16 +95,22 @@ function gcHistTab:update(pind, index)
           caption = delivery.depot,
           style = "ltnt_lb_hist_col1"
         }
+        idx = idx + 1
         local label = hist_table.add{
           type = "label",
           caption = delivery.from,
-          style = "ltnt_lb_hist_col2"
+          style = "ltnt_hoverable_label",
+          name = self:_create_name(idx, delivery.from)
         }
+        idx = idx + 1
+        label.style.width = COL_WIDTH[2]
         label = hist_table.add{
           type = "label",
           caption = delivery.to,
-          style = "ltnt_lb_hist_col3"
+          style = "ltnt_hoverable_label",
+          name = self:_create_name(idx, delivery.to)
         }
+        label.style.width = COL_WIDTH[3]
         -- network id
         label = hist_table.add{
           type = "label",
@@ -152,6 +159,13 @@ function gcHistTab:update(pind, index)
   else
     self:hide(pind)
   end -- if index == self.tab_index then
+end
+local tonumber = tonumber
+function gcHistTab:event_handler(event, index, data_string)
+  local stop_id = global.data.name2id[data_string]
+  if stop_id then
+    return "on_stop_name_clicked", stop_id
+  end
 end
 
 return gcHistTab
