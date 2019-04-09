@@ -1,4 +1,13 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.10.3
+Date: 2019-04-09
+
+  Features:
+    - Station names in history tab are clickable.
+    - Clicking a station name now opens the station UI and moves the player view to that station.
+    - New per-player mod setting to change which action happens when a station name is clicked.
+
+---------------------------------------------------------------------------------------------------
 Version: 0.10.2
 Date: 2019-04-08
 
