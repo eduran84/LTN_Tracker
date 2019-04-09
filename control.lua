@@ -128,47 +128,7 @@ do
     end
     -- handles changes to LTNT
     if data.mod_changes[MOD_NAME] then
-      if data.mod_changes[MOD_NAME].old_version and format_version(data.mod_changes[MOD_NAME].old_version) < "00.10.00" then
-        -- remove unused variables from global table and add new ones
-        global.data.stops_error = nil
-        global.raw.stops_error = nil
-        local temp = {}
-        local count = 1
-        for train_id, error_data in pairs(global.data.trains_error) do
-          local delivery = {
-            depot = error_data.route[1] or "unknown",
-            from = error_data.route[2] or "unknown",
-            to = error_data.route[3] or "unknown",
-            from_id = global.data.name2id[error_data.route[2]] or 0,
-            to_id = global.data.name2id[error_data.route[3]] or 0,
-            shipment = {}
-          }
-          local cargo = {}
-          if error_data.type == "residuals" then
-            cargo = error_data.cargo
-          end
-          temp[count] = {
-            type = error_data.type,
-            loco = error_data.loco,
-            delivery = delivery,
-            cargo = cargo,
-          }
-          count = count + 1
-        end
-        log2("Migrating train error data to version 0.10.1.\nOld data:",  global.data.trains_error, "\nNew data:", temp)
-        global.data.train_error_count = count
-        global.data.trains_error = temp
-        ui.reset_ui()
-        log2(MOD_NAME .. " updated to version " .. tostring(game.active_mods[MOD_NAME]))
-      elseif data.mod_changes[MOD_NAME].old_version and format_version(data.mod_changes[MOD_NAME].old_version) == "00.10.00" then
-        global.data.stops_error = nil
-        global.raw.stops_error = nil
-        global.data.train_error_count = 1
-        global.data.trains_error = {}
-        log2("Train error data is invalid and was deleted.")
-        ui.reset_ui()
-        log2(MOD_NAME .. " updated to version " .. tostring(game.active_mods[MOD_NAME]))
-      end
+      ui.reset_ui()
     end
   end)
 end
