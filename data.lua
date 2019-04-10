@@ -1,10 +1,11 @@
-require("prototypes.style")
+log2 = require("script.logger")
+require("prototypes.sprites")
+require("prototypes.fonts")
+require("prototypes.styles")
 
-local key = {
+data:extend({{
 	type = "custom-input",
 	name = "ltnt-toggle-hotkey",
 	key_sequence = "CONTROL + SHIFT + E",
 	consuming = "none",
-}
-
-data:extend({key})
+}})

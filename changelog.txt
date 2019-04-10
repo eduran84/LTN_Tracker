@@ -2,6 +2,9 @@
 Version: 0.10.4
 Date: 2019-04-10
 
+  Changes:
+    - Updated layout of tab selection buttons to be more in line with 0.17 UI style.
+
   Bugfixes:
     - Fixed that "Action when clicking station" setting doing the opposite of the chosen action.
     - Fixed that clicking stations on the alert tab would only open UI and not zoom to station.

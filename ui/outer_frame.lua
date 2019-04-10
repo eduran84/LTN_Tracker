@@ -65,7 +65,7 @@ for i = 1, N_TABS do
       caption={"ltnt.tab"..i.."-caption"},
       style = "ltnt_tab_button"
     },
-    style = {width = BUTTON_WIDTH},
+    --style = {width = BUTTON_WIDTH},
     event = {
       id = defines.events.on_gui_click,
       data = i,
@@ -109,7 +109,7 @@ function gcOuterFrame:set_alert(pind)
     local bt = self:get_el(pind, "tabbutton_5")
     if bt then
       bt.style = HIGHLIGHT_STYLE
-      bt.style.width = BUTTON_WIDTH
+      --bt.style.width = BUTTON_WIDTH
     end
   end
 end
@@ -118,7 +118,7 @@ function gcOuterFrame:clear_alert(pind)
   local bt = self:get_el(pind, "tabbutton_5")
   if bt then
     bt.style = DEFAULT_STYLE
-    bt.style.width = BUTTON_WIDTH
+    --bt.style.width = BUTTON_WIDTH
   end
 end
 -- additional methods

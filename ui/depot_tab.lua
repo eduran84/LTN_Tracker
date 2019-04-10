@@ -150,16 +150,9 @@ function gcDepotTab:update(pind, index)
       -- create button for each depot
       local bt = left_frame.add{
         type = "button",
-        --style = "ltnt_depot_button",
+        style = "ltnt_depot_button",
         name = self:_create_name(index, depot_name),
       }
-      bt.style.height = 100
-      bt.style.top_padding = 0
-      bt.style.bottom_padding = 0
-      bt.style.left_padding = 0
-      bt.style.right_padding = 0
-      --bt.style.hovered_font_color = {r=0, g=0, b=0}
-      bt.style.width = DEPOT_CONST.pane_width_left - 20
       index = index+1
       local flow = bt.add{
         type = "flow",
