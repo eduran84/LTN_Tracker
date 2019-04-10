@@ -241,21 +241,20 @@ function gcAlertTab:update(pind, tab_index)
   end
 end
 
+local tonumber = tonumber
 function gcAlertTab:event_handler(event, index, data_string)
-  local char = data_string:sub(1, 1)
-  if char == "s" then
+  local tag = data_string:sub(1, 1)
+  local entity_id = tonumber(data_string:sub(2))
+  if tag == "s" then
     -- select train
-    return "on_entity_clicked", global.data.trains_error[tonumber(data_string:sub(2))].loco
-  elseif char == "d" then
+    return "on_entity_clicked", global.data.trains_error[entity_id].loco
+  elseif tag == "d" then
     -- remove train from error list
-    global.data.trains_error[tonumber(data_string:sub(2))] = nil
+    global.data.trains_error[entity_id] = nil
     self:update(event.player_index, self.tab_index)
     return nil
-  elseif char == "t" or char == "f" then
-    local stop = global.data.stops[tonumber(data_string:sub(2))]
-    if stop then
-      return "on_entity_clicked", stop.entity
-    end
+  elseif tag == "t" or tag == "f" then
+    return "on_stop_name_clicked", entity_id
   else
     log2("Invalid data string.\nEvent:", event, "\nindex:", index, "\ndata_string:", data_string, "\nalert_tab state:", self)
     return nil

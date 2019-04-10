@@ -1,4 +1,12 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.10.4
+Date: 2019-04-10
+
+  Bugfixes:
+    - Fixed that "Action when clicking station" setting doing the opposite of the chosen action.
+    - Fixed that clicking stations on the alert tab would only open UI and not zoom to station.
+
+---------------------------------------------------------------------------------------------------
 Version: 0.10.3
 Date: 2019-04-09
 
@@ -6,6 +14,9 @@ Date: 2019-04-09
     - Station names in history tab are clickable.
     - Clicking a station name now opens the station UI and moves the player view to that station.
     - New per-player mod setting to change which action happens when a station name is clicked.
+
+  Bugfixes:
+    - Fixed error when opening alert tab.
 
 ---------------------------------------------------------------------------------------------------
 Version: 0.10.2
