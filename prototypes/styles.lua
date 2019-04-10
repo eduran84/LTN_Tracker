@@ -4,6 +4,25 @@ local default_gui = data.raw["gui-style"].default
 local SUMMARY_NUM_WIDTH = 100
 -- button styles
 do
+  default_gui["ltnt_toggle_button_with_alert"] = {
+    type = "button_style",
+    parent = "icon_button",
+    default_graphical_set = {
+      base = {position = {136, 17}, corner_size = 8},
+      shadow = default_dirt,
+    },
+    hovered_graphical_set = {
+      base = {position = {170, 17}, corner_size = 8},
+      shadow = default_dirt,
+      glow = default_glow(default_glow_color, 0.5),
+    },
+    clicked_vertical_offset = 1,
+    clicked_graphical_set = {
+      base = {position = {187, 17}, corner_size = 8},
+      shadow = default_dirt,
+    },
+  }
+
   -- tab selector at the top of the root frame
   default_gui["ltnt_tab_button"] = {
     type = "button_style",
@@ -20,17 +39,17 @@ do
     parent = "ltnt_tab_button",
     default_graphical_set = {
       base = {position = {136, 17}, corner_size = 8},
-      shadow = default_dirt
+      shadow = default_dirt,
     },
     hovered_graphical_set = {
       base = {position = {170, 17}, corner_size = 8},
       shadow = default_dirt,
-      glow = default_glow(default_glow_color, 0.5)
+      glow = default_glow(default_glow_color, 0.5),
     },
-    clicked_vertical_offset = 1, -- text/icon goes down on click
+    clicked_vertical_offset = 1,
     clicked_graphical_set = {
       base = {position = {187, 17}, corner_size = 8},
-      shadow = default_dirt
+      shadow = default_dirt,
     },
   }
 
@@ -173,13 +192,8 @@ default_gui["ltnt_depot_caption"] = {
 
 default_gui["ltnt_hoverable_label"] = {
   type = "label_style",
-  font = "ltnt_font_default",
-  hovered_font_color = {
-    r = 0.5 * (1 + default_orange_color.r),
-    g = 0.5 * (1 + default_orange_color.g),
-    b = 0.5 * (1 + default_orange_color.b)
-  },
-  vertical_align = "center"
+  parent = "clickable_label",
+  vertical_align = "center",
 }
 
 default_gui["ltnt_hover_bold_label"] = {

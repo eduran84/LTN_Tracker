@@ -4,6 +4,7 @@ Date: 2019-04-10
 
   Changes:
     - Updated layout of tab selection buttons to be more in line with 0.17 UI style.
+    - Toggle button lights up red when an alert is detected.
 
   Bugfixes:
     - Fixed that "Action when clicking station" setting doing the opposite of the chosen action.
