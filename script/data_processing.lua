@@ -118,7 +118,6 @@ local function update_stops(raw, stop_id) -- state 1
     --stop_id, stop = next(stops, stop_id)
     --if stop then
     if stop.entity.valid then
-      -- list in name lookup table
       local name = stop.entity.backer_name
       if stop.isDepot then
         if raw.depots[name] then
@@ -140,7 +139,7 @@ local function update_stops(raw, stop_id) -- state 1
           }
         end
       else -- non-depot stop
-        raw.name2id[name] = stop_id
+        raw.name2id[name] = stop_id -- list in name lookup table
         stop.name = name
         stop.signals = get_control_signals(stop)
         stop.incoming = {}

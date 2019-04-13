@@ -205,17 +205,20 @@ end
 
 local get_stops
 do --create closure
+  local sort = table.sort
+  local lower = string.lower
+  local find = string.find
+  local insert = table.insert
 	-- key: actual station name, value: lowercased name
   -- lowercase names are buffered, so lower needs to be called only once per name
 	local name2lowercase = setmetatable({}, {
-		__index = function(self, stop_id)
-			local name = global.data.stops[stop_id].name:lower()
-			rawset(self, stop_id, name)
+		__index = function(self, station_name)
+			local name = lower(station_name)
+			rawset(self, station_name, name)
 			return name
 		end,
 	})
-  -- sort functions
-  local sort = table.sort
+  -- sort function
   local color_order = {["signal-red"] = 0, ["signal-pink"] = 3, ["signal-blue"] = 4, ["signal-yellow"] = 4.1, ["signal-green"] = 10000}
 
   local get_sort_func = {
@@ -228,19 +231,20 @@ do --create closure
   }
 
 	get_stops = function(self, pind)
+    local data = global.data
 		if not self.mystorage.filter[pind] then
-      sort(global.data.stop_ids, get_sort_func[self.mystorage.sort_by[pind]])
-      return global.data.stop_ids
+      sort(data.stop_ids, get_sort_func[self.mystorage.sort_by[pind]])
+      return data.stop_ids
 		else
-      if self.mystorage.last_filter[pind] or self.mystorage.last_filter[pind] ~= self.mystorage.filter[pind] then
+      if (not self.mystorage.last_filter[pind]) or self.mystorage.last_filter[pind] ~= self.mystorage.filter[pind] then
 				self.mystorage.cached_results[pind] = {}
-				local lower = self.mystorage.filter[pind]:lower()
-				for _, station in pairs(global.data.stop_ids) do
+				local filter_lower = lower(self.mystorage.filter[pind])
+				for _, stop_id in pairs(data.stop_ids) do
 					local match = true
-					for word in lower:gmatch("%S+") do
-						if not name2lowercase[station]:find(word, 1, true) then match = false end
+					for word in filter_lower:gmatch("%S+") do
+						if not find(name2lowercase[data.stops[stop_id].name], word, 1, true) then match = false end
 					end
-					if match then table.insert(self.mystorage.cached_results[pind], station) end
+					if match then insert(self.mystorage.cached_results[pind], stop_id) end
 				end
 				self.mystorage.last_filter[pind] = self.mystorage.filter[pind]
 			end
