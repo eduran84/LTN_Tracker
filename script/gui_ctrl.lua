@@ -271,23 +271,14 @@ function handlers.on_refresh_bt_click(event, data_string)
 end
 
 do -- handle button/label clicks that are supposed to select a train/station/cc
-  local get_main_loco
+  local select_train
   do
-    require("__OpteraLib__.script.train")
-    get_main_loco = get_main_locomotive
+    select_train = require("__OpteraLib__.script.train").open_train_gui
   end
   local function select_entity(pind, entity)
     if entity and entity.valid and game.players[pind] then
       game.players[pind].opened = entity
       return true
-    end
-  end
-  local function select_train(pind, train)
-    if train and train.valid and game.players[pind] then
-      local loco = get_main_loco(train)
-      if loco and loco.valid then
-        game.players[pind].opened = loco
-      end
     end
   end
   local function select_combinator(pind, stop_entity, input_lamp)
