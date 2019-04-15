@@ -67,6 +67,9 @@ after processing finishes, all global.raw tables are moved to global.data, with 
 
 --]]
 
+--local references to functions
+local pairs, next = pairs, next
+
 -- local references to globals, set during on_load
 local raw
 local data
@@ -448,7 +451,6 @@ local function on_pickup_completed(event)
       alert = true
     end
   end
-  log2("Actual cargo:", actual_cargo)
   if alert then
     if old_delivery then
       old_delivery.depot = train.schedule and train.schedule.records[1] and train.schedule.records[1].station or "unknown"

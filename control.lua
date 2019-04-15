@@ -33,7 +33,7 @@ custom_events = {
 }
 
 -- load modules
-log2 = require("script.logger")
+log2 = require("__OpteraLib__.script.logger").log
 local prc = require("script.data_processing")
 local ui = require("script.gui_ctrl")
 
