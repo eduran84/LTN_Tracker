@@ -312,7 +312,6 @@ do -- handle button/label clicks that are supposed to select a train/station/cc
     local pind = event.player_index
     if stop and stop.entity and stop.entity.valid then
       close_gui(pind)
-      log2("station select mode:", global.gui.station_select_mode[pind]) --DEBUG
       if global.gui.station_select_mode[pind] < 3  then
         select_entity(pind, stop.entity)
       end

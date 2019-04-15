@@ -73,7 +73,6 @@ function gcAlertTab:build_route_labels(parent, index, delivery) -- helper functi
     inner_tb.style.horizontal_spacing = 0
     inner_tb.style.vertical_spacing = 0
 
-    log2("Creating alert tab entry.\nDelivery:", delivery)
     local elem = inner_tb.add{
       type = "label",
       caption =delivery.from,

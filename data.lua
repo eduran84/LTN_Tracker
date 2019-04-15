@@ -1,4 +1,3 @@
-log2 = require("script.logger")
 require("prototypes.sprites")
 require("prototypes.fonts")
 require("prototypes.styles")
