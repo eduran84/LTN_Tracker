@@ -6,7 +6,7 @@ local SUMMARY_NUM_WIDTH = 100
 do
   default_gui["ltnt_toggle_button_with_alert"] = {
     type = "button_style",
-    parent = "icon_button",
+    parent = "mod_gui_button",
     default_graphical_set = {
       base = {position = {136, 17}, corner_size = 8},
       shadow = default_dirt,

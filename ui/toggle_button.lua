@@ -8,7 +8,7 @@ local gcTB = GC(NAME, {
   params = {
 		type = "sprite-button",
 		sprite = TB_WITHOUT_ALERT_SPRITE,
-    style = "icon_button",
+    style = "mod_gui_button",
 		tooltip = {"ltnt.main-button-tooltip"},
 	},
   event = {id = defines.events.on_gui_click, handler = "on_toggle_button_click"},
@@ -24,7 +24,7 @@ end
 function gcTB:clear_alert(pind)
   local button = self:get(pind)
   button.sprite = TB_WITHOUT_ALERT_SPRITE
-  button.style = "icon_button"
+  button.style = "mod_gui_button"
 end
 
 return gcTB
