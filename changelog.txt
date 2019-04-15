@@ -1,4 +1,14 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.10.5
+Date: 2019-04-15
+
+  Changes:
+    - Moved functionality to Optera's Library.
+
+  Bugfixes:
+    - Toggle button is no longer initialized with red background.
+    - Fixed that station filtering would not recognize renamed stations.
+---------------------------------------------------------------------------------------------------
 Version: 0.10.4
 Date: 2019-04-10
 
