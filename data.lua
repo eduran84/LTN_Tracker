@@ -9,14 +9,15 @@ data:extend({{
 	consuming = "none",
 }})
 
-logger.log(data.raw.shortcut["toggle-personal-roboport"])
+
 data:extend({{
   type = "shortcut",
   name = "ltnt-toggle-shortcut",
-  --order = "b[blueprints]-g[deconstruction-planner]",
+  order = "a[ltnt-toggle-shortcut]",
   action = "lua",
   localised_name = {"shortcut.ltnt-toggle"},
   style = "default",
+  technology_to_unlock = "logistic-train-network",
   toggleable = true,
   associated_control_input = "ltnt-toggle-hotkey",
   icon =
