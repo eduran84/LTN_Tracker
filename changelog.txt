@@ -1,6 +1,9 @@
 ---------------------------------------------------------------------------------------------------
 Version: 0.10.5
-Date: 2019-04-15
+Date: 2019-04-16
+
+  Features:
+    - Added toggle icon to shortcut bar. Top left toggle button is still visible by default, but can be turned off in settings.
 
   Changes:
     - Moved functionality to Optera's Library.
@@ -8,6 +11,8 @@ Date: 2019-04-15
   Bugfixes:
     - Toggle button is no longer initialized with red background.
     - Fixed that station filtering would not recognize renamed stations.
+    - Fixed rare crash when closing LTN-Combinator GUI
+
 ---------------------------------------------------------------------------------------------------
 Version: 0.10.4
 Date: 2019-04-10
