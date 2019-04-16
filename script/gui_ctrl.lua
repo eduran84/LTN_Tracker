@@ -123,15 +123,10 @@ local function reset_ui()
   -- ... and rebuild
   on_init()
 end
-commands.add_command("delete", "",
-  function()
-    GC.outer_frame:get(1).destroy()
-  end
-)
+
 ------------------------------
 --- RUNTIME EVENT HANDLERS ---
 ------------------------------
-
 local function on_settings_changed(pind, event)
   local player = game.players[pind]
   local setting = event.setting
@@ -359,6 +354,12 @@ function handlers.on_item_clicked(event, data_string)
   GC.inv_tab:on_item_clicked(event.player_index, data_string)
 end
 
+-- for debugging
+commands.add_command("kill_ui", "",
+  function()
+    GC.outer_frame:get(1).destroy()
+  end
+)
 return {
   on_init = on_init,
   on_load = on_load,

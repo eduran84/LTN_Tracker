@@ -166,7 +166,6 @@ function GuiComposition:get_el(pind, element_name)
     return nil
   else
     local element = self:get(pind)
-    if not element then return nil end
     local valid = true
     local path = self.elem[element_index].path
     for i = #path,1,-1 do
@@ -182,6 +181,7 @@ function GuiComposition:get_el(pind, element_name)
     else
       log2("UI element", self.name, "is invalid. Resetting UI.")
       script.raise_event(custom_events.on_ui_invalid, {["element_name"] = self.name})
+      return self:get_el(pind, element_name)
     end
   end
 end
@@ -189,7 +189,7 @@ end
 function GuiComposition:destroy(pind)
   if self.mystorage and self.mystorage.root and self.mystorage.root[pind] then
     self.mystorage.root[pind].destroy()
-    --self.mystorage.root[pind] = nil
+    self.mystorage.root[pind] = nil
     return true
   else
     return false
@@ -197,15 +197,11 @@ function GuiComposition:destroy(pind)
 end
 
 function GuiComposition:show(pind)
-  if self:get(pind) then
-    self:get(pind).visible = true
-  end
+  self:get(pind).visible = true
 end
 
 function GuiComposition:hide(pind)
-  if self:get(pind) then
-    self:get(pind).visible = false
-  end
+  self:get(pind).visible = false
 end
 
 function GuiComposition:is_visible(pind)
@@ -214,12 +210,8 @@ end
 
 function GuiComposition:toggle(pind)
   local root = self:get(pind)
-  if root then
-   root.visible = not root.visible
-   return root.visible
- else
-   return nil
- end
+ root.visible = not root.visible
+ return root.visible
 end
 
 function GuiComposition:get_event_handler(event, index, data_string)
@@ -270,10 +262,10 @@ function GuiComposition:_build_single_element(element_id, parent, pind)
   end
 end
 
-local _tostring = tostring
+local tostring = tostring
 function GuiComposition:_create_name(index, data)
   if data then
-    return format(self._fstring1, index, _tostring(data))
+    return format(self._fstring1, index, tostring(data))
   else
     return format(self._fstring2, index)
   end

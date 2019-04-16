@@ -78,7 +78,6 @@ function gcAlertTab:build_route_labels(parent, index, delivery) -- helper functi
       caption =delivery.from,
       tooltip = delivery.from,
       style = "ltnt_hoverable_label",
-      --DEBUG
       name = self:_create_name(index, "f" .. (delivery.from_id or "0"))
     }
     elem.style.width = COL_WIDTH[1]

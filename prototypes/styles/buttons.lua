@@ -1,3 +1,18 @@
+local default_glow_color = {225, 177, 106, 255}
+local red_glow_color = {225, 51, 0, 255}
+local default_dirt_color = {15, 7, 3, 100}
+local function default_glow(tint_value, scale_value)
+  return
+  {
+    position = {200, 128},
+    corner_size = 8,
+    tint = tint_value,
+    scale = scale_value,
+    draw_type = "outer"
+  }
+end
+local default_dirt = default_glow(default_dirt_color, 0.5)
+
 -- mod_gui_button with red background
 add_style("ltnt_toggle_button_with_alert", {
   type = "button_style",
@@ -18,7 +33,6 @@ add_style("ltnt_toggle_button_with_alert", {
   },
 })
 
-
 -- tab selector at the top of the root frame
 add_style("ltnt_tab_button", {
   type = "button_style",
@@ -30,7 +44,6 @@ add_style("ltnt_tab_button", {
   maximal_width = C.main_frame.button_width,
 })
 
--- tab selector at the top of the root frame with red background
 add_style("ltnt_tab_button_highlight", {
   type = "button_style",
   parent = "ltnt_tab_button",
@@ -41,7 +54,7 @@ add_style("ltnt_tab_button_highlight", {
   hovered_graphical_set = {
     base = {position = {170, 17}, corner_size = 8},
     shadow = default_dirt,
-    glow = default_glow(default_glow_color, 0.5),
+    glow = default_glow(red_glow_color, 0.5),
   },
   clicked_vertical_offset = 1,
   clicked_graphical_set = {
@@ -49,7 +62,6 @@ add_style("ltnt_tab_button_highlight", {
     shadow = default_dirt,
   },
 })
-
 -- depot selector button
 add_style("ltnt_depot_button", {
   type = "button_style",
