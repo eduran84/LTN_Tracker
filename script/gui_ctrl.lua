@@ -123,7 +123,11 @@ local function reset_ui()
   -- ... and rebuild
   on_init()
 end
-
+commands.add_command("delete", "",
+  function()
+    GC.outer_frame:get(1).destroy()
+  end
+)
 ------------------------------
 --- RUNTIME EVENT HANDLERS ---
 ------------------------------

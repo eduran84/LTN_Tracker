@@ -151,13 +151,11 @@ end
 function GuiComposition:get(pind)
   if not(self.mystorage) then error(log2("GuiComposition object", self.name, "has not been initialized.")) end
   if not(type(pind) == "number") then error(log2("Argument has to be a player index. Argument received:", pind)) end
-  if self.mystorage.root[pind].valid then
-    return self.mystorage.root[pind]
-  else
+  if not self.mystorage.root[pind].valid then
     log2("UI element", self.name, "invalid. Resetting UI.")
     script.raise_event(custom_events.on_ui_invalid, {["element_name"] = self.name})
-    return nil
   end
+  return self.mystorage.root[pind]
 end
 
 function GuiComposition:get_el(pind, element_name)
