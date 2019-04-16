@@ -1,7 +1,7 @@
 -- GuiElement styles
 C = require("script.constants")
 function add_style(name, style_definition)
-  data.raw["gui-style"].default[name] = add_style(name, style_definition)
+  data.raw["gui-style"].default[name] = style_definition
 end
 require("prototypes.styles.buttons")
 

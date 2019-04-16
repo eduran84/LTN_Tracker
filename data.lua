@@ -9,15 +9,16 @@ data:extend({{
 	consuming = "none",
 }})
 
+logger.log(data.raw.shortcut["toggle-personal-roboport"])
 data:extend({{
   type = "shortcut",
   name = "ltnt-toggle-shortcut",
   --order = "b[blueprints]-g[deconstruction-planner]",
   action = "lua",
-  toggleable = true
   localised_name = {"shortcut.ltnt-toggle"},
   style = "default",
-  associated_control_input = "ltnt-toggle-hotkey"
+  toggleable = true,
+  associated_control_input = "ltnt-toggle-hotkey",
   icon =
   {
     filename = "__LTN_Tracker__/graphics/shortcut_icon_32.png",
