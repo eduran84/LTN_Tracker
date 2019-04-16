@@ -165,9 +165,13 @@ local function update_tab(pind)
 end
 
 local function on_toggle_button_click(event)
-  if GC.outer_frame:toggle(event.player_index) then
+  local pind = event.player_index
+  if GC.outer_frame:toggle(pind) then
+    game.players[pind].set_shortcut_toggled("ltnt-toggle-shortcut", true)
     GC.toggle_button:clear_alert(event.player_index)
     update_tab(event.player_index)
+  else
+    game.players[pind].set_shortcut_toggled("ltnt-toggle-shortcut", false)
   end
 end
 

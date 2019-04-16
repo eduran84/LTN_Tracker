@@ -142,6 +142,14 @@ end
 script.on_event(defines.events.on_gui_closed, ui.on_ui_closed)
 script.on_event(GUI_EVENTS, ui.ui_event_handler)
 script.on_event("ltnt-toggle-hotkey", ui.on_toggle_button_click)
+script.on_event(
+  defines.events.on_lua_shortcut,
+  function(event)
+    if event.prototype_name == "ltnt-toggle-shortcut" then
+      ui.on_toggle_button_click(event)
+    end
+  end
+)
 
 -- custom events
 -- raised when updated data for gui is available
