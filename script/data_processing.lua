@@ -111,7 +111,7 @@ local function get_control_signals(stop)
   return {{color_signal.signal.name,  color_signal.count}, signals}
 end
 
-local function update_stops(raw, stop_id) -- state 1
+local function update_stops(stop_id) -- state 1
   local stops = raw.stops
   --local counter = 0
   --while counter < STOPS_PER_TICK do -- process only a limited amount of stops per tick
@@ -155,6 +155,15 @@ local function update_stops(raw, stop_id) -- state 1
     --end --if stop_id then
   end
   return nil --stop_id
+end
+
+local function check_for_new_stops()
+  for _, stop_id in pairs(data.stop_ids) do
+    if not raw.stops[stop_id] then
+      ui.clear_station_filter()
+      break
+    end
+  end
 end
 
 local function update_depots(raw, depot_name) -- state 3
@@ -308,16 +317,18 @@ data_processor = function(event)
   -- the returned value should allow the function to continue from where it stopped
   -- they must return nil when their job is done, in which case proc.state is incremented
 
-  ---- state 2 and 6 unused ------
+  ---- state 6 unused ------
   elseif proc.state == 1 then
   -- processing stops first, information gathered here is required for other steps
     local stop_id = update_stops(raw, proc.next_stop_id)
     if stop_id then
       proc.next_stop_id = stop_id -- store last processed id, so we know where to continue next tick
     else
-      proc.state = 3 -- go to next state
+      proc.state = 2 -- go to next state
     end
-
+  elseif proc.state == 2 then
+    check_for_new_stops()
+    proc.state = 3
   elseif proc.state == 3 then
     -- sorting available trains by depot
     local depot_name = update_depots(raw, proc.next_depot_name)

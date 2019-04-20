@@ -124,6 +124,10 @@ local function reset_ui()
   on_init()
 end
 
+local function clear_station_filter()
+  -- hacky way to force reset of cached filter results
+  GC.stop_tab.mystorage.last_filter = {}
+end
 ------------------------------
 --- RUNTIME EVENT HANDLERS ---
 ------------------------------
@@ -371,4 +375,5 @@ return {
   on_new_alert = on_new_alert,
   update_ui = update_ui,
   reset_ui = reset_ui,
+  clear_station_filter = clear_station_filter,
   }

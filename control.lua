@@ -34,8 +34,9 @@ custom_events = {
 
 -- load modules
 log2 = require("__OpteraLib__.script.logger").log
+ui = require("script.gui_ctrl")
 local prc = require("script.data_processing")
-local ui = require("script.gui_ctrl")
+local ui = ui
 
 script.on_init(function()
   -- check for LTN

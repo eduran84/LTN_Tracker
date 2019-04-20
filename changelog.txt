@@ -1,4 +1,12 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.10.6
+Date: 2019-04-20
+
+  Bugfixes:
+    - Fixed that deleting a station with a name matching the current filter in station tab caused a crash.
+      (https://forums.factorio.com/viewtopic.php?f=214&t=64842&start=120#p424307)
+
+---------------------------------------------------------------------------------------------------
 Version: 0.10.5
 Date: 2019-04-16
 
