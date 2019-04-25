@@ -1,4 +1,14 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.10.7
+Date: 2019-04-25
+
+  Features:
+    - Added mod setting to disable alerts for underloaded trains.
+
+  Bugfixes:
+    - Fixed that partially destroying an LTN stop with waterfill could cause crashes.
+
+---------------------------------------------------------------------------------------------------
 Version: 0.10.6
 Date: 2019-04-20
 

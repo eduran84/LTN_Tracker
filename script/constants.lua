@@ -8,7 +8,10 @@ CONST.settings = {
     ["ltnt-refresh-interval"] = true,
     ["ltnt-station-click-behavior"] = true,
   },
-  proc = {["ltnt-history-limit"] = true},
+  proc = {
+    ["ltnt-history-limit"] = true,
+    ["ltnt-disable-underload-alert"] = true,
+  },
   debug = {
     ["ltnt-debug-level"] = true,
   },
@@ -21,7 +24,7 @@ CONST.global = {
   mod_name_ltn = "LogisticTrainNetwork",
   mod_name_ltnc = "LTN_Combinator",
   minimal_version_ltn = "01.10.07",
-  current_version_ltn = "01.10.07",
+  current_version_ltn = "01.10.08",
 }
 
 CONST.styles = {

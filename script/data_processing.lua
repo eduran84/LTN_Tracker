@@ -120,7 +120,7 @@ local function update_stops(stop_id) -- state 1
   for stop_id, stop in pairs(stops) do
     --stop_id, stop = next(stops, stop_id)
     --if stop then
-    if stop.entity.valid then
+    if stop.entity.valid and stop.lampControl.valid then
       local name = stop.entity.backer_name
       if stop.isDepot then
         if raw.depots[name] then
@@ -141,8 +141,8 @@ local function update_stops(stop_id) -- state 1
             fcap = 0,
           }
         end
-      else -- non-depot stop
-        raw.name2id[name] = stop_id -- list in name lookup table
+      else  -- non-depot stop
+        raw.name2id[name] = stop_id  -- list in name lookup table
         stop.name = name
         stop.signals = get_control_signals(stop)
         stop.incoming = {}
@@ -158,6 +158,7 @@ local function update_stops(stop_id) -- state 1
 end
 
 local function check_for_new_stops()
+  if not data.stop_ids then log2(data) end
   for _, stop_id in pairs(data.stop_ids) do
     if not raw.stops[stop_id] then
       ui.clear_station_filter()
@@ -434,7 +435,7 @@ local function on_pickup_completed(event)
   end
   local keys = {}
   local alert = false
-  if old_delivery then
+  if old_delivery and global.proc.underload_is_alert then
     for item, new_amount in pairs(delivery.shipment) do
       local old_amount = old_delivery.shipment[item]
       if new_amount < old_amount  then
@@ -449,7 +450,6 @@ local function on_pickup_completed(event)
     end
     actual_cargo = delivery.shipment
   end
-
   for item_name, amount in pairs(item_cargo) do
     if not keys[item_name] then
       actual_cargo["item,"..item_name] = amount
@@ -462,6 +462,7 @@ local function on_pickup_completed(event)
       alert = true
     end
   end
+
   if alert then
     if old_delivery then
       old_delivery.depot = train.schedule and train.schedule.records[1] and train.schedule.records[1].station or "unknown"
@@ -546,7 +547,7 @@ end
 
 local function on_init()
   global.raw = global.raw or {}
-  global.proc = global.proc or {state = 0}
+  global.proc = global.proc or {state = 0, underload_is_alert = settings.global["ltnt-disable-underload-alert"].value}
 
   global.data = global.data or {} -- storage for processed data, ready to be used by UI
   global.data.stops = global.data.stops or {}
@@ -573,6 +574,9 @@ local function on_settings_changed(event)
     global.data.history_limit = HISTORY_LIMIT
     global.data.newest_history_index = 1
     global.data.delivery_hist = {}
+  end
+  if event.setting == "ltnt-disable-underload-alert" then
+    global.proc.underload_is_alert = not settings.global["ltnt-disable-underload-alert"].value
   end
 end
 

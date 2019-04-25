@@ -295,7 +295,12 @@ do -- handle button/label clicks that are supposed to select a train/station/cc
         return true
       end
       local player = game.players[pind]
-      player.surface.create_entity{name="flying-text", position=player.position, text={"ltnt.no-ltnc-found-msg"}, color={r=1,g=0,b=0}}
+      player.surface.create_entity{
+        name="flying-text",
+        position=player.position,
+        text={"ltnt.no-ltnc-found-msg"},
+        color={r=1,g=0,b=0}
+      }
       return false
     end
     return false

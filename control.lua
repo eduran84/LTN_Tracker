@@ -130,6 +130,8 @@ do
     -- handles changes to LTNT
     if data.mod_changes[MOD_NAME] then
       ui.reset_ui()
+      -- migration to 0.10.7
+      global.proc.underload_is_alert = not settings.global["ltnt-disable-underload-alert"].value
     end
   end)
 end
