@@ -72,8 +72,8 @@ local function player_init(pind)
 
   -- build UI
   GC.toggle_button:build(button_flow, pind)
-  if not settings.get_player_settings(player)["ltnt-show-button"] then
-    GC.toggle_button:hide(player)
+  if not settings.get_player_settings(player)["ltnt-show-button"].value then
+    GC.toggle_button:hide(pind)
   end
   GC.outer_frame:build(frame_flow, pind)
   GC.outer_frame:hide(pind) -- UI is always closed on init

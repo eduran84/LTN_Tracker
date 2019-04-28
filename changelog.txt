@@ -1,4 +1,12 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.10.8
+Date: 2019-04-28
+
+  Bugfixes:
+    - Fixed that "Show toggle button" setting was not respected at the start of the game. (#25)
+    - Fixed that "Show toggle button" setting could sometimes revert to "on" when loading a game. (#25)
+
+---------------------------------------------------------------------------------------------------
 Version: 0.10.7
 Date: 2019-04-25
 
