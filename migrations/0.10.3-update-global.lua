@@ -1,3 +1,4 @@
+--[[
 local log2 = require("script.logger")
 log2("Starting update of LTN-Tracker global table.")
 
@@ -51,6 +52,7 @@ local valid_var_names = {
    next_depot_name = true,
    next_delivery_id = true,
  },
+ ui_rewrite = {[1] = true},
 }
 
 for var_name, value in pairs(global) do
@@ -68,12 +70,12 @@ for var_name, value in pairs(global) do
   end
 end
 
---[[
+
 migrate old train error data to new format:
   - route has been removed
   - delivery has been added
   - delivery to/from/depot has to be built from former route entries
---]]
+
 local count = 1
 local migrated_data = {}
 for train_id, error_data in pairs(global.data.trains_error) do
@@ -84,8 +86,8 @@ for train_id, error_data in pairs(global.data.trains_error) do
       depot = error_data.route[1] or "unknown",
       from = error_data.route[2] or "unknown",
       to = error_data.route[3] or "unknown",
-      from_id = global.data.name2id[error_data.route[2]] or 0,
-      to_id = global.data.name2id[error_data.route[3]] or 0,
+      from_id = global.data.name2id[error_data.route[2] or 0,
+      to_id = global.data.name2id[error_data.route[3] or 0,
       shipment = {}
     }
     local cargo = {}
@@ -128,4 +130,4 @@ for pind, p in pairs(game.players) do
   global.gui.station_select_mode[pind] = 2
 end
 
-log2("Global table check finished.")
+log2("Global table check finished.") --]]

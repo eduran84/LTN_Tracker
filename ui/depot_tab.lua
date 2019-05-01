@@ -5,7 +5,7 @@ local N_COLS_RIGHT = 3
 
 local GC = require("ui.classes.GuiComposition")
 local gcDepotTab= GC(NAME, {
-  params = {type = "flow", direction = "horizontal", visible = false},
+  params = {type = "flow", direction = "horizontal"},
 })
 gcDepotTab.tab_index = DEPOT_CONST.tab_index
 
@@ -17,7 +17,6 @@ gcDepotTab:add{
     type = "frame",
     caption = {"depot.frame-caption-left"},
     direction = "vertical",
-    --style = "ltnt_frame_no_bg",
   },
   style = {
     width = DEPOT_CONST.pane_width_left,
@@ -136,11 +135,11 @@ end
 
 local mixed_id_sprite = "ltnt_unclear_id_sprite"
 local network_id_sprite = "virtual-signal/" .. require("script.constants").ltn.NETWORKID
-local build_item_table = require("ui.util").build_item_table
+local build_item_table = util.build_item_table
 local format = string.format
 function gcDepotTab:update(pind, index)
   if index == self.tab_index then
-    self:show(pind)
+    --self:show(pind)
     global.gui.active_tab[pind] = index
     local left_frame = self:get_el(pind, "pane_l")
     left_frame.clear()

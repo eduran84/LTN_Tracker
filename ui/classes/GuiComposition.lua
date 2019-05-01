@@ -30,11 +30,11 @@ function GuiComposition:_init(name, args)
   self.n2i = {}    -- name -> index lookup table
   self.sub_gc = {} -- if other GC objects are nested into this one, they are stored here
   self.events = {} -- events registered by elements
-  for _,eid in pairs(GUI_EVENTS) do
+  for _,eid in pairs(defs.gui_events) do
     self.events[eid] = {}
   end
-  self._fstring1 = format("%s_%s%%03d_%%s", MOD_PREFIX, self.name)
-  self._fstring2 = format("%s_%s%%03d", MOD_PREFIX, self.name)
+  self._fstring1 = format("%s_%s%%03d_%%s", defs.mod_prefix, self.name)
+  self._fstring2 = format("%s_%s%%03d", defs.mod_prefix, self.name)
   if args then
     args.name = "root"
     self:add(args)

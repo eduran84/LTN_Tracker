@@ -79,26 +79,23 @@ add_style("ltnt_lb_inv_station_name", {
   minimal_width = C.station_tab.station_col_width,
   single_line = false,
 })
-for i = 1, 4 do
-add_style("ltnt_lb_hist_col"..i, {
-  type = "label_style",
-  parent = "ltnt_label_default",
-  maximal_width = C.history_tab.col_width[i],
-  minimal_width = C.history_tab.col_width[i],
-})
+for i = 1, 5 do
+  local parent = "ltnt_label_default"
+  if i == 2 then
+    parent = "ltnt_hoverable_label"
+  end
+  default["ltnt_lb_hist_col"..i] = {
+    type = "label_style",
+    parent = parent,
+    maximal_width = C.history_tab.col_width[i],
+    minimal_width = C.history_tab.col_width[i],
+  }
 end
-add_style("ltnt_lb_hist_col5", {
+default["ltnt_lb_hist_col3"].horizontal_align = "right"
+default["ltnt_lb_hist_col4"].horizontal_align = "right"
+default["ltnt_lb_hist_col5"].horizontal_align = "right"
+default["ltnt_lb_hist_col4_red"] = {
   type = "label_style",
-  parent = "ltnt_label_default",
-  maximal_width = C.history_tab.col_width[5],
-  minimal_width = C.history_tab.col_width[5],
-  horizontal_align = "right",
-})
-add_style("ltnt_lb_hist_col5_red", {
-  type = "label_style",
-  parent = "ltnt_label_default",
+  parent = "ltnt_lb_hist_col4",
   font_color = {r = 1, g = 0, b = 0},
-  horizontal_align = "right",
-  maximal_width = C.history_tab.col_width[5],
-  minimal_width = C.history_tab.col_width[5],
-})
+}

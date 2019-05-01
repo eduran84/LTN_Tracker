@@ -1,3 +1,20 @@
+local util = require("util")
+
+
+-- copy/paste from Optera's LTN-Content-Reader
+local btest = bit32.btest
+function util.get_items_in_network(ltn_item_list, selected_networkID)
+	local items = {}
+	for networkID, item_data in pairs(ltn_item_list) do
+		if btest(selected_networkID, networkID) then
+			for item, count in pairs(item_data) do
+				items[item] = (items[item] or 0) + count
+			end
+		end
+  end
+	return items
+end
+
 local match = string.match
 local function item2sprite(iname, itype)
   if not itype then
@@ -9,8 +26,10 @@ local function item2sprite(iname, itype)
     return nil
   end
 end
+util.item2sprite = item2sprite
+
 -- display a shipment of items as icons
-local function build_item_table(args)
+function util.build_item_table(args)
   --required arguments: parent, columns (without any of provided / requested / signals an empty frame is produced)
   --optional arguments: provided, requested, signals, enabled, type, no_negate, max_rows
 
@@ -36,9 +55,10 @@ local function build_item_table(args)
 	end
   local count = 0
   -- add items to table
+  local tbl_add = tble.add
 	if args.provided then
 		for item, amount in pairs(args.provided) do
-			tble.add{
+			tbl_add{
 				type = "sprite-button",
 				sprite = item2sprite(item, type),
 				number = amount,
@@ -53,7 +73,7 @@ local function build_item_table(args)
       if not args.no_negate then
         amount = -amount -- default to numbers for requests
       end
-			tble.add{
+			tbl_add{
 				type = "sprite-button",
 				sprite = item2sprite(item, type),
 				number = amount,
@@ -65,7 +85,7 @@ local function build_item_table(args)
 	end
   if args.signals then
 		for name, amount in pairs(args.signals) do
-			tble.add{
+			tbl_add{
 				type = "sprite-button",
 				sprite = "virtual-signal/" .. name,
 				number = amount,
@@ -76,7 +96,7 @@ local function build_item_table(args)
 		end
 	end
   while count == 0 or count % columns > 0  do
-    tble.add{
+    tbl_add{
       type = "sprite-button",
       sprite = "",
       enabled = enabled,
@@ -87,7 +107,4 @@ local function build_item_table(args)
 	return frame
 end
 
-return {
-  build_item_table = build_item_table,
-  item2sprite = item2sprite
-}
+return util

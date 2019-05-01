@@ -23,7 +23,7 @@ Layout:
 --]]
 -- helper functions
 local gsub = string.gsub
-local item2sprite = require("ui.util").item2sprite
+local item2sprite = util.item2sprite
 
 ---------------------------------
 -- class setup and constructor --

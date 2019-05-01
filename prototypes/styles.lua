@@ -1,7 +1,8 @@
 C = require("script.constants")
 log2 = require("__OpteraLib__.script.logger").log
+default = data.raw["gui-style"].default
 function add_style(name, style_definition)
-  data.raw["gui-style"].default[name] = style_definition
+  default[name] = style_definition
 end
 
 require("prototypes.styles.buttons")

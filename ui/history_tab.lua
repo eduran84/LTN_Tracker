@@ -1,12 +1,12 @@
 -- localize helper functions
-local build_item_table = require("ui.util").build_item_table
+local build_item_table = util.build_item_table
 local tick2timestring = require("__OpteraLib__.script.misc").ticks_to_timestring
 
 -- set/get constants
-local N_COLS = require("script.constants").history_tab.n_columns
-local N_COLS_SHIP = require("script.constants").history_tab.n_cols_shipment
-local COL_WIDTH = require("script.constants").history_tab.col_width
-local H_COL_WIDTH = require("script.constants").history_tab.header_col_width
+local N_COLS = C.history_tab.n_columns
+local N_COLS_SHIP = C.history_tab.n_cols_shipment
+local COL_WIDTH = C.history_tab.col_width
+local H_COL_WIDTH = C.history_tab.header_col_width
 local HISTORY_LIMIT = require("script.constants").proc.history_limit
 local NAME = "hist_tab"
 
@@ -90,13 +90,13 @@ function gcHistTab:update(pind, index)
       local delivery = history_data[(i > 0) and i or (i + max)]
       if delivery then
         -- involved stops and depot
-        label = hist_table.add{
+        local label = hist_table.add{
           type = "label",
           caption = delivery.depot,
           style = "ltnt_lb_hist_col1"
         }
         idx = idx + 1
-        local label = hist_table.add{
+        label = hist_table.add{
           type = "label",
           caption = delivery.from,
           style = "ltnt_hoverable_label",
@@ -132,7 +132,7 @@ function gcHistTab:update(pind, index)
             style = "ltnt_lb_hist_col5"
           }
         end
-        -- shipement and residual items, if any
+        -- shipment and residual items, if any
         if delivery.residuals then
           local tb = hist_table.add{type = "table", column_count = 1, style = "slot_table"}
           build_item_table{

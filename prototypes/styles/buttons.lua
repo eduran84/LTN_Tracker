@@ -33,35 +33,6 @@ add_style("ltnt_toggle_button_with_alert", {
   },
 })
 
--- tab selector at the top of the root frame
-add_style("ltnt_tab_button", {
-  type = "button_style",
-  font = "ltnt_font_tab_caption",
-  horizontal_align = "center",
-  vertical_align = "center",
-  disabled_font_color = {r=1, g=1, b=1},
-  minimal_width = C.main_frame.button_width,
-  maximal_width = C.main_frame.button_width,
-})
-
-add_style("ltnt_tab_button_highlight", {
-  type = "button_style",
-  parent = "ltnt_tab_button",
-  default_graphical_set = {
-    base = {position = {136, 17}, corner_size = 8},
-    shadow = default_dirt,
-  },
-  hovered_graphical_set = {
-    base = {position = {170, 17}, corner_size = 8},
-    shadow = default_dirt,
-    glow = default_glow(red_glow_color, 0.5),
-  },
-  clicked_vertical_offset = 1,
-  clicked_graphical_set = {
-    base = {position = {187, 17}, corner_size = 8},
-    shadow = default_dirt,
-  },
-})
 -- depot selector button
 add_style("ltnt_depot_button", {
   type = "button_style",

@@ -1,8 +1,8 @@
 local NAME = "toggle_button"
 local GC = require("ui.classes.GuiComposition")
 
-local TB_WITH_ALERT_SPRITE = require("script.constants").main_frame.button_sprite_alert
-local TB_WITHOUT_ALERT_SPRITE = require("script.constants").main_frame.button_sprite_bare
+local TB_WITH_ALERT_SPRITE = require("script.constants").window.button_sprite_alert
+local TB_WITHOUT_ALERT_SPRITE = require("script.constants").window.button_sprite_bare
 
 local gcTB = GC(NAME, {
   params = {

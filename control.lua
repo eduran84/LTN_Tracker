@@ -9,19 +9,9 @@
 -- gui_ctrl.lua module: handles UI events and displays data provided in global.data
 
 -- constants
-MOD_NAME = require("script.constants").global.mod_name
-MOD_PREFIX = require("script.constants").global.mod_prefix
-GUI_EVENTS = require("script.constants").global.gui_events
-local LTN_MOD_NAME = require("script.constants").global.mod_name_ltn
-local LTN_MINIMAL_VERSION = require("script.constants").global.minimal_version_ltn
-local LTN_CURRENT_VERSION = require("script.constants").global.current_version_ltn
-
-debug_log = settings.global["ltnt-debug-level"].value
-
--- helper functions
-local function format_version(version_string)
-  return string.format("%02d.%02d.%02d", string.match(version_string, "(%d+).(%d+).(%d+)"))
-end
+defs = require("__LTN_Tracker__.defines")
+C = require(defs.pathes.modules.constants)
+debug_log = settings.global[defs.names.settings.debug_level].value
 
 ------------------------------
 ------- initialization -------
@@ -33,26 +23,19 @@ custom_events = {
 }
 
 -- load modules
-log2 = require("__OpteraLib__.script.logger").log
-ui = require("script.gui_ctrl")
-local prc = require("script.data_processing")
+util = require(defs.pathes.modules.util)
+log2 = require(defs.pathes.modules.logger).log
+egm = require(defs.pathes.modules.import_egm)
+ui = require(defs.pathes.modules.gui_ctrl)
+local prc = require(defs.pathes.modules.data_processing)
 
 script.on_init(function()
-  -- check for LTN
-  local ltn_version = nil
-  local ltn_version_string = game.active_mods[LTN_MOD_NAME]
-  if ltn_version_string then
-    ltn_version = format_version(ltn_version_string)
-  end
-  if not ltn_version or ltn_version < LTN_MINIMAL_VERSION then
-    error(log2(MOD_NAME, "requires version", LTN_MINIMAL_VERSION, "later of Logistic Train Network to run."))
-  end
-  -- also check for LTN interface, just in case
+  -- check for LTN interface, just in case
   if not remote.interfaces["logistic-train-network"] then
     error(log2("LTN interface is not registered."))
   end
   if debug_log then
-    log2("Starting mod initialization for mod", MOD_NAME .. ". LTN version", ltn_version_string, "has been detected.")
+    log2("Starting mod initialization for mod", defs.mod_name .. ".")
   end
 
   -- module init
@@ -102,33 +85,20 @@ do
 end
 
 do
-  local LTNC_MOD_NAME = require("script.constants").global.mod_name_ltnc
   script.on_configuration_changed(function(data)
     if not data then return end
     -- handle changes to LTN
-    if data.mod_changes[LTN_MOD_NAME] then
-      local ov = data.mod_changes[LTN_MOD_NAME].old_version
-      ov = ov and format_version(ov) or "0.0.0 (not present)"
-      local nv = data.mod_changes[LTN_MOD_NAME].new_version
-      nv = nv and format_version(nv) or "0.0.0 (not present)"
-      if nv >= LTN_MINIMAL_VERSION then
-        if nv > LTN_CURRENT_VERSION then
-          log2("LTN version changed from ", ov, " to ", nv, ". That version is not supported, yet. Depending on the changes to LTN, this could result in issues with LTNT.")
-        else
-          log2("LTN version changed from ", ov, " to ", nv)
-        end
-      else
-        error(log2("LTN version was changed from ", ov, " to ", nv, ".", MOD_NAME, "requires version",  LTN_MINIMAL_VERSION, " or later of Logistic Train Network to run."))
-      end
+    if not game.active_mods[defs.names.ltn] then
+      error("LogisticTrainNetwork is required to run LTNT.")
     end
     -- handle changes to LTN-Combinator
-    if data.mod_changes[LTNC_MOD_NAME] then
-      global.gui.ltnc_is_active = game.active_mods[LTNC_MOD_NAME] and true or false
-      if not data.mod_changes[MOD_NAME] then ui.reset_ui() end
+    if data.mod_changes[defs.names.ltnc] then
+      global.gui.ltnc_is_active = game.active_mods[defs.names.ltnc] and true or false
+      --if not data.mod_changes[MOD_NAME] then ui.reset_ui() end
     end
     -- handles changes to LTNT
-    if data.mod_changes[MOD_NAME] then
-      ui.reset_ui()
+    if data.mod_changes[defs.names.mod_name] then
+      --ui.reset_ui()
       -- migration to 0.10.7
       global.proc.underload_is_alert = not settings.global["ltnt-disable-underload-alert"].value
     end
@@ -142,7 +112,8 @@ end
 
 -- gui events
 script.on_event(defines.events.on_gui_closed, ui.on_ui_closed)
-script.on_event(GUI_EVENTS, ui.ui_event_handler)
+--script.on_event(defs.gui_events, ui.ui_event_handler)
+
 script.on_event("ltnt-toggle-hotkey", ui.on_toggle_button_click)
 script.on_event(
   defines.events.on_lua_shortcut,
@@ -159,4 +130,4 @@ script.on_event(custom_events.on_data_updated, ui.update_ui)
 -- raised when a train with an error is detected
 script.on_event(custom_events.on_train_alert, ui.on_new_alert)
 -- raised when UI element(s) became invalid
-script.on_event(custom_events.on_ui_invalid, ui.reset_ui)
+--script.on_event(custom_events.on_ui_invalid, ui.reset_ui)

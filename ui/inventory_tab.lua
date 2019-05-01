@@ -1,5 +1,5 @@
 -- localize helper functions
-local get_items_in_network = require("script.util").get_items_in_network
+local get_items_in_network = util.get_items_in_network
 
 -- set/get constants
 local NAME = "inv_tab"

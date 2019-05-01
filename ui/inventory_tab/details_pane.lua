@@ -146,8 +146,8 @@ end
 -- cache functions
 local btest = bit32.btest
 local match = string.match
-local get_items_in_network = require("script.util").get_items_in_network
-local build_item_table = require("ui.util").build_item_table
+local get_items_in_network = util.get_items_in_network
+local build_item_table = util.build_item_table
 
 function gcDetails:set_item(pind, network_id, ltn_item)
   ltn_item = ltn_item or self.mystorage.selected_item[pind]

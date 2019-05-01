@@ -65,7 +65,7 @@ gcAlertTab:add{
 -- additional functions
 local error_string = require("script.constants").ltn.error_string_lookup
 local state_dict = require("script.constants").train_state_dict
-local build_item_table = require("ui.util").build_item_table
+local build_item_table = util.build_item_table
 function gcAlertTab:build_route_labels(parent, index, delivery) -- helper function for gcAlertTab:update
   if delivery.to and delivery.from then
     local inner_tb = parent.add{type = "table", column_count = 1}

@@ -47,8 +47,9 @@ CONST.proc = {
 }
 
 -- UI layout
-CONST.main_frame = {
+CONST.window = {
 	n_tabs = 5,
+  width = 930,
   button_width = 185,
   button_sprite_bare = "ltnt_bt_sprite",
   button_sprite_alert = "ltnt_bt_alert_sprite",
@@ -86,8 +87,7 @@ CONST.inventory_tab = {
 
 CONST.history_tab = {
 	tab_index = 4,
-	header_col_width = {175, 175, 175, 35, 55, 152},
-	col_width = {175, 175, 175, 40, 45, 145},
+  column_width = {180, 180, 45, 80, 80, 152},
 	n_columns = 6,
   n_cols_shipment = 5,
 }

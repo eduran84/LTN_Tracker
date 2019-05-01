@@ -7,14 +7,17 @@ local s2n = tonumber
 local match = string.match
 local mod_gui = require("mod-gui")
 local lib_utils = require("__OpteraLib__.script.train")
+local defs = defs
+local egm = egm
+local window = require("ui_rewrite.window")
 
 -- load / set constants
 local N_TABS = 0
 local gc_pathes = {   -- list of GUIComposition objects to load
   "ui.toggle_button",
-  "ui.outer_frame",
+  --"ui.outer_frame",
   "ui.depot_tab",
-  "ui.history_tab",
+  --"ui.history_tab",
   "ui.inventory_tab",
   "ui.station_tab",
   "ui.alert_tab",
@@ -49,6 +52,7 @@ end
 -- do not change any of the variables defined above from this point onward
 -- enforced by desync
 local function on_load()
+  egm.manager.on_load()
   for _,gc in pairs(GC) do
     -- restore local references to objects' global storage tables
     gc:on_load(global.gui)
@@ -75,21 +79,22 @@ local function player_init(pind)
   if not settings.get_player_settings(player)["ltnt-show-button"].value then
     GC.toggle_button:hide(pind)
   end
-  GC.outer_frame:build(frame_flow, pind)
-  GC.outer_frame:hide(pind) -- UI is always closed on init
 
+  local win, pane = window.build(frame_flow)
+  global.windows[pind] = win
   -- add tabs to outer_frame
-  local outer_frame = GC.outer_frame:get(pind)
-  GC.depot_tab:build(outer_frame, pind)
-  GC.stop_tab:build(outer_frame, pind)
-  GC.inv_tab:build(outer_frame, pind)
-  GC.hist_tab:build(outer_frame, pind)
-  GC.alert_tab:build(outer_frame, pind)
+  win = win.content
+  GC.depot_tab:build(egm.tabs.get_tab(pane, 1), pind)
+  GC.stop_tab:build(egm.tabs.get_tab(pane, 2), pind)
+  GC.inv_tab:build(egm.tabs.get_tab(pane, 3), pind)
+  GC.alert_tab:build(egm.tabs.get_tab(pane, 5), pind)
 end
 
 local LTNC_MOD_NAME = require("script.constants").global.mod_name_ltnc
 local function on_init()
+  egm.manager.on_init()
   -- global storage for UI state
+  global.windows = {}
   global.gui = {
     is_gui_open = {},
     active_tab = {},
@@ -153,22 +158,41 @@ local function on_settings_changed(pind, event)
 end
 
 -- basic UI functions
-local function update_tab(pind)
-  -- updates the currently selected tab for one player, if that player has the UI open
-  local tab_index = global.gui.is_gui_open[pind] and global.gui.active_tab[pind]
-  if tab_index then
-    for i = 1,N_TABS do
-      tab_list[i]:update(pind, tab_index)
+local tick2timestring = require("__OpteraLib__.script.misc").ticks_to_timestring
+local build_item_table = util.build_item_table
+local function update_tab(event)
+  local pind = event.player_index
+  local window = global.windows[pind]
+  local tab_index = window.root.visible and window.pane.active_tab
+  if tab_index == "history_tab" then
+    local history_data = global.data.delivery_hist
+    local hist_tab = window.tabs[tab_index]
+    egm.table.clear(hist_tab)
+    local offset = global.data.newest_history_index
+    local max = global.data.history_limit
+    for i = offset-1, (offset-max+1), -1 do
+      local delivery = history_data[(i > 0) and i or (i + max)]
+      if delivery then
+        egm.table.add_row(hist_tab, {
+          delivery = delivery,
+          time = {tick2timestring(delivery.runtime), tick2timestring(delivery.finished)},
+        })
+      end
     end
+  elseif tab_index then
+    tab_list[tab_index]:update(pind, tab_index)
   end
 end
 
 local function on_toggle_button_click(event)
   local pind = event.player_index
-  if GC.outer_frame:toggle(pind) then
+  local new_state = egm.window.toggle(global.windows[pind])
+  --global.gui.is_gui_open[pind] = new_state
+  if new_state then
+    game.players[pind].opened = global.windows[pind].root
     game.players[pind].set_shortcut_toggled("ltnt-toggle-shortcut", true)
     GC.toggle_button:clear_alert(event.player_index)
-    update_tab(event.player_index)
+    update_tab(event)
   else
     game.players[pind].set_shortcut_toggled("ltnt-toggle-shortcut", false)
   end
@@ -176,16 +200,16 @@ end
 
 local function close_gui(pind)
   game.players[pind].opened = nil
-  GC.outer_frame:hide(pind)
+  egm.window.hide(global.windows[pind])
   if debug_log then
     log2("Closing UI for player", pind)
   end
 end
 
--- handler for all events defined in global constant GUI_EVENTS
+-- handler for all events defined in defs.gui_events
 -- calls the appropriate handler for the given event
 -- available handlers are stored in handlers table
-local match_string = MOD_PREFIX.."_([%a_]+)(%d+)_?(.*)"
+local match_string = defs.mod_prefix.."_([%a_]+)(%d+)_?(.*)"
 --local match_ui_name function(element_name) return match(element_name, ms) end
 local handlers = {on_toggle_button_click = on_toggle_button_click}
 
@@ -219,7 +243,7 @@ local function update_ui(event)
   for pind in pairs(game.players) do
     if interval[pind] > 0 and tick - global.gui.last_refresh_tick[pind] > interval[pind]  then
       global.gui.last_refresh_tick[pind] = tick
-      update_tab(pind)
+      update_tab({player_index = pind})
     end
   end
 end
@@ -228,12 +252,12 @@ end
 local function on_ui_closed(event)
   -- event triggers whenever any UI element is closed, so check if it is actually the ltnt UI that is supposed to close
   local pind = event.player_index
-	if event.element and event.element.valid and event.element.index == GC.outer_frame:get(pind).index then
+	if event.element and event.element.valid and event.element.index == global.windows[pind].root.index then
     if global.gui.ltnc_is_active and global.gui.is_ltnc_open and global.gui.is_ltnc_open[pind] then
       global.gui.is_ltnc_open[pind] = nil
       remote.call("ltn-combinator", "close_ltn_combinator", pind)
-      game.players[pind].opened = GC.outer_frame:get(pind)
-      update_tab(pind)
+      --game.players[pind].opened = GC.outer_frame:get(pind)
+      update_tab(event)
     else
       close_gui(event.player_index)
     end
@@ -245,7 +269,7 @@ local function on_new_alert(event)
   if event and event.type then
     for pind in pairs(game.players) do
       GC.toggle_button:set_alert(pind)
-      GC.outer_frame:set_alert(pind)
+      --GC.outer_frame:set_alert(pind)
     end
   end
 end
@@ -253,27 +277,27 @@ end
 -- event handlers called by ctrl.gui_event_handler
 function handlers.on_tab_changed(event, data_string)
   -- data string is index of clicked tab button
-  GC.outer_frame:update_buttons(event.player_index, s2n(data_string))
-  update_tab(event.player_index)
+  --GC.outer_frame:update_buttons(event.player_index, s2n(data_string))
+  update_tab(event)
 end
 
 function handlers.clear_history(event, data_string)
   global.data.delivery_hist = {}
   global.data.newest_history_index = 1
-  update_tab(event.player_index)
+  update_tab(event)
 end
 
 function handlers.clear_train_alerts(event, data_string)
   global.data.trains_error = {}
   global.data.trains_error_count = 1
-  update_tab(event.player_index)
+  update_tab(event)
 end
 
 function handlers.on_refresh_bt_click(event, data_string)
   local pind = event.player_index
-  if global.gui.last_refresh_tick[pind] + global.gui.refresh_interval[pind] < game.tick then
+  if global.gui.last_refresh_tick[pind] + global.gui.refresh_interval[pind] < game.tick  then
     global.gui.last_refresh_tick[pind] = game.tick
-    update_tab(event.player_index)
+    update_tab(event)
   end
 end
 
@@ -366,9 +390,21 @@ end
 -- for debugging
 commands.add_command("kill_ui", "",
   function()
-    GC.outer_frame:get(1).destroy()
+    --GC.outer_frame:get(1).destroy()
   end
 )
+
+script.on_event(defines.events.on_tab_changed, update_tab)
+
+egm.manager.define_action(defs.names.actions.refresh_button, update_tab)
+
+script.on_event({
+    defines.events.on_gui_click,
+    defines.events.on_gui_text_changed,
+  },
+  egm.manager.on_gui_input
+)
+
 return {
   on_init = on_init,
   on_load = on_load,
@@ -381,4 +417,4 @@ return {
   update_ui = update_ui,
   reset_ui = reset_ui,
   clear_station_filter = clear_station_filter,
-  }
+}

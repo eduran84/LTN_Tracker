@@ -21,7 +21,7 @@ local MAX_ROWS = require("script.constants").station_tab.item_table_max_rows
 local COL_COUNTS = require("script.constants").station_tab.item_table_col_count
 local GC = require("ui.classes.GuiComposition")
 local gcStopTab= GC(NAME, {
-  params = {type = "flow", direction = "vertical", visible = false},
+  params = {type = "flow", direction = "vertical"},
 })
 do -- build static part of UI
 -- network id selector
@@ -256,10 +256,9 @@ end
 
 local btest = bit32.btest
 local function eqtest(a,b) return a==b end
-local build_item_table = require("ui.util").build_item_table
+local build_item_table = util.build_item_table
 function gcStopTab:update(pind, index)
   if index == self.tab_index then
-    self:show(pind)
     global.gui.active_tab[pind] = index
 
     local tb = self:get_el(pind, "table")
@@ -341,8 +340,6 @@ function gcStopTab:update(pind, index)
         end
       end
     end
-   else
-    self:hide(pind)
   end
 end
 local match = string.match

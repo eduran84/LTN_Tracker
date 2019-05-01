@@ -399,6 +399,7 @@ local function store_history(history)
   if debug_log then
     log2("New history record:\n", history)
   end
+  history.finished = game.tick
   history.runtime = game.tick - history.started
   history.networkID = history.networkID and history.networkID > 2147483648 and history.networkID - 4294967296 or history.networkID -- convert from uint32 to int32
   data.delivery_hist[data.newest_history_index] = history
