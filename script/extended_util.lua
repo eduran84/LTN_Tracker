@@ -1,7 +1,5 @@
 local util = require("util")
 
-
--- copy/paste from Optera's LTN-Content-Reader
 local btest = bit32.btest
 function util.get_items_in_network(ltn_item_list, selected_networkID)
 	local items = {}
@@ -106,5 +104,7 @@ function util.build_item_table(args)
   end
 	return frame
 end
+
+util.misc = require(defs.pathes.modules.olib_misc).ticks_to_timestring
 
 return util

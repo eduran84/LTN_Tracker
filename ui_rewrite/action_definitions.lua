@@ -16,7 +16,7 @@ local render_arguments = {
 egm.manager.define_action(
   defs.names.actions.station_name_clicked,
   function(event, data)
-    if debug_log then log2("station_name_clicked", event, data) end
+    if debug_mode then log2("station_name_clicked", event, data) end
 
     local stop = global.data.stops[tonumber(global.data.name2id[data.name])]
     local pind = event.player_index

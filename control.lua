@@ -11,7 +11,7 @@
 -- constants
 defs = require("__LTN_Tracker__.defines")
 C = require(defs.pathes.modules.constants)
-debug_log = settings.global[defs.names.settings.debug_level].value
+debug_mode = true --settings.global[defs.names.settings.debug_level].value
 
 ------------------------------
 ------- initialization -------
@@ -24,10 +24,15 @@ custom_events = {
 
 -- load modules
 util = require(defs.pathes.modules.util)
-log2 = require(defs.pathes.modules.logger).log
+logger = require(defs.pathes.modules.olib_logger)
+log2 = logger.log
 egm = require(defs.pathes.modules.import_egm)
 ui = require(defs.pathes.modules.gui_ctrl)
 local prc = require(defs.pathes.modules.data_processing)
+if debug_mode then
+  logger.add_debug_commands()
+end
+
 
 script.on_init(function()
   -- check for LTN interface, just in case

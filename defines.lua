@@ -59,13 +59,20 @@ defs.names.sprites = {
 local gui_modules = "__GUI_Modules__."
 local optera_lib = "__OpteraLib__."
 local LTNT = "__LTN_Tracker__."
+local ui_rewrite = LTNT .. "ui_rewrite."
 defs.pathes.modules = {
   constants = LTNT .. "script.constants",
-  logger = optera_lib .. "script.logger",
+  olib_logger = optera_lib .. "script.logger",
+  olib_misc = optera_lib .. "script.misc",
+  olib_train = optera_lib .. "script.train",
   import_egm = gui_modules .. "import",
   data_processing = LTNT .. "script.data_processing",
   gui_ctrl = LTNT .. "script.gui_ctrl",
   util = LTNT .. "script.extended_util",
-  action_definitions = LTNT .. "ui_rewrite.action_definitions",
+
+  gui = ui_rewrite .. "gui",
+  alert_tab = ui_rewrite .. "alert_tab",
+  history_tab = ui_rewrite .. "history_tab",
+  action_definitions = ui_rewrite .. "action_definitions",
 }
 return defs
