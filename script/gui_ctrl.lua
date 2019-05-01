@@ -9,6 +9,7 @@ local mod_gui = require("mod-gui")
 local lib_utils = require("__OpteraLib__.script.train")
 local defs = defs
 local egm = egm
+local C = C
 local gui = require(defs.pathes.modules.gui)
 
 -- load / set constants
@@ -17,7 +18,7 @@ local gc_pathes = {   -- list of GUIComposition objects to load
   "ui.toggle_button",
   "ui.depot_tab",
   "ui.inventory_tab",
-  "ui.station_tab",
+  --"ui.station_tab",
 }
 -- load and store GuiComposition objects
 local GC = {}
@@ -80,7 +81,7 @@ local function player_init(pind)
 
   -- add tabs to outer_frame
   GC.depot_tab:build(egm.tabs.get_tab(win.pane, 1), pind)
-  GC.stop_tab:build(egm.tabs.get_tab(win.pane, 2), pind)
+  --GC.stop_tab:build(egm.tabs.get_tab(win.pane, 2), pind)
   GC.inv_tab:build(egm.tabs.get_tab(win.pane, 3), pind)
 end
 
@@ -172,6 +173,7 @@ local function update_tab(event)
         })
       end
     end
+
   elseif tab_index == "alert_tab" then
     local error_list = global.data.trains_error
     local alert_tab = window.tabs[tab_index]
@@ -189,6 +191,43 @@ local function update_tab(event)
         caption = {"alert.no-error-trains"},
         style = "ltnt_label_default",
       }
+    end
+
+  elseif tab_index == "station_tab" then
+    --------------------------------------
+    -- temporary stuff
+    local function get_stops(pind)
+      return global.data.stop_ids
+    end
+    --------------------------------------
+    local station_tab = window.tabs[tab_index]
+    local station_table = station_tab.table
+    egm.table.clear(station_table)
+    local ltnc_active = global.gui.ltnc_is_active
+    local signal_col_count = C.station_tab.item_table_col_count[3] + (ltnc_active and 0 or 1)
+    local selector_data = egm.manager.get_registered_data(station_tab.id_selector)
+    local selected_network_id = tonumber(selector_data.last_valid_value)
+    local testfun
+    if station_tab.checkbox.state then
+      testfun = function(a,b) return a==b end
+    else
+      testfun = bit32.btest
+    end
+    local data = global.data
+    local stops_to_list = get_stops(pind)
+    for i = 1, #stops_to_list do
+      local stop_id = stops_to_list[i]
+      if stop_id and data.stops[stop_id] then
+        local row_data = {
+          egm_table = station_table,
+          signal_col_count = signal_col_count,
+          testfun = testfun,
+          selected_network_id = selected_network_id,
+          stop_id = stop_id,
+          stop_data = data.stops[stop_id],
+        }
+        egm.table.add_row(station_table, row_data)
+      end
     end
   elseif tab_index then
     tab_list[tab_index]:update(pind, tab_index)
@@ -209,7 +248,7 @@ end
 
 local function close_gui(pind)
   game.players[pind].opened = nil
-  egm.window.hide(gui.get(pind)[pind])
+  egm.window.hide(gui.get(pind))
   if debug_mode then
     log2("Closing UI for player", pind)
   end

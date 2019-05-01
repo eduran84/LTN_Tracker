@@ -6,6 +6,7 @@ local gui_data = {windows = {}}
 require(defs.pathes.modules.action_definitions)
 
 local mod_gui = require("mod-gui")
+local build_station_tab = require(defs.pathes.modules.station_tab)
 local build_history_tab = require(defs.pathes.modules.history_tab)
 local build_alert_tab = require(defs.pathes.modules.alert_tab)
 
@@ -31,10 +32,10 @@ local function build_gui(pind)
   local pane = egm.tabs.build(window.content, {direction = "vertical"})
   window.pane = pane
   egm.tabs.add_tab(pane, 1, {caption = {"ltnt.tab1-caption"}})
-  egm.tabs.add_tab(pane, 2, {caption = {"ltnt.tab2-caption"}})
   egm.tabs.add_tab(pane, 3, {caption = {"ltnt.tab3-caption"}})
 
   window.tabs = {}
+  window.tabs[defs.names.tabs.stations] = build_station_tab(window, defs.names.tabs.stations)
   window.tabs[defs.names.tabs.history] = build_history_tab(window, defs.names.tabs.history)
   window.tabs[defs.names.tabs.alert] = build_alert_tab(window, defs.names.tabs.alert)
   gui_data.windows[pind] = window

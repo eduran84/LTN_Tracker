@@ -33,7 +33,6 @@ if debug_mode then
   logger.add_debug_commands()
 end
 
-
 script.on_init(function()
   -- check for LTN interface, just in case
   if not remote.interfaces["logistic-train-network"] then

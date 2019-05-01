@@ -1,5 +1,4 @@
 local defs = defs
-local egm_defs = require("__GUI_Modules__.defines")
 local egm = egm
 local C = C
 local col_width = C.alert_tab.col_width
@@ -8,7 +7,7 @@ local build_item_table = util.build_item_table
 egm.stored_functions[defs.names.functions.alert_sort .. 1] = function(a, b) return a.error_data.delivery.depot < b.error_data.delivery.depot end
 egm.stored_functions[defs.names.functions.alert_sort .. 2] = function(a, b) return a.error_data.delivery.from < b.error_data.delivery.from end
 egm.stored_functions[defs.names.functions.alert_sort .. 3] = function(a, b) return a.error_data.type < b.error_data.type end
-
+-- TODO: make styles for labels with width included
 egm.stored_functions[defs.names.functions.alert_row_constructor] = function(parent, data)
   local error_id = data.error_id
   local error_data = data.error_data
@@ -137,7 +136,7 @@ egm.stored_functions[defs.names.functions.alert_row_constructor] = function(pare
   elem = button_flow.add{
     type = "sprite-button",
     style = defs.names.styles.shared.default_button,
-    sprite = "ltnt_sprite_enter",
+    sprite = "ltnt_sprite_enter", --TODO: new sprite, add to defines
     tooltip = {"alert.select-tt"},
     enabled = enable_select_button,
   }
@@ -176,7 +175,7 @@ local function build_alert_tab(window, tab_index)
   end
   table.root.children[1].add{
     type = "flow",
-    style = egm_defs.style_names.shared.horizontal_spacer,
+    style = defs.names.styles.shared.horizontal_spacer,
   }
   local button = table.root.children[1].add{
     type = "sprite-button",

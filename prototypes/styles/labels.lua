@@ -82,6 +82,17 @@ add_style("ltnt_lb_inv_station_name", {
   single_line = false,
 })
 
+-- station tab
+local st_names = style_names.station_tab
+default[st_names.station_label] = {
+  type = "label_style",
+  parent = "ltnt_hoverable_label",
+  maximal_width = C.station_tab.col_width[1],
+  minimal_width = C.station_tab.col_width[1],
+  single_line = false,
+}
+
+-- history tab
 local ht_names = style_names.hist_tab
 for i = 1, 5 do
   local parent = "ltnt_label_default"

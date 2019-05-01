@@ -1,3 +1,4 @@
+local egm_defs = require("__GUI_Modules__.defines")
 local defs = {
   pathes = {},
 }
@@ -18,13 +19,19 @@ defs.names.settings = {
 }
 
 defs.names.tabs = {
+  stations = "station_tab",
   history = "history_tab",
   alert = "alert_tab",
 }
 
 defs.names.styles = {
   shared = {
-    default_button = mod_prefix .. "default_button",
+    default_button = mod_prefix .. "_default_button",
+    horizontal_spacer = egm_defs.style_names.shared.horizontal_spacer,
+    horizontal_container = egm_defs.style_names.shared.horizontal_container,
+  },
+  station_tab = {
+    station_label = mod_prefix .. "_lb_station",
   },
   hist_tab = {
     label_col_1 = mod_prefix .. "_lb_hist_col1",
@@ -37,15 +44,20 @@ defs.names.styles = {
 }
 
 defs.names.actions = {
+  update_tab = "update_single_tab",
   refresh_button = "refresh_button_clicked",
+  filter_input = "filter_changed",
   clear_history = "clear_history_table",
   clear_alerts = "clear_alert_table",
   clear_single_alert = "clear_single_alert",
   station_name_clicked = "station_name_clicked",
-  select_entity = "select_locomotive"
+  select_station_entity = "select_station",
+  select_entity = "select_locomotive",
 }
 
 defs.names.functions = {
+  station_row_constructor = "st_row_constructor",
+  station_sort = "st_sort_function_col_",
   hist_row_constructor = "ht_row_constructor",
   hist_sort = "ht_sort_function_col_",
   alert_row_constructor = "alert_row_constructor",
@@ -71,8 +83,9 @@ defs.pathes.modules = {
   util = LTNT .. "script.extended_util",
 
   gui = ui_rewrite .. "gui",
-  alert_tab = ui_rewrite .. "alert_tab",
+  station_tab = ui_rewrite .. "station_tab",
   history_tab = ui_rewrite .. "history_tab",
+  alert_tab = ui_rewrite .. "alert_tab",
   action_definitions = ui_rewrite .. "action_definitions",
 }
 return defs

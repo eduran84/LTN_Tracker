@@ -1,6 +1,18 @@
 local defs = defs
 local egm = egm
 
+egm.manager.define_action(
+  defs.names.actions.update_tab,
+  function(event, data)
+    logger.print("checkbox clicked:", event, data)
+  end
+)
+egm.manager.define_action(
+  defs.names.actions.filter_input,
+  function(event, data)
+    logger.print("filter input:", event, data)
+  end
+)
 local draw_circle = rendering.draw_circle
 local render_arguments = {
   color = C.ui_ctrl.marker_circle_color,
@@ -19,10 +31,9 @@ egm.manager.define_action(
     if debug_mode then log2("station_name_clicked", event, data) end
 
     local stop = global.data.stops[tonumber(global.data.name2id[data.name])]
-    local pind = event.player_index
-    local player = game.players[pind]
     if stop and stop.entity and stop.entity.valid then
-      --close_gui(pind)
+      local pind = event.player_index
+      local player = game.players[pind]
       local entity = stop.entity
       if global.gui.station_select_mode[pind] < 3  then
         player.opened = entity
@@ -30,6 +41,25 @@ egm.manager.define_action(
       if global.gui.station_select_mode[pind] > 1 then
         player.zoom_to_world({entity.position.x+40, entity.position.y+0}, 0.4)
         render_arguments.target = entity
+        render_arguments.players = {pind}
+        draw_circle(render_arguments)
+      end
+    end
+  end
+)
+egm.manager.define_action(
+  defs.names.actions.select_station_entity,
+  function(event, data)
+    if debug_mode then log2("select_station_entity", event, data) end
+    local stop_entity = data.stop_entity
+    if stop_entity.valid then
+      local pind = event.player_index
+      if global.gui.station_select_mode[pind] < 3  then
+        game.players[pind].opened = stop_entity
+      end
+      if global.gui.station_select_mode[pind] > 1 then
+        game.players[pind].zoom_to_world({stop_entity.position.x+40, stop_entity.position.y+0}, 0.4)
+        render_arguments.target = stop_entity
         render_arguments.players = {pind}
         draw_circle(render_arguments)
       end

@@ -105,6 +105,6 @@ function util.build_item_table(args)
 	return frame
 end
 
-util.misc = require(defs.pathes.modules.olib_misc).ticks_to_timestring
+util.ticks_to_timestring = require(defs.pathes.modules.olib_misc).ticks_to_timestring
 
 return util
