@@ -20,7 +20,7 @@ local gc_pathes = {   -- list of GUIComposition objects to load
   --"ui.history_tab",
   "ui.inventory_tab",
   "ui.station_tab",
-  "ui.alert_tab",
+  --"ui.alert_tab",
 }
 -- load and store GuiComposition objects
 local GC = {}
@@ -87,7 +87,7 @@ local function player_init(pind)
   GC.depot_tab:build(egm.tabs.get_tab(pane, 1), pind)
   GC.stop_tab:build(egm.tabs.get_tab(pane, 2), pind)
   GC.inv_tab:build(egm.tabs.get_tab(pane, 3), pind)
-  GC.alert_tab:build(egm.tabs.get_tab(pane, 5), pind)
+  --GC.alert_tab:build(egm.tabs.get_tab(pane, 5), pind)
 end
 
 local LTNC_MOD_NAME = require("script.constants").global.mod_name_ltnc
@@ -178,6 +178,24 @@ local function update_tab(event)
           time = {tick2timestring(delivery.runtime), tick2timestring(delivery.finished)},
         })
       end
+    end
+  elseif tab_index == "alert_tab" then
+    local error_list = global.data.trains_error
+    local alert_tab = window.tabs[tab_index]
+    egm.table.clear(alert_tab)
+    if next(error_list) then
+      for error_id, error_data in pairs(error_list) do
+        egm.table.add_row(
+          alert_tab,
+          {error_id = error_id, error_data = error_data, egm_table = alert_tab}
+        )
+      end
+    else
+      alert_tab.content.add{
+        type = "label",
+        caption = {"alert.no-error-trains"},
+        style = "ltnt_label_default",
+      }
     end
   elseif tab_index then
     tab_list[tab_index]:update(pind, tab_index)

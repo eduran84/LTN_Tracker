@@ -18,7 +18,8 @@ defs.names.settings = {
 }
 
 defs.names.tabs = {
-  hist_tab = "history_tab",
+  history = "history_tab",
+  alert = "alert_tab",
 }
 
 defs.names.styles = {
@@ -38,12 +39,17 @@ defs.names.styles = {
 defs.names.actions = {
   refresh_button = "refresh_button_clicked",
   clear_history = "clear_history_table",
+  clear_alerts = "clear_alert_table",
+  clear_single_alert = "clear_single_alert",
   station_name_clicked = "station_name_clicked",
+  select_entity = "select_locomotive"
 }
 
 defs.names.functions = {
   hist_row_constructor = "ht_row_constructor",
   hist_sort = "ht_sort_function_col_",
+  alert_row_constructor = "alert_row_constructor",
+  alert_sort = "at_sort_function_col_",
 }
 
 defs.names.sprites = {
@@ -60,5 +66,6 @@ defs.pathes.modules = {
   data_processing = LTNT .. "script.data_processing",
   gui_ctrl = LTNT .. "script.gui_ctrl",
   util = LTNT .. "script.extended_util",
+  action_definitions = LTNT .. "ui_rewrite.action_definitions",
 }
 return defs

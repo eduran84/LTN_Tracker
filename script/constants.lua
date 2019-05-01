@@ -96,7 +96,7 @@ CONST.alert_tab = {
 	tab_index = 5,
   frame_width = 940,
   n_columns = 5,
-	col_width = {180, 170, 220, 240},
+	col_width = {170, 180, 220, 240},
 }
 
 -- LTN definitions, copied from LTN's control.lua
