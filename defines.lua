@@ -22,6 +22,9 @@ defs.names.tabs = {
 }
 
 defs.names.styles = {
+  shared = {
+    default_button = mod_prefix .. "default_button",
+  },
   hist_tab = {
     label_col_1 = mod_prefix .. "_lb_hist_col1",
     label_col_2 = mod_prefix .. "_lb_hist_col2",

@@ -1,3 +1,5 @@
+local style_names = defs.names.styles
+
 local default_orange_color = {r = 0.98, g = 0.66, b = 0.22}
 local bright_red = {r = 1, g = 0, b = 0}
 local SUMMARY_NUM_WIDTH = 100
@@ -79,23 +81,25 @@ add_style("ltnt_lb_inv_station_name", {
   minimal_width = C.station_tab.station_col_width,
   single_line = false,
 })
+
+local ht_names = style_names.hist_tab
 for i = 1, 5 do
   local parent = "ltnt_label_default"
   if i == 2 then
     parent = "ltnt_hoverable_label"
   end
-  default["ltnt_lb_hist_col"..i] = {
+  default[ht_names["label_col_"..i]] = {
     type = "label_style",
     parent = parent,
-    maximal_width = C.history_tab.col_width[i],
-    minimal_width = C.history_tab.col_width[i],
+    maximal_width = C.history_tab.column_width[i],
+    minimal_width = C.history_tab.column_width[i],
   }
 end
-default["ltnt_lb_hist_col3"].horizontal_align = "right"
-default["ltnt_lb_hist_col4"].horizontal_align = "right"
-default["ltnt_lb_hist_col5"].horizontal_align = "right"
-default["ltnt_lb_hist_col4_red"] = {
+default[ht_names.label_col_3].horizontal_align = "right"
+default[ht_names.label_col_4].horizontal_align = "right"
+default[ht_names.label_col_5].horizontal_align = "right"
+default[ht_names.label_col_4_red] = {
   type = "label_style",
-  parent = "ltnt_lb_hist_col4",
-  font_color = {r = 1, g = 0, b = 0},
+  parent = ht_names.label_col_4,
+  font_color = bright_red,
 }

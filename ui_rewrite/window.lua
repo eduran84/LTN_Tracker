@@ -152,7 +152,8 @@ local function build_history_tab(window, tab_index)
   })
   local button = table.root.children[1].add{
     type = "sprite-button",
-    sprite = "ltnt_sprite_delete",
+    style = defs.names.styles.shared.default_button,
+    sprite = "utility/remove",
     tooltip = {"history.delete-tt"},
   }
   egm.manager.register(button, {action = defs.names.actions.clear_history, egm_table = table})

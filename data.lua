@@ -1,3 +1,7 @@
+defs = require("defines")
+C = require(defs.pathes.modules.constants)
+log2 = require(defs.pathes.modules.logger).log
+
 require("prototypes.sprites")
 require("prototypes.fonts")
 require("prototypes.styles")

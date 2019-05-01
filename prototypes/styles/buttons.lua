@@ -131,3 +131,13 @@ add_style("ltnt_sort_button_off", {
     scale = 1
   }
 })
+
+default[defs.names.styles.shared.default_button] = {
+  type = "button_style",
+  maximal_height = 32,
+  minimal_height = 32,
+  maximal_width = 32,
+  minimal_width = 32,
+  padding = 0,
+}
+
