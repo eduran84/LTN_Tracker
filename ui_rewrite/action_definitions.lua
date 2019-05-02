@@ -1,18 +1,14 @@
 local defs = defs
 local egm = egm
+local gui = gui
 
 egm.manager.define_action(
   defs.names.actions.update_tab,
   function(event, data)
-    logger.print("checkbox clicked:", event, data)
+    gui.update_tab(event, defs.names.tabs.station)
   end
 )
-egm.manager.define_action(
-  defs.names.actions.filter_input,
-  function(event, data)
-    logger.print("filter input:", event, data)
-  end
-)
+
 local draw_circle = rendering.draw_circle
 local render_arguments = {
   color = C.ui_ctrl.marker_circle_color,
@@ -66,6 +62,29 @@ egm.manager.define_action(
     end
   end
 )
+
+local function trim(s)
+  local from = s:match("^%s*()")
+  return from > #s and "" or s:match(".*%S", from)
+end
+egm.manager.define_action(
+  defs.names.actions.update_filter,
+  function(event, data)
+    if event.name ~= defines.events.on_gui_text_changed then return end
+    logger.print("update_filter:", event, data)
+    local elem = event.element
+    if elem.text then
+      local input = trim(elem.text)
+      if input:len() == 0 then
+        data.filter.current = nil
+      else
+        data.filter.current = input
+      end
+    end
+    gui.update_tab(event, defs.names.tabs.station)
+  end
+)
+
 egm.manager.define_action(
   defs.names.actions.select_entity,
   function(event, data)
@@ -75,7 +94,6 @@ egm.manager.define_action(
     end
   end
 )
-
 egm.manager.define_action(
   defs.names.actions.clear_history,
   function(event, data)

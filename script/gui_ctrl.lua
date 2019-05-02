@@ -5,44 +5,10 @@
 -- localize helper functions
 local s2n = tonumber
 local match = string.match
-local mod_gui = require("mod-gui")
-local lib_utils = require("__OpteraLib__.script.train")
 local defs = defs
 local egm = egm
 local C = C
 local gui = require(defs.pathes.modules.gui)
-
--- load / set constants
-local N_TABS = 0
-local gc_pathes = {   -- list of GUIComposition objects to load
-  "ui.toggle_button",
-  "ui.depot_tab",
-  "ui.inventory_tab",
-  --"ui.station_tab",
-}
--- load and store GuiComposition objects
-local GC = {}
-local tab_list = {}
-for _,path in pairs(gc_pathes) do
-  local gc = require(path)
-  if GC[gc.name] then
-    error(log2("GuiComposition object with name", gc.name, "does already exist."))
-  end
-  GC[gc.name] = gc
-  for _,sub_gc in pairs(gc.sub_gc) do
-    if GC[sub_gc.name] then
-      error(log2("GuiComposition object with name", sub_gc.name, "does already exist."))
-    end
-    GC[sub_gc.name] = sub_gc
-  end
-  if gc.tab_index then
-    if tab_list[gc.tab_index] then
-      error(log2("Tab index", gc.tab_index, "is already registerd by another GC object.\ntab_list:", tab_list))
-    end
-    tab_list[gc.tab_index] = gc
-    N_TABS = N_TABS + 1
-  end
-end
 
 -----------------------------
 ------ initialization  ------
@@ -50,39 +16,26 @@ end
 -- do not change any of the variables defined above from this point onward
 -- enforced by desync
 local function on_load()
-  egm.manager.on_load()
-  for _,gc in pairs(GC) do
-    -- restore local references to objects' global storage tables
-    gc:on_load(global.gui)
-  end
+  gui.on_load()
 end
 
 local function player_init(pind)
   local player = game.players[pind]
-  local button_flow = mod_gui.get_button_flow(player)
   if debug_mode then
     log2("Building UI for player", player.name)
   end
 
   -- set UI state globals
-  global.gui.active_tab[pind] = 1 -- even if ui is closed, active tab persists and is restored when UI opens
-  --global.gui.is_gui_open[pind] = false
   global.gui.last_refresh_tick[pind] = 0
   global.gui.refresh_interval[pind] = settings.get_player_settings(player)["ltnt-refresh-interval"].value * 60
   global.gui.station_select_mode[pind] = tonumber(settings.get_player_settings(player)["ltnt-station-click-behavior"].value)
 
   -- build UI
-  GC.toggle_button:build(button_flow, pind)
   if not settings.get_player_settings(player)["ltnt-show-button"].value then
-    GC.toggle_button:hide(pind)
+    --GC.toggle_button:hide(pind)
   end
 
-  local win = gui.get(pind)
-
-  -- add tabs to outer_frame
-  GC.depot_tab:build(egm.tabs.get_tab(win.pane, 1), pind)
-  --GC.stop_tab:build(egm.tabs.get_tab(win.pane, 2), pind)
-  GC.inv_tab:build(egm.tabs.get_tab(win.pane, 3), pind)
+  gui.build(pind)
 end
 
 local LTNC_MOD_NAME = require("script.constants").global.mod_name_ltnc
@@ -90,8 +43,6 @@ local function on_init()
   gui.on_init()
   -- global storage for UI state
   global.gui = {
-    --is_gui_open = {},
-    active_tab = {},
     last_refresh_tick = {},
     refresh_interval = {},
     ltnc_is_active = game.active_mods[LTNC_MOD_NAME] and true or false,
@@ -100,10 +51,6 @@ local function on_init()
   }
 
   global.last_sort = {}
-  for _,gc in pairs(GC) do
-    -- creates and populates global.gui[gc.name]
-    gc:on_init(global.gui)
-  end
   -- initialize present players, they dont trigger on_player_created event
   for pind,_ in pairs(game.players) do
     player_init(pind)
@@ -113,11 +60,6 @@ end
 local function reset_ui()
   -- wipe existing UIs and clear global UI storage...
   log2("Resetting UI.")
-  for pind in pairs(game.players) do
-    for _, gc in pairs(GC) do
-      gc:destroy(pind)
-    end
-  end
   global.gui = nil
   -- ... and rebuild
   on_init()
@@ -152,87 +94,6 @@ local function on_settings_changed(pind, event)
 end
 
 -- basic UI functions
-local ticks_to_timestring = util.ticks_to_timestring
-local build_item_table = util.build_item_table
-local function update_tab(event)
-  local pind = event.player_index
-  local window = gui.get(pind)
-  local tab_index = window.root.visible and window.pane.active_tab
-  if tab_index == "history_tab" then
-    local history_data = global.data.delivery_hist
-    local hist_tab = window.tabs[tab_index]
-    egm.table.clear(hist_tab)
-    local offset = global.data.newest_history_index
-    local max = global.data.history_limit
-    for i = offset-1, (offset-max+1), -1 do
-      local delivery = history_data[(i > 0) and i or (i + max)]
-      if delivery then
-        egm.table.add_row(hist_tab, {
-          delivery = delivery,
-          time = {ticks_to_timestring(delivery.runtime), ticks_to_timestring(delivery.finished)},
-        })
-      end
-    end
-
-  elseif tab_index == "alert_tab" then
-    local error_list = global.data.trains_error
-    local alert_tab = window.tabs[tab_index]
-    egm.table.clear(alert_tab)
-    if next(error_list) then
-      for error_id, error_data in pairs(error_list) do
-        egm.table.add_row(
-          alert_tab,
-          {error_id = error_id, error_data = error_data, egm_table = alert_tab}
-        )
-      end
-    else
-      alert_tab.content.add{
-        type = "label",
-        caption = {"alert.no-error-trains"},
-        style = "ltnt_label_default",
-      }
-    end
-
-  elseif tab_index == "station_tab" then
-    --------------------------------------
-    -- temporary stuff
-    local function get_stops(pind)
-      return global.data.stop_ids
-    end
-    --------------------------------------
-    local station_tab = window.tabs[tab_index]
-    local station_table = station_tab.table
-    egm.table.clear(station_table)
-    local ltnc_active = global.gui.ltnc_is_active
-    local signal_col_count = C.station_tab.item_table_col_count[3] + (ltnc_active and 0 or 1)
-    local selector_data = egm.manager.get_registered_data(station_tab.id_selector)
-    local selected_network_id = tonumber(selector_data.last_valid_value)
-    local testfun
-    if station_tab.checkbox.state then
-      testfun = function(a,b) return a==b end
-    else
-      testfun = bit32.btest
-    end
-    local data = global.data
-    local stops_to_list = get_stops(pind)
-    for i = 1, #stops_to_list do
-      local stop_id = stops_to_list[i]
-      if stop_id and data.stops[stop_id] then
-        local row_data = {
-          egm_table = station_table,
-          signal_col_count = signal_col_count,
-          testfun = testfun,
-          selected_network_id = selected_network_id,
-          stop_id = stop_id,
-          stop_data = data.stops[stop_id],
-        }
-        egm.table.add_row(station_table, row_data)
-      end
-    end
-  elseif tab_index then
-    tab_list[tab_index]:update(pind, tab_index)
-  end
-end
 
 local function on_toggle_button_click(event)
   local pind = event.player_index
@@ -240,7 +101,7 @@ local function on_toggle_button_click(event)
   if new_state then
     game.players[pind].opened = gui.get(pind).root
     game.players[pind].set_shortcut_toggled("ltnt-toggle-shortcut", true)
-    update_tab(event)
+    gui.update_tab(event)
   else
     game.players[pind].set_shortcut_toggled("ltnt-toggle-shortcut", false)
   end
@@ -254,35 +115,8 @@ local function close_gui(pind)
   end
 end
 
--- handler for all events defined in defs.gui_events
--- calls the appropriate handler for the given event
--- available handlers are stored in handlers table
-local match_string = defs.mod_prefix.."_([%a_]+)(%d+)_?(.*)"
 --local match_ui_name function(element_name) return match(element_name, ms) end
 local handlers = {on_toggle_button_click = on_toggle_button_click}
-
-local function ui_event_handler(event)
-  -- check element name; pattern used by all GuiComposition objects is
-  -- "ltnt_<name of GC object>_<index of element in the GC object>_<[optional]any string>"
-  local gc_name, elem_index, data_string = match(event.element.name, match_string)
-  if gc_name then -- this element belongs to ltnt, so continue (or some other mod with the same prefix xX)
-    if GC[gc_name] then -- should not be necessary, but let's be extra safe in case another mod uses exactly the same naming pattern
-      local handler, data = GC[gc_name]:get_event_handler(event, s2n(elem_index), data_string)
-      if debug_mode then
-        log2("Gui event received.\nEvent:", event, "\ngc_name:", gc_name, "\nelem_index:", elem_index, "\ndata_string:", data_string, "\nhandler:", handler, "\ndata:", data)
-      end
-      if type(handler) == "string" then
-        if data then
-          handlers[handler](event, data)
-        else
-          handlers[handler](event, data_string)
-        end
-      end
-    else
-      log2("Gui event registerd for UI element with name", event.element.name, ", but corresponding GC object was not found.\nCurrent state of GC:\n", GC, "\nTriggering event:", event)
-    end
-  end
-end
 
 -- handler for on_data_updated event
 local function update_ui(event)
@@ -291,7 +125,7 @@ local function update_ui(event)
   for pind in pairs(game.players) do
     if interval[pind] > 0 and tick - global.gui.last_refresh_tick[pind] > interval[pind]  then
       global.gui.last_refresh_tick[pind] = tick
-      update_tab({player_index = pind})
+      gui.update_tab({player_index = pind})
     end
   end
 end
@@ -304,8 +138,8 @@ local function on_ui_closed(event)
     if global.gui.ltnc_is_active and global.gui.is_ltnc_open and global.gui.is_ltnc_open[pind] then
       global.gui.is_ltnc_open[pind] = nil
       remote.call("ltn-combinator", "close_ltn_combinator", pind)
-      --game.players[pind].opened = GC.outer_frame:get(pind)
-      update_tab(event)
+      game.players[pind].opened = gui.get(pind).root.index
+      gui.update_tab(event)
     else
       close_gui(event.player_index)
     end
@@ -322,25 +156,6 @@ local function on_new_alert(event)
   end
 end
 
--- event handlers called by ctrl.gui_event_handler
-function handlers.on_tab_changed(event, data_string)
-  -- data string is index of clicked tab button
-  --GC.outer_frame:update_buttons(event.player_index, s2n(data_string))
-  update_tab(event)
-end
-
-function handlers.clear_history(event, data_string)
-  global.data.delivery_hist = {}
-  global.data.newest_history_index = 1
-  update_tab(event)
-end
-
-function handlers.clear_train_alerts(event, data_string)
-  global.data.trains_error = {}
-  global.data.trains_error_count = 1
-  update_tab(event)
-end
-
 function handlers.on_refresh_bt_click(event, data_string)
   local pind = event.player_index
   if global.gui.last_refresh_tick[pind] + global.gui.refresh_interval[pind] < game.tick  then
@@ -350,10 +165,6 @@ function handlers.on_refresh_bt_click(event, data_string)
 end
 
 do -- handle button/label clicks that are supposed to select a train/station/cc
-  local select_train
-  do
-    select_train = require("__OpteraLib__.script.train").open_train_gui
-  end
   local function select_entity(pind, entity)
     if entity and entity.valid and game.players[pind] then
       game.players[pind].opened = entity
@@ -378,54 +189,10 @@ do -- handle button/label clicks that are supposed to select a train/station/cc
     return false
   end
 
--- data_string should be stop ID as a string
-  local draw_circle = rendering.draw_circle
-  local get_player_settings = settings.get_player_settings
-  local marker_color = require("script.constants").ui_ctrl.marker_circle_color
-  function handlers.on_stop_name_clicked(event, data_string)
-    local stop = global.data.stops[s2n(data_string)]
-    local pind = event.player_index
-    if stop and stop.entity and stop.entity.valid then
-      close_gui(pind)
-      if global.gui.station_select_mode[pind] < 3  then
-        select_entity(pind, stop.entity)
-      end
-
-      if global.gui.station_select_mode[pind] > 1 then
-        game.players[pind].zoom_to_world({stop.entity.position.x+40, stop.entity.position.y+0}, 0.4)
-        local render_id = rendering.draw_circle({
-          color = marker_color,
-          radius = 3,
-          width = 10,
-          surface = "nauvis",
-          filled = false,
-          target = stop.entity,
-          target_offset  = {-1, -1},
-          time_to_live = 300,
-          players = {pind},
-        })
-      end
-    end
-  end
-
   function handlers.on_cc_button_clicked(event, data_string)
     local stop =  global.data.stops[s2n(match(data_string, "cc_(.*)"))]
     if stop and stop.entity and stop.entity.valid then
       select_combinator(event.player_index, stop.entity, stop.input)
-    end
-  end
-
-  function handlers.on_entity_clicked(event, entity)
-    if entity and entity.valid then
-      close_gui(event.player_index)
-      select_entity(event.player_index, entity)
-    end
-  end
-
-  function handlers.on_train_clicked(event, train)
-    if train and train.valid then
-      close_gui(event.player_index)
-      select_train(event.player_index, train)
     end
   end
 end --do
@@ -435,16 +202,6 @@ function handlers.on_item_clicked(event, data_string)
   GC.inv_tab:on_item_clicked(event.player_index, data_string)
 end
 
-script.on_event(defines.events.on_tab_changed, update_tab)
-
-egm.manager.define_action(defs.names.actions.refresh_button, update_tab)
-
-script.on_event({
-    defines.events.on_gui_click,
-    defines.events.on_gui_text_changed,
-  },
-  egm.manager.on_gui_input
-)
 
 return {
   on_init = on_init,
@@ -452,7 +209,6 @@ return {
   on_toggle_button_click = on_toggle_button_click,
   on_settings_changed = on_settings_changed,
   player_init = player_init,
-  ui_event_handler = ui_event_handler,
   on_ui_closed = on_ui_closed,
   on_new_alert = on_new_alert,
   update_ui = update_ui,

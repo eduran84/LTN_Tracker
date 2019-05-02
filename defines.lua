@@ -19,7 +19,7 @@ defs.names.settings = {
 }
 
 defs.names.tabs = {
-  stations = "station_tab",
+  station = "station_tab",
   history = "history_tab",
   alert = "alert_tab",
 }
@@ -46,7 +46,7 @@ defs.names.styles = {
 defs.names.actions = {
   update_tab = "update_single_tab",
   refresh_button = "refresh_button_clicked",
-  filter_input = "filter_changed",
+  update_filter = "filter_changed",
   clear_history = "clear_history_table",
   clear_alerts = "clear_alert_table",
   clear_single_alert = "clear_single_alert",
@@ -56,6 +56,7 @@ defs.names.actions = {
 }
 
 defs.names.functions = {
+  id_selector_valid = "is_integer",
   station_row_constructor = "st_row_constructor",
   station_sort = "st_sort_function_col_",
   hist_row_constructor = "ht_row_constructor",

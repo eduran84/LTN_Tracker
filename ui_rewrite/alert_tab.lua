@@ -8,7 +8,8 @@ egm.stored_functions[defs.names.functions.alert_sort .. 1] = function(a, b) retu
 egm.stored_functions[defs.names.functions.alert_sort .. 2] = function(a, b) return a.error_data.delivery.from < b.error_data.delivery.from end
 egm.stored_functions[defs.names.functions.alert_sort .. 3] = function(a, b) return a.error_data.type < b.error_data.type end
 -- TODO: make styles for labels with width included
-egm.stored_functions[defs.names.functions.alert_row_constructor] = function(parent, data)
+egm.stored_functions[defs.names.functions.alert_row_constructor] = function(egm_table, data)
+  local parent = egm_table.content
   local error_id = data.error_id
   local error_data = data.error_data
   local delivery = error_data.delivery
@@ -152,12 +153,13 @@ egm.stored_functions[defs.names.functions.alert_row_constructor] = function(pare
     elem, {
       action = defs.names.actions.clear_single_alert,
       row_data = data,
-      egm_table = data.egm_table
+      egm_table = egm_table,
     }
   )
 end
 
-local function build_alert_tab(window, tab_index)
+local function build_alert_tab(window)
+  local tab_index = defs.names.tabs.alert
   local flow = egm.tabs.add_tab(window.pane, tab_index, {caption = {"ltnt.tab5-caption"}})
   local table = egm.table.build(
     flow,
@@ -187,4 +189,23 @@ local function build_alert_tab(window, tab_index)
   return table
 end
 
-return build_alert_tab
+local function update_alert_tab(alert_tab, ltn_data)
+  local error_list = ltn_data.trains_error
+  egm.table.clear(alert_tab)
+  if next(error_list) then
+    for error_id, error_data in pairs(error_list) do
+      egm.table.add_row(
+        alert_tab,
+        {error_id = error_id, error_data = error_data}
+      )
+    end
+  else
+    alert_tab.content.add{
+      type = "label",
+      caption = {"alert.no-error-trains"},
+      style = "ltnt_label_default",
+    }
+  end
+end
+
+return {build_alert_tab, update_alert_tab}

@@ -4,8 +4,10 @@ local C = C
 local n_cols_shipment = C.history_tab.n_cols_shipment
 local styles = defs.names.styles.hist_tab
 
+local ticks_to_timestring = util.ticks_to_timestring
 local build_item_table = util.build_item_table
-egm.stored_functions[defs.names.functions.hist_row_constructor] = function(parent, data)
+egm.stored_functions[defs.names.functions.hist_row_constructor] = function(egm_table, data)
+  local parent = egm_table.content
   local delivery = data.delivery
   parent.add{
     type = "label",
@@ -82,7 +84,8 @@ egm.stored_functions[defs.names.functions.hist_sort .. 3] = function(a, b) retur
 egm.stored_functions[defs.names.functions.hist_sort .. 4] = function(a, b) return a.delivery.finished < b.delivery.finished end
 egm.stored_functions[defs.names.functions.hist_sort .. 5] = function(a, b) return a.delivery.finished < b.delivery.finished end
 
-local function build_history_tab(window, tab_index)
+local function build_history_tab(window)
+  local tab_index = defs.names.tabs.history
   local flow = egm.tabs.add_tab(window.pane, tab_index, {caption = {"ltnt.tab4-caption"}})
   local table = egm.table.build(
     flow,
@@ -114,4 +117,20 @@ local function build_history_tab(window, tab_index)
   return table
 end
 
-return build_history_tab
+local function update_history_tab(hist_tab, ltn_data)
+  local history_data = ltn_data.delivery_hist
+  egm.table.clear(hist_tab)
+  local offset = ltn_data.newest_history_index
+  local max = ltn_data.history_limit
+  for i = offset-1, (offset-max+1), -1 do
+    local delivery = history_data[(i > 0) and i or (i + max)]
+    if delivery then
+      egm.table.add_row(hist_tab, {
+        delivery = delivery,
+        time = {ticks_to_timestring(delivery.runtime), ticks_to_timestring(delivery.finished)},
+      })
+    end
+  end
+end
+
+return {build_history_tab, update_history_tab}

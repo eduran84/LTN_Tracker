@@ -15,8 +15,13 @@ egm.stored_functions[defs.names.functions.station_sort .. 2] = function(a, b)
   local rank_b = color_order[b.stop_data.signals[1][1]] + b.stop_data.signals[1][2]
   return rank_a < rank_b
 end
+egm.stored_functions[defs.names.functions.id_selector_valid] = function(text)
+  local num = tonumber(text)
+  return num and num == math.floor(num) and true
+end
 
-egm.stored_functions[defs.names.functions.station_row_constructor] = function(parent, data)
+egm.stored_functions[defs.names.functions.station_row_constructor] = function(egm_table, data)
+  local parent = egm_table.content
   local stopdata = data.stop_data
   local stop_id = data.stop_id
   if stopdata.isDepot == false and data.testfun(data.selected_network_id, stopdata.network_id) then
@@ -80,12 +85,19 @@ egm.stored_functions[defs.names.functions.station_row_constructor] = function(pa
   end
 end
 
-local function build_station_tab(window, tab_index)
-  local station_tab = {}
+local function build_station_tab(window)
+  local tab_index = defs.names.tabs.station
+  local station_tab = {
+    filter = {
+      cache = {},
+      current = nil,
+      last = nil,
+    }
+  }
   local flow = egm.tabs.add_tab(window.pane, tab_index, {caption = {"ltnt.tab2-caption"}})
   local button_flow = flow.add{
     type = "flow",
-    style = defs.names.styles.horizontal_container,
+    style = defs.names.styles.shared.horizontal_container,
     direction = "horizontal",
   }
   local label = button_flow.add{
@@ -93,14 +105,10 @@ local function build_station_tab(window, tab_index)
     caption = {"station.id_selector-caption"},
     tooltip = {"station.id_selector-tt"},
   }
-  local tonumber, floor = tonumber, math.floor
   station_tab.id_selector = egm.misc.make_textbox_with_range(
     button_flow,
     {text = "-1"},
-    function(text)
-      local num = tonumber(text)
-      return num and num == floor(num) and true
-    end
+    defs.names.functions.id_selector_valid
   )
   local checkbox = button_flow.add{
     type = "checkbox",
@@ -121,7 +129,9 @@ local function build_station_tab(window, tab_index)
     style = "ltnt_label_default",
   }
   local filter = button_flow.add{type = "textfield"}
-  egm.manager.register(filter, {action = defs.names.actions.filter_input})
+  egm.manager.register(
+    filter,
+    {action = defs.names.actions.update_filter, filter = station_tab.filter})
   local table = egm.table.build(
     flow,
     {column_count = C.station_tab.n_columns},
@@ -141,4 +151,65 @@ local function build_station_tab(window, tab_index)
   return station_tab
 end
 
-return build_station_tab
+local find = string.find
+local lower = string.lower
+local insert = table.insert
+local name2lowercase = setmetatable({}, {
+  __index = function(self, station_name)
+    local name = lower(station_name)
+    rawset(self, station_name, name)
+    return name
+  end,
+})
+local function get_stops(station_tab, ltn_data)
+  if station_tab.filter.current then
+    if (not station_tab.filter.last) or station_tab.filter.last ~= station_tab.filter.current then
+      station_tab.filter.cache = {}
+      local filter_lower = lower(station_tab.filter.current)
+      local find = find
+      for _, stop_id in pairs(ltn_data.stop_ids) do
+        local match = true
+        for word in filter_lower:gmatch("%S+") do
+          if not find(name2lowercase[ltn_data.stops[stop_id].name], word, 1, true) then match = false end
+        end
+        if match then insert(station_tab.filter.cache, stop_id) end
+      end
+      station_tab.filter.last = station_tab.filter.current
+    end
+    return station_tab.filter.cache
+  else
+    return ltn_data.stop_ids
+  end
+end
+
+local function update_station_tab(station_tab, ltn_data)
+  local station_table = station_tab.table
+  egm.table.clear(station_table)
+  local ltnc_active = global.gui.ltnc_is_active
+  local signal_col_count = C.station_tab.item_table_col_count[3] + (ltnc_active and 0 or 1)
+  local selector_data = egm.manager.get_registered_data(station_tab.id_selector)
+  local selected_network_id = tonumber(selector_data.last_valid_value)
+  local testfun
+  if station_tab.checkbox.state then
+    testfun = function(a,b) return a==b end
+  else
+    testfun = bit32.btest
+  end
+  local stops_to_list = get_stops(station_tab, ltn_data)
+  for i = 1, #stops_to_list do
+    local stop_id = stops_to_list[i]
+    if stop_id and ltn_data.stops[stop_id] then
+      local row_data = {
+        signal_col_count = signal_col_count,
+        testfun = testfun,
+        selected_network_id = selected_network_id,
+        stop_id = stop_id,
+        stop_data = ltn_data.stops[stop_id],
+      }
+      egm.table.add_row_data(station_table, row_data)
+    end
+  end
+  egm.table.sort_rows(station_table)
+end
+
+return {build_station_tab, update_station_tab}
