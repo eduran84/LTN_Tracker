@@ -73,12 +73,20 @@ egm.stored_functions[defs.names.functions.station_row_constructor] = function(eg
       enabled = false,
     }
     -- LTNC button
-    if data.signal_col_count < 6 then -- TODO fix this condition
-      parent.add{
+    if data.signal_col_count < 6 then
+      local button = parent.add{
         type = "sprite-button",
+        style = defs.names.styles.shared.default_button,
         sprite = "item/ltn-combinator",
         tooltip = {"station.combinator-tt"},
       }
+      egm.manager.register(
+        button, {
+          action = defs.names.actions.select_ltnc,
+          stop_entity = stopdata.entity,
+          lamp_entity = stopdata.input,
+        }
+      )
     else
       parent.add{type = "flow"}
     end
@@ -185,7 +193,7 @@ end
 local function update_station_tab(station_tab, ltn_data)
   local station_table = station_tab.table
   egm.table.clear(station_table)
-  local ltnc_active = global.gui.ltnc_is_active
+  local ltnc_active = global.gui_data.is_ltnc_active
   local signal_col_count = C.station_tab.item_table_col_count[3] + (ltnc_active and 0 or 1)
   local selector_data = egm.manager.get_registered_data(station_tab.id_selector)
   local selected_network_id = tonumber(selector_data.last_valid_value)

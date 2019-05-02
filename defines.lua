@@ -11,11 +11,14 @@ defs.gui_events = {defines.events.on_gui_click, defines.events.on_gui_checked_st
 defs.names = {
   ltn = "LogisticTrainNetwork",
   ltnc = "LTN_Combinator",
+  window = mod_prefix .. "main_window",
 }
 
 defs.names.settings = {
   window_height = mod_prefix .. "-window-height",
   debug_level = mod_prefix .. "-debug-level",
+  refresh_interval = mod_prefix .. "-refresh-interval",
+  station_click_action = mod_prefix .. "-station-click-behavior",
 }
 
 defs.names.tabs = {
@@ -52,6 +55,7 @@ defs.names.actions = {
   clear_single_alert = "clear_single_alert",
   station_name_clicked = "station_name_clicked",
   select_station_entity = "select_station",
+  select_ltnc = "select_combinator",
   select_entity = "select_locomotive",
 }
 

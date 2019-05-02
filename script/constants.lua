@@ -72,7 +72,7 @@ CONST.station_tab = {
 	tab_index = 2,
   n_columns = 6,
   col_width = {180, 37, 38*5+23, 38*4+23, 38*6+23, 1},
-  item_table_col_count = {5, 4, 6},
+  item_table_col_count = {5, 4, 5},
   item_table_max_rows = {4, 4, 2},
 }
 
