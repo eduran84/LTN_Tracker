@@ -7,7 +7,6 @@ local tonumber, match, btest = tonumber, string.match, bit32.btest
 local get_items_in_network = util.get_items_in_network
 local build_item_table = util.build_item_table
 
-local N_SUBPANES = 4
 local TOTAL_WIDTH = C.inventory_tab.details_width
 local SUM_LABEL_WIDTH =  TOTAL_WIDTH - 150
 local COL_COUNT =  C.inventory_tab.details_item_tb_col_count
@@ -93,7 +92,7 @@ local function build_inventory_tab(window)
   -- details pane
   local details_frame = egm.window.build(flow, {
     caption = {"inventory.detail-caption", ""},
-    width = TOTAL_WIDTH,
+    --width = TOTAL_WIDTH,
     direction = "vertical",
   })
   local button = egm.window.add_button(details_frame, {
@@ -134,7 +133,6 @@ local function build_inventory_tab(window)
   local del_table = pane.add{type = "table", column_count = 1}
   del_table.style.vertical_align = "center"
   del_table.style.horizontal_spacing = 0
-
 
   details_frame.stop_table = stop_table
   details_frame.delivery_table = del_table
@@ -192,8 +190,8 @@ local function update_details(inv_tab, network_id)
         )
         label = outer_flow.add{
           type = "label",
+          style = styles.stops_col_2,
           caption = "ID: " ..stop.network_id,
-          style = styles.stops_col_1,
         }
         egm.manager.register(
           label, {
@@ -237,12 +235,12 @@ local function update_details(inv_tab, network_id)
         label = flow.add{
           type = "label",
           caption = " >> ",
-          style = styles.del_col_1,
+          style = styles.del_col_2,
         }
         label = flow.add{
           type = "label",
           caption = delivery.to,
-          style = styles.del_col_1,
+          style = styles.del_col_3,
         }
         egm.manager.register(
           label, {
@@ -261,7 +259,6 @@ local function update_details(inv_tab, network_id)
 		end
 	end
 end
-
 
 local function update_inventory_tab(inv_tab, ltn_data)
   local selector_data = egm.manager.get_registered_data(inv_tab.id_selector)
