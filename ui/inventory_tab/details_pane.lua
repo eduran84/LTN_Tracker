@@ -58,7 +58,7 @@ gcDetails:add{
 gcDetails:add{
   name = "tprov_label",
   parent_name = "summary_tb",
-  params = {type = "label", caption = {"inventory.detail-prov"}, style = "ltnt_summary_label"},
+  params = {type = "label", caption = {"inventory.detail-prov"}, style = "bold_label"},
   style = {width = SUM_LABEL_WIDTH},
 }
 gcDetails:add{
@@ -69,7 +69,7 @@ gcDetails:add{
 gcDetails:add{
   name = "treq_label",
   parent_name = "summary_tb",
-  params = {type = "label", caption = {"inventory.detail-req"}, style = "ltnt_summary_label"},
+  params = {type = "label", caption = {"inventory.detail-req"}, style = "bold_label"},
   style = {width = SUM_LABEL_WIDTH},
 }
 gcDetails:add{
@@ -80,7 +80,7 @@ gcDetails:add{
 gcDetails:add{
   name = "ttr_label",
   parent_name = "summary_tb",
-  params = {type = "label", caption = {"inventory.detail-tr"}, style = "ltnt_summary_label"},
+  params = {type = "label", caption = {"inventory.detail-tr"}, style = "bold_label"},
   style = {width = SUM_LABEL_WIDTH},
 }
 gcDetails:add{
@@ -172,7 +172,6 @@ function gcDetails:set_item(pind, network_id, ltn_item)
 	get(self, pind, "tprov_num").caption = get_items_in_network(data.provided, network_id)[ltn_item] or 0
 	get(self, pind, "treq_num").caption = get_items_in_network(data.requested, network_id)[ltn_item] or 0
 	get(self, pind, "ttr_num").caption = get_items_in_network(data.in_transit, network_id)[ltn_item] or 0
-
 
   -- update stop table with relevant stops
   local tb = get(self, pind, "stoptb")

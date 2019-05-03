@@ -136,7 +136,6 @@ local function build_station_tab(window)
   label = button_flow.add{
     type = "label",
     caption = {"station.filter_lb"},
-    style = "ltnt_label_default",
   }
   local filter = button_flow.add{type = "textfield"}
   egm.manager.register(

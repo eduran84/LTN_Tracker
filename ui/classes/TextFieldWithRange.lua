@@ -41,7 +41,7 @@ function TFWR:_init(name, args)
   if not(type(args) == "table") then error(log2("Optional input arguments have to be provided in a single table. Arguments provided:", args)) end
   local label_caption = args.caption or ""
   local tooltip = args.tooltip or ""
-  local label_style = args.label_style or "ltnt_summary_label"
+  local label_style = args.label_style or "bold_label"
   local label_style_params = args.label_style_params or {vertical_align = "center"}
   self.tf_style = args.textfield_style or "long_number_textfield"
   self.tf_invalid_style = args.textfield_invalid_style or "ltnt_invalid_value_tf"

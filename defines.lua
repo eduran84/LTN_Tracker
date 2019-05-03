@@ -26,6 +26,7 @@ defs.names = {
 defs.tabs = {
   depot = "depot_tab",
   station = "station_tab",
+  inventory = "inventory_tab",
   history = "history_tab",
   alert = "alert_tab",
 }
@@ -35,6 +36,8 @@ defs.actions = {
   refresh_button = "refresh_button_clicked",
 
   show_depot_details = "show_depot_details",
+
+  show_item_details = "show_item_details",
 
   update_filter = "filter_changed",
 
@@ -63,15 +66,17 @@ defs.functions = {
 
 defs.styles = {
   shared = {
-
     default_button = mod_prefix .. "default_button",
     horizontal_spacer = egm_defs.style_names.shared.horizontal_spacer,
     horizontal_container = egm_defs.style_names.shared.horizontal_container,
     vertical_container = egm_defs.style_names.shared.vertical_container,
+    no_frame_scroll_pane = mod_prefix .. "bare_scroll_pane",
+    red_button = egm_defs.style_names.item_table.red_button,
+    green_button = egm_defs.style_names.item_table.green_button,
+    gray_button = egm_defs.style_names.item_table.gray_button,
   },
   depot_tab = {
-    no_frame_scroll_pane = mod_prefix .. "bare_scroll_pane",
-    no_padding_frame = mod_prefix .. "no_padding_frame",
+    no_padding_frame = egm_defs.style_names.shared.no_padding_frame,
     depot_selector = mod_prefix .. "depot_selector",
     depot_label = mod_prefix .. "depot_name_label",
     cap_left_1 = mod_prefix .. "bt_caption_1",
@@ -81,6 +86,13 @@ defs.styles = {
     label_col_1 = mod_prefix .. "lb_depot_col1",
     label_col_2 = mod_prefix .. "lb_depot_col2",
     label_col_2_bold = mod_prefix .. "lb_depot_col2_bold",
+  },
+  inventory_tab = {
+    stops_col_1 = mod_prefix .. "lb_inv_stop_1",
+    stops_col_2 = mod_prefix .. "lb_inv_stop_2",
+    del_col_1 = mod_prefix .. "lb_inv_del_1",
+    del_col_2 = mod_prefix .. "lb_inv_del_2",
+    del_col_3 = mod_prefix .. "lb_inv_del_3",
   },
   station_tab = {
     station_label = mod_prefix .. "lb_station",
@@ -92,6 +104,12 @@ defs.styles = {
     label_col_4 = mod_prefix .. "lb_hist_col4",
     label_col_4_red = mod_prefix .. "lb_hist_col4_red",
     label_col_5 = mod_prefix .. "lb_hist_col5",
+  },
+  alert_tab = {
+    label_col_1 = mod_prefix .. "lb_alert_col1",
+    label_col_2 = mod_prefix .. "lb_alert_col2",
+    label_col_2_hover = mod_prefix .. "lb_alert_col2",
+    label_col_3 = mod_prefix .. "lb_alert_col3",
   },
 }
 

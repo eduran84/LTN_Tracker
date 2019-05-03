@@ -170,7 +170,7 @@ local function build_depot_tab(window)
   frame_left.style.width = DEPOT_CONST.pane_width_left
   local pane_left = frame_left.add{
     type = "scroll-pane",
-    style = defs.styles.depot_tab.no_frame_scroll_pane,
+    style = defs.styles.shared.no_frame_scroll_pane,
     horizontal_scroll_policy = "never",
     vertical_scroll_policy = "auto-and-reserve-space",
   }

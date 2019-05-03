@@ -1,15 +1,10 @@
-
 default = data.raw["gui-style"].default
+local shared_styles = defs.styles.shared
+
 function add_style(name, style_definition)
   default[name] = style_definition
 end
-
-require("prototypes.styles.buttons")
-require("prototypes.styles.labels")
-require("prototypes.styles.depot_tab")
-
 local default_gui = data.raw["gui-style"].default
-
 -- table styles
 do
 default_gui["ltnt_table_default"] = {
@@ -44,12 +39,21 @@ default_gui["ltnt_it_scroll_pane"] =
   vertical_align = "center",
 }
 
-default[defs.styles.depot_tab.no_frame_scroll_pane] = {
+default[shared_styles.no_frame_scroll_pane] = {
   type = "scroll_pane_style",
   parent = egm_defs.style_names.table.scroll_pane,
   padding = 0,
+  horizontally_stretchable = "off",
 }
 
+default[shared_styles.default_button] = {
+  type = "button_style",
+  maximal_height = 32,
+  minimal_height = 32,
+  maximal_width = 32,
+  minimal_width = 32,
+  padding = 0,
+}
 
 -- frame styles
 default_gui["ltnt_slot_table_frame"] =
@@ -63,33 +67,8 @@ default_gui["ltnt_slot_table_frame"] =
 	horizontally_stretchable = "off",
 }
 
-default[defs.styles.depot_tab.no_padding_frame] =
-{
-  type = "frame_style",
-  padding = 0,
-  flow_style = {type = "flow_style", padding = 0},
-  horizontal_flow_style = {type = "horizontal_flow_style", padding = 0},
-  vertical_flow_style = {type = "vertical_flow_style", padding = 0},
-  use_header_filler = false,
-}
-
--- textbox styles
-
-default_gui["ltnt_invalid_value_tf"] =
-{
-  type = "textbox_style",
-  default_background =
-  {
-    filename = "__core__/graphics/gui.png",
-    corner_size = 3,
-    position = {16, 16},
-    scale = 1
-  },
-  active_background =
-  {
-    filename = "__core__/graphics/gui.png",
-    corner_size = 3,
-    position = {16, 16},
-    scale = 1
-  }
-}
+require("prototypes.styles.buttons")
+require("prototypes.styles.labels")
+require("prototypes.styles.depot_tab")
+require("prototypes.styles.inventory_tab")
+require("prototypes.styles.alert_tab")

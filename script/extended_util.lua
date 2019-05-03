@@ -27,23 +27,24 @@ end
 util.item2sprite = item2sprite
 
 -- display a shipment of items as icons
+local shared_styles = defs.styles.shared
 function util.build_item_table(args)
   --required arguments: parent, columns (without any of provided / requested / signals an empty frame is produced)
   --optional arguments: provided, requested, signals, enabled, type, no_negate, max_rows
 
   -- parse arguments
-  local columns = args.columns
+  local column_count = args.columns
   local type = args.type
 
   -- outer frame
   local frame =  args.parent.add{type = "frame", style = "ltnt_slot_table_frame"}
   if args.max_rows then
     frame.style.maximal_height = args.max_rows * 36 + 18
-    frame.style.width = columns * 38 + 18
+    frame.style.width = column_count * 38 + 18
     frame = frame.add{type = "scroll-pane", style = "ltnt_it_scroll_pane"}
   end
   -- table for item sprites
-	local tble = frame.add{type = "table", column_count = columns, style = "slot_table"}
+	local tble = frame.add{type = "table", column_count = column_count, style = "slot_table"}
   local enabled
 	if args.enabled then
     enabled = args.enabled
@@ -54,52 +55,44 @@ function util.build_item_table(args)
   local count = 0
   -- add items to table
   local tbl_add = tble.add
+  local button_args = {
+    type = "sprite-button",
+    sprite = "",
+    number = 0,
+    enabled = enabled,
+    style = shared_styles.green_button,
+  }
 	if args.provided then
 		for item, amount in pairs(args.provided) do
-			tbl_add{
-				type = "sprite-button",
-				sprite = item2sprite(item, type),
-				number = amount,
-				enabled = enabled,
-        style = "ltnt_provided_button",
-			}
+      button_args.sprite = item2sprite(item, type)
+      button_args.number = amount
+			tbl_add(button_args)
       count = count + 1
 		end
 	end
   if args.requested then
+    button_args.style = shared_styles.red_button
 		for item, amount in pairs(args.requested) do
-      if not args.no_negate then
-        amount = -amount -- default to numbers for requests
-      end
-			tbl_add{
-				type = "sprite-button",
-				sprite = item2sprite(item, type),
-				number = amount,
-				enabled = enabled,
-        style = "ltnt_requested_button",
-			}
+      button_args.sprite = item2sprite(item, type)
+      button_args.number = args.no_negate and -amount or amount
+			tbl_add(button_args)
       count = count + 1
 		end
 	end
+  button_args.style = shared_styles.gray_button
   if args.signals then
 		for name, amount in pairs(args.signals) do
-			tbl_add{
-				type = "sprite-button",
-				sprite = "virtual-signal/" .. name,
-				number = amount,
-				enabled = enabled,
-        style = "ltnt_empty_button",
-			}
+      button_args.sprite = "virtual-signal/" .. name
+      button_args.number = amount
+			tbl_add(button_args)
       count = count + 1
 		end
 	end
-  while count == 0 or count % columns > 0  do
-    tbl_add{
-      type = "sprite-button",
-      sprite = "",
-      enabled = enabled,
-      style = "ltnt_empty_button",
-    }
+  button_args.sprite = ""
+  button_args.number = nil
+  button_args.enabled = false
+  while count % column_count > 0 or count == 0 do
+    tbl_add(button_args)
     count = count + 1
   end
 	return frame

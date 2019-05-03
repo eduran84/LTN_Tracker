@@ -48,7 +48,7 @@ egm.manager.define_action(
   function(event, data)
     if debug_mode then log2("select_station_entity", event, data) end
     local stop_entity = data.stop_entity
-    if stop_entity.valid then
+    if stop_entity and stop_entity.valid then
       local pind = event.player_index
       if global.gui_data.station_select_mode[pind] < 3  then
         game.players[pind].opened = stop_entity
