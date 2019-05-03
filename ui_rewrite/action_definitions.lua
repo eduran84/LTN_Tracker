@@ -5,7 +5,7 @@ local gui = gui
 egm.manager.define_action(
   defs.names.actions.update_tab,
   function(event, data)
-    gui.update_tab(event, defs.names.tabs.station)
+    gui.update_tab(event)
   end
 )
 
@@ -82,6 +82,15 @@ egm.manager.define_action(
     end
   end
 )
+egm.manager.define_action(
+  defs.names.actions.select_entity,
+  function(event, data)
+    local player = game.players[event.player_index]
+    if data.entity.valid and player then
+      player.opened = data.entity
+    end
+  end
+)
 
 local function trim(s)
   local from = s:match("^%s*()")
@@ -101,19 +110,10 @@ egm.manager.define_action(
         data.filter.current = input
       end
     end
-    gui.update_tab(event, defs.names.tabs.station)
+    gui.update_tab(event)
   end
 )
 
-egm.manager.define_action(
-  defs.names.actions.select_entity,
-  function(event, data)
-    local player = game.players[event.player_index]
-    if data.entity.valid and player then
-      player.opened = data.entity
-    end
-  end
-)
 egm.manager.define_action(
   defs.names.actions.clear_history,
   function(event, data)

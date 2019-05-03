@@ -161,7 +161,7 @@ local function check_for_new_stops()
   if not data.stop_ids then log2(data) end
   for _, stop_id in pairs(data.stop_ids) do
     if not raw.stops[stop_id] then
-      ui.clear_station_filter()
+      gui.clear_station_filter()
       break
     end
   end

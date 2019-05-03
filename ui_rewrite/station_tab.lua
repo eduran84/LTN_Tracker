@@ -103,6 +103,7 @@ local function build_station_tab(window)
     }
   }
   local flow = egm.tabs.add_tab(window.pane, tab_index, {caption = {"ltnt.tab2-caption"}})
+  station_tab.root = flow
   local button_flow = flow.add{
     type = "flow",
     style = defs.names.styles.shared.horizontal_container,
@@ -124,7 +125,7 @@ local function build_station_tab(window)
     caption = {"station.check-box-cap"},
     tooltip = {"station.check-box-tt"},
   }
-  egm.manager.register(checkbox, {action = defs.names.actions.update_tab, tab_index = tab_index})
+  egm.manager.register(checkbox, {action = defs.names.actions.update_tab})
   station_tab.checkbox = checkbox
   button_flow.add{
     type = "flow",
@@ -171,7 +172,7 @@ local name2lowercase = setmetatable({}, {
 })
 local function get_stops(station_tab, ltn_data)
   if station_tab.filter.current then
-    if (not station_tab.filter.last) or station_tab.filter.last ~= station_tab.filter.current then
+    if station_tab.filter.last == nil or station_tab.filter.last ~= station_tab.filter.current then
       station_tab.filter.cache = {}
       local filter_lower = lower(station_tab.filter.current)
       local find = find

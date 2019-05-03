@@ -26,17 +26,6 @@ add_style("ltnt_summary_number", {
   vertical_align = "center"
 })
 
-add_style("ltnt_number_label", {
-  type = "label_style",
-  font = "ltnt_font_depot_value",
-})
-
-add_style("ltnt_depot_caption", {
-  type = "label_style",
-  font = "ltnt_font_depot_caption",
-  font_color = {},
-})
-
 add_style("ltnt_hoverable_label", {
   type = "label_style",
   parent = "clickable_label",

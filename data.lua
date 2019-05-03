@@ -1,4 +1,5 @@
 defs = require("defines")
+egm_defs = require("__GUI_Modules__.defines")
 C = require(defs.pathes.modules.constants)
 log2 = require(defs.pathes.modules.olib_logger).log
 

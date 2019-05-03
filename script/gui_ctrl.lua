@@ -14,20 +14,11 @@ local function on_new_alert(event)
 end
 
 script.on_event(custom_events.on_train_alert, ui.on_new_alert)
-local handlers = {}
-function handlers.on_refresh_bt_click(event, data_string)
-  local pind = event.player_index
-  if global.gui.last_refresh_tick[pind] + global.gui.refresh_interval[pind] < game.tick  then
-    global.gui.last_refresh_tick[pind] = game.tick
-    update_tab(event)
-  end
-end
 
-function handlers.on_item_clicked(event, data_string)
+local function on_item_clicked(event, data_string)
   -- item name and amount is encoded in data_string
   GC.inv_tab:on_item_clicked(event.player_index, data_string)
 end
-
 
 return {
   on_new_alert = on_new_alert,

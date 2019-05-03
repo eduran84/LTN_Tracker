@@ -1,6 +1,5 @@
 local NAME = "depot_tab"
 local DEPOT_CONST = require("script.constants").depot_tab
-local N_COLS_LEFT = 3
 local N_COLS_RIGHT = 3
 
 local GC = require("ui.classes.GuiComposition")

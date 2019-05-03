@@ -7,7 +7,7 @@ local mod_prefix = "ltnt"
 
 defs.mod_name = "LTN_Tracker"
 defs.mod_prefix = mod_prefix
-defs.gui_events = {defines.events.on_gui_click, defines.events.on_gui_checked_state_changed, defines.events.on_gui_text_changed} -- events handled by on_gui_event
+
 defs.names = {
   ltn = "LogisticTrainNetwork",
   ltnc = "LTN_Combinator",
@@ -22,6 +22,7 @@ defs.names.settings = {
 }
 
 defs.names.tabs = {
+  depot = "depot_tab",
   station = "station_tab",
   history = "history_tab",
   alert = "alert_tab",
@@ -29,9 +30,25 @@ defs.names.tabs = {
 
 defs.names.styles = {
   shared = {
+
     default_button = mod_prefix .. "_default_button",
     horizontal_spacer = egm_defs.style_names.shared.horizontal_spacer,
     horizontal_container = egm_defs.style_names.shared.horizontal_container,
+    vertical_container = egm_defs.style_names.shared.vertical_container,
+  },
+  depot_tab = {
+    no_frame_scroll_pane = mod_prefix .. "_bare_scroll_pane",
+    no_padding_frame = mod_prefix .. "_no_padding_frame",
+    depot_selector = mod_prefix .. "_depot_selector",
+    bt_inner_flow = mod_prefix .. "_inner_button_flow",
+    depot_label = mod_prefix .. "_depot_name_label",
+    cap_left_1 = mod_prefix .. "_bt_caption_1",
+    cap_left_2 = mod_prefix .. "_bt_caption_2",
+    cap_left_3 = mod_prefix .. "_bt_caption_3",
+    cap_left_4 = mod_prefix .. "_bt_caption_4",
+    label_col_1 = mod_prefix .. "_lb_depot_col1",
+    label_col_2 = mod_prefix .. "_lb_depot_col2",
+    label_col_2_bold = mod_prefix .. "_lb_depot_col2_bold",
   },
   station_tab = {
     station_label = mod_prefix .. "_lb_station",
@@ -49,18 +66,26 @@ defs.names.styles = {
 defs.names.actions = {
   update_tab = "update_single_tab",
   refresh_button = "refresh_button_clicked",
+
+  show_depot_details = "show_depot_details",
+
   update_filter = "filter_changed",
+
   clear_history = "clear_history_table",
+
   clear_alerts = "clear_alert_table",
   clear_single_alert = "clear_single_alert",
+
   station_name_clicked = "station_name_clicked",
   select_station_entity = "select_station",
   select_ltnc = "select_combinator",
-  select_entity = "select_locomotive",
+  select_entity = "select_entity",
 }
 
 defs.names.functions = {
   id_selector_valid = "is_integer",
+  depot_row_constructor = "dt_row_constructor",
+  depot_sort = "dt_sort_function_col_",
   station_row_constructor = "st_row_constructor",
   station_sort = "st_sort_function_col_",
   hist_row_constructor = "ht_row_constructor",
@@ -84,10 +109,11 @@ defs.pathes.modules = {
   olib_train = optera_lib .. "script.train",
   import_egm = gui_modules .. "import",
   data_processing = LTNT .. "script.data_processing",
-  gui_ctrl = LTNT .. "script.gui_ctrl",
   util = LTNT .. "script.extended_util",
 
   gui = ui_rewrite .. "gui",
+  depot_tab = ui_rewrite .. "depot_tab",
+  inventory_tab = ui_rewrite .. "inventory_tab",
   station_tab = ui_rewrite .. "station_tab",
   history_tab = ui_rewrite .. "history_tab",
   alert_tab = ui_rewrite .. "alert_tab",

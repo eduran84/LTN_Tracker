@@ -106,5 +106,6 @@ function util.build_item_table(args)
 end
 
 util.ticks_to_timestring = require(defs.pathes.modules.olib_misc).ticks_to_timestring
+util.train = require(defs.pathes.modules.olib_train)
 
 return util

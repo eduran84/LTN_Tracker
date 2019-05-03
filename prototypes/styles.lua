@@ -6,6 +6,7 @@ end
 
 require("prototypes.styles.buttons")
 require("prototypes.styles.labels")
+require("prototypes.styles.depot_tab")
 
 local default_gui = data.raw["gui-style"].default
 
@@ -43,6 +44,13 @@ default_gui["ltnt_it_scroll_pane"] =
   vertical_align = "center",
 }
 
+default[defs.names.styles.depot_tab.no_frame_scroll_pane] = {
+  type = "scroll_pane_style",
+  parent = egm_defs.style_names.table.scroll_pane,
+  padding = 0,
+}
+
+
 -- frame styles
 default_gui["ltnt_slot_table_frame"] =
 {
@@ -53,6 +61,17 @@ default_gui["ltnt_slot_table_frame"] =
   minimal_height = 38,
   vertically_stretchable = "off",
 	horizontally_stretchable = "off",
+  ignored_by_interaction = true,
+}
+
+default[defs.names.styles.depot_tab.no_padding_frame] =
+{
+  type = "frame_style",
+  padding = 0,
+  flow_style = {type = "flow_style", padding = 0},
+  horizontal_flow_style = {type = "horizontal_flow_style", padding = 0},
+  vertical_flow_style = {type = "vertical_flow_style", padding = 0},
+  use_header_filler = false,
 }
 
 -- textbox styles

@@ -16,6 +16,7 @@ require(defs.pathes.modules.action_definitions)
 local mod_gui = require("mod-gui")
 
 local build_funcs, update_funcs = {}, {}
+build_funcs[tab_names.depot], update_funcs[tab_names.depot] = unpack(require(defs.pathes.modules.depot_tab))
 build_funcs[tab_names.station], update_funcs[tab_names.station] = unpack(require(defs.pathes.modules.station_tab))
 build_funcs[tab_names.history], update_funcs[tab_names.history] = unpack(require(defs.pathes.modules.history_tab))
 build_funcs[tab_names.alert], update_funcs[tab_names.alert] = unpack(require(defs.pathes.modules.alert_tab))
@@ -47,11 +48,13 @@ local function build(pind)
 
   local pane = egm.tabs.build(window.content, {direction = "vertical"})
   window.pane = pane
-  egm.tabs.add_tab(pane, 1, {caption = {"ltnt.tab1-caption"}})
-  egm.tabs.add_tab(pane, 3, {caption = {"ltnt.tab3-caption"}})
 
   window.tabs = {}
+  window.tabs[tab_names.depot] = build_funcs[tab_names.depot](window)
   window.tabs[tab_names.station] = build_funcs[tab_names.station](window)
+
+  egm.tabs.add_tab(pane, 3, {caption = {"ltnt.tab3-caption"}})
+
   window.tabs[tab_names.history] =  build_funcs[tab_names.history](window)
   window.tabs[tab_names.alert] =  build_funcs[tab_names.alert](window)
   gui_data.windows[pind] = window
@@ -67,10 +70,11 @@ local function get(pind)
   end
 end
 
-local function update_tab(event, tab_index)
+local function update_tab(event)
   local pind = event.player_index
   local window = get(pind)
-  tab_index = tab_index or window.root.visible and window.pane.active_tab
+  local tab_index = window.root.visible and window.pane.active_tab
+  log2("update tab:", event, tab_index)
   if update_funcs[tab_index] then
     update_funcs[tab_index](window.tabs[tab_index], global.data)
     gui_data.last_refresh_tick[pind] = game.tick
@@ -233,4 +237,14 @@ function gui.on_configuration_changed(data)
     end
   end
 end
+
+function gui.clear_station_filter()
+  -- hacky way to force reset of cached filter results
+  for pind in pairs(game.players) do
+    local filter = get(pind).tabs[defs.names.tabs.station].filter
+    filter.cache = {}
+    filter.last = nil
+  end
+end
+
 return gui

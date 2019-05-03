@@ -33,20 +33,6 @@ add_style("ltnt_toggle_button_with_alert", {
   },
 })
 
--- depot selector button
-add_style("ltnt_depot_button", {
-  type = "button_style",
-  parent = "button",
-  padding = 0,
-  minimal_height = 100,
-  maximal_height = 100,
-  minimal_width = C.depot_tab.pane_width_left - 20,
-  maximal_width = C.depot_tab.pane_width_left - 20,
-  default_font_color = C.styles.font_color_black,
-  hovered_font_color = C.styles.font_color_black,
-  clicked_font_color = C.styles.font_color_black,
-})
-
 -- item buttons for inventory tab
 add_style("ltnt_empty_button", {
   type = "button_style",
