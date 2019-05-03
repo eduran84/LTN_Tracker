@@ -1,4 +1,4 @@
-local style_names = defs.names.styles
+local style_names = defs.styles
 
 local default_orange_color = {r = 0.98, g = 0.66, b = 0.22}
 local bright_red = {r = 1, g = 0, b = 0}

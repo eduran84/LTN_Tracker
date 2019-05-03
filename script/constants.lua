@@ -2,29 +2,10 @@
 local CONST = {}
 
 CONST.settings = {
-  ui = {
-    ["ltnt-show-button"] = true,
-    ["ltnt-window-height"] = true,
-    ["ltnt-refresh-interval"] = true,
-    ["ltnt-station-click-behavior"] = true,
-  },
   proc = {
     ["ltnt-history-limit"] = true,
     ["ltnt-disable-underload-alert"] = true,
   },
-  debug = {
-    ["ltnt-debug-level"] = true,
-  },
-}
-
-CONST.global = {
-  mod_name = "LTN_Tracker",
-  mod_prefix = "ltnt",
-  gui_events = {defines.events.on_gui_click, defines.events.on_gui_checked_state_changed, defines.events.on_gui_text_changed}, -- events handled by on_gui_event
-  mod_name_ltn = "LogisticTrainNetwork",
-  mod_name_ltnc = "LTN_Combinator",
-  minimal_version_ltn = "01.10.07",
-  current_version_ltn = "01.10.08",
 }
 
 CONST.styles = {

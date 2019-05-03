@@ -75,8 +75,8 @@ script.on_event(defines.events.on_runtime_mod_setting_changed, function(event)
   if setting_dict.proc[setting] then
     prc.on_settings_changed(event)
   end
-  if setting_dict.debug[setting] then
-    debug_mode = settings.global["ltnt-debug-level"].value
+  if setting == defs.settings.debug_level then
+    debug_mode = settings.global[setting].value
   end
 end)
 

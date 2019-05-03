@@ -1,5 +1,5 @@
 local defs = defs
-local tab_names = defs.names.tabs
+local tab_names = defs.tabs
 local egm = egm
 local C = C
 local gui_data = {
@@ -29,7 +29,7 @@ local function build(pind)
   end
   egm.manager.delete_player_data(pind)
 
-  local window_height = settings.get_player_settings(game.players[pind])[defs.names.settings.window_height].value
+  local window_height = settings.get_player_settings(game.players[pind])[defs.settings.window_height].value
   local window = egm.window.build(frame_flow, {
     name = defs.names.window,
     caption = {"ltnt.mod-name"},
@@ -40,11 +40,11 @@ local function build(pind)
   window.root.visible = false
   egm.window.add_button(window, {
     type = "sprite-button",
-    style = defs.names.styles.shared.default_button,
-    sprite = defs.names.sprites.refresh,
+    style = defs.styles.shared.default_button,
+    sprite = defs.sprites.refresh,
     tooltip = {"ltnt.refresh-bt"},
   },
-  {action = defs.names.actions.refresh_button})
+  {action = defs.actions.refresh_button})
 
   local pane = egm.tabs.build(window.content, {direction = "vertical"})
   window.pane = pane
@@ -88,7 +88,7 @@ script.on_event({
   update_tab
 )
 
-egm.manager.define_action(defs.names.actions.refresh_button, update_tab)
+egm.manager.define_action(defs.actions.refresh_button, update_tab)
 
 script.on_event({
     defines.events.on_gui_click,
@@ -101,16 +101,18 @@ script.on_event(
   defines.events.on_gui_closed,
   function(event)
     -- event triggers whenever any UI element is closed, so check if it is actually the ltnt UI that is supposed to close
+    if not (event.element and event.element.valid) then return end
     local pind = event.player_index
     local window = get(pind)
-    if event.element and event.element.valid and event.element.index == window.root.index then
+    if event.element.index == window.root.index then
       if gui_data.is_ltnc_active and gui_data.is_ltnc_open[pind] then
         gui_data.is_ltnc_open[pind] = nil
-        remote.call("ltn-combinator", "close_ltn_combinator", pind)
+        remote.call(defs.remote.ltnc_interface, defs.remote.ltnc_close, pind)
         game.players[pind].opened = window.root
         update_tab(event)
       else
         egm.window.hide(window)
+        game.players[pind].set_shortcut_toggled(defs.controls.shortcut, false)
       end
     end
   end
@@ -121,18 +123,18 @@ local function on_toggle_button_click(event)
   local new_state = egm.window.toggle(get(pind))
   if new_state then
     game.players[pind].opened = get(pind).root
-    game.players[pind].set_shortcut_toggled("ltnt-toggle-shortcut", true)
+    game.players[pind].set_shortcut_toggled(defs.controls.shortcut, true)
     gui.update_tab(event)
   else
-    game.players[pind].set_shortcut_toggled("ltnt-toggle-shortcut", false)
+    game.players[pind].set_shortcut_toggled(defs.controls.shortcut, false)
   end
 end
 
-script.on_event("ltnt-toggle-hotkey", on_toggle_button_click)
+script.on_event(defs.controls.toggle_hotkey, on_toggle_button_click)
 script.on_event(
   defines.events.on_lua_shortcut,
   function(event)
-    if event.prototype_name == "ltnt-toggle-shortcut" then
+    if event.prototype_name == defs.controls.shortcut then
       on_toggle_button_click(event)
     end
   end
@@ -159,13 +161,13 @@ local function player_init(pind)
   end
   -- set UI state globals
   gui_data.last_refresh_tick[pind] = 0
-  local refresh_interval = settings.get_player_settings(player)[defs.names.settings.refresh_interval].value
+  local refresh_interval = settings.get_player_settings(player)[defs.settings.refresh_interval].value
   if refresh_interval > 0 then
     gui_data.refresh_interval[pind] = refresh_interval * 60
   else
     gui_data.refresh_interval[pind] = nil
   end
-  gui_data.station_select_mode[pind] = tonumber(settings.get_player_settings(player)[defs.names.settings.station_click_action].value)
+  gui_data.station_select_mode[pind] = tonumber(settings.get_player_settings(player)[defs.settings.station_click_action].value)
   -- build UI
   if not settings.get_player_settings(player)["ltnt-show-button"].value then
     --GC.toggle_button:hide(pind)
@@ -195,7 +197,7 @@ function gui.on_settings_changed(event)
   local player = game.players[pind]
   local player_settings = settings.get_player_settings(player)
   local setting = event.setting
-  if setting == defs.names.settings.window_height then
+  if setting == defs.settings.window_height then
     build(pind)
   elseif setting == "ltnt-show-button" then
     -- show or hide toggle button
@@ -204,14 +206,14 @@ function gui.on_settings_changed(event)
     else
       GC.toggle_button:hide(pind)
     end
-  elseif setting == defs.names.settings.refresh_interval then
+  elseif setting == defs.settings.refresh_interval then
       local refresh_interval = player_settings[setting].value
     if refresh_interval > 0 then
       gui_data.refresh_interval[pind] = refresh_interval * 60
     else
       gui_data.refresh_interval[pind] = nil
     end
-  elseif setting == defs.names.settings.station_click_action then
+  elseif setting == defs.settings.station_click_action then
     gui_data.station_select_mode[pind] = tonumber(player_settings[setting].value)
   end
 
@@ -241,7 +243,7 @@ end
 function gui.clear_station_filter()
   -- hacky way to force reset of cached filter results
   for pind in pairs(game.players) do
-    local filter = get(pind).tabs[defs.names.tabs.station].filter
+    local filter = get(pind).tabs[defs.tabs.station].filter
     filter.cache = {}
     filter.last = nil
   end

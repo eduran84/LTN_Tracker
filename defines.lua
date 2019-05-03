@@ -8,61 +8,29 @@ local mod_prefix = "ltnt"
 defs.mod_name = "LTN_Tracker"
 defs.mod_prefix = mod_prefix
 
+defs.settings = {
+  window_height = mod_prefix .. "-window-height",
+  debug_level = mod_prefix .. "-debug-level",
+  refresh_interval = mod_prefix .. "-refresh-interval",
+  station_click_action = mod_prefix .. "-station-click-behavior",
+  debug_mode = mod_prefix .. "-debug-level",
+}
+
+mod_prefix = mod_prefix .. "_"
 defs.names = {
   ltn = "LogisticTrainNetwork",
   ltnc = "LTN_Combinator",
   window = mod_prefix .. "main_window",
 }
 
-defs.names.settings = {
-  window_height = mod_prefix .. "-window-height",
-  debug_level = mod_prefix .. "-debug-level",
-  refresh_interval = mod_prefix .. "-refresh-interval",
-  station_click_action = mod_prefix .. "-station-click-behavior",
-}
-
-defs.names.tabs = {
+defs.tabs = {
   depot = "depot_tab",
   station = "station_tab",
   history = "history_tab",
   alert = "alert_tab",
 }
 
-defs.names.styles = {
-  shared = {
-
-    default_button = mod_prefix .. "_default_button",
-    horizontal_spacer = egm_defs.style_names.shared.horizontal_spacer,
-    horizontal_container = egm_defs.style_names.shared.horizontal_container,
-    vertical_container = egm_defs.style_names.shared.vertical_container,
-  },
-  depot_tab = {
-    no_frame_scroll_pane = mod_prefix .. "_bare_scroll_pane",
-    no_padding_frame = mod_prefix .. "_no_padding_frame",
-    depot_selector = mod_prefix .. "_depot_selector",
-    depot_label = mod_prefix .. "_depot_name_label",
-    cap_left_1 = mod_prefix .. "_bt_caption_1",
-    cap_left_2 = mod_prefix .. "_bt_caption_2",
-    cap_left_3 = mod_prefix .. "_bt_caption_3",
-    cap_left_4 = mod_prefix .. "_bt_caption_4",
-    label_col_1 = mod_prefix .. "_lb_depot_col1",
-    label_col_2 = mod_prefix .. "_lb_depot_col2",
-    label_col_2_bold = mod_prefix .. "_lb_depot_col2_bold",
-  },
-  station_tab = {
-    station_label = mod_prefix .. "_lb_station",
-  },
-  hist_tab = {
-    label_col_1 = mod_prefix .. "_lb_hist_col1",
-    label_col_2 = mod_prefix .. "_lb_hist_col2",
-    label_col_3 = mod_prefix .. "_lb_hist_col3",
-    label_col_4 = mod_prefix .. "_lb_hist_col4",
-    label_col_4_red = mod_prefix .. "_lb_hist_col4_red",
-    label_col_5 = mod_prefix .. "_lb_hist_col5",
-  },
-}
-
-defs.names.actions = {
+defs.actions = {
   update_tab = "update_single_tab",
   refresh_button = "refresh_button_clicked",
 
@@ -81,7 +49,7 @@ defs.names.actions = {
   select_entity = "select_entity",
 }
 
-defs.names.functions = {
+defs.functions = {
   id_selector_valid = "is_integer",
   depot_row_constructor = "dt_row_constructor",
   depot_sort = "dt_sort_function_col_",
@@ -93,8 +61,52 @@ defs.names.functions = {
   alert_sort = "at_sort_function_col_",
 }
 
-defs.names.sprites = {
-  refresh = mod_prefix .. "_sprite_refresh",
+defs.styles = {
+  shared = {
+
+    default_button = mod_prefix .. "default_button",
+    horizontal_spacer = egm_defs.style_names.shared.horizontal_spacer,
+    horizontal_container = egm_defs.style_names.shared.horizontal_container,
+    vertical_container = egm_defs.style_names.shared.vertical_container,
+  },
+  depot_tab = {
+    no_frame_scroll_pane = mod_prefix .. "bare_scroll_pane",
+    no_padding_frame = mod_prefix .. "no_padding_frame",
+    depot_selector = mod_prefix .. "depot_selector",
+    depot_label = mod_prefix .. "depot_name_label",
+    cap_left_1 = mod_prefix .. "bt_caption_1",
+    cap_left_2 = mod_prefix .. "bt_caption_2",
+    cap_left_3 = mod_prefix .. "bt_caption_3",
+    cap_left_4 = mod_prefix .. "bt_caption_4",
+    label_col_1 = mod_prefix .. "lb_depot_col1",
+    label_col_2 = mod_prefix .. "lb_depot_col2",
+    label_col_2_bold = mod_prefix .. "lb_depot_col2_bold",
+  },
+  station_tab = {
+    station_label = mod_prefix .. "lb_station",
+  },
+  hist_tab = {
+    label_col_1 = mod_prefix .. "lb_hist_col1",
+    label_col_2 = mod_prefix .. "lb_hist_col2",
+    label_col_3 = mod_prefix .. "lb_hist_col3",
+    label_col_4 = mod_prefix .. "lb_hist_col4",
+    label_col_4_red = mod_prefix .. "lb_hist_col4_red",
+    label_col_5 = mod_prefix .. "lb_hist_col5",
+  },
+}
+
+defs.sprites = {
+  refresh = "utility/refresh",
+}
+
+defs.controls = {
+  toggle_hotkey = mod_prefix .. "toggle_hotkey",
+  shortcut = mod_prefix .. "toggle_shortcut"
+}
+
+defs.remote = {
+  ltnc_interface = "ltn-combinator",
+  ltnc_close = "close_ltn_combinator",
 }
 
 local gui_modules = "__GUI_Modules__."
@@ -117,5 +129,12 @@ defs.pathes.modules = {
   history_tab = ui_rewrite .. "history_tab",
   alert_tab = ui_rewrite .. "alert_tab",
   action_definitions = ui_rewrite .. "action_definitions",
+}
+
+defs.pathes.sprites = {
+  shortcut_icon_32 = "__LTN_Tracker__/graphics/shortcut_icon_32.png",
+  shortcut_icon_32_white = "__LTN_Tracker__/graphics/shortcut_icon_32_white.png",
+  shortcut_icon_24 = "__LTN_Tracker__/graphics/shortcut_icon_24.png",
+  shortcut_icon_24_white = "__LTN_Tracker__/graphics/shortcut_icon_24_white.png",
 }
 return defs

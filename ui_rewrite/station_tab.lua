@@ -7,20 +7,20 @@ local COL_COUNTS = require("script.constants").station_tab.item_table_col_count
 local build_item_table = util.build_item_table
 
 local color_order = {["signal-red"] = 0, ["signal-pink"] = 3, ["signal-blue"] = 4, ["signal-yellow"] = 4.1, ["signal-green"] = 10000}
-egm.stored_functions[defs.names.functions.station_sort .. 1] = function(a, b)
+egm.stored_functions[defs.functions.station_sort .. 1] = function(a, b)
   return a.stop_data.name < b.stop_data.name
 end
-egm.stored_functions[defs.names.functions.station_sort .. 2] = function(a, b)
+egm.stored_functions[defs.functions.station_sort .. 2] = function(a, b)
   local rank_a = color_order[a.stop_data.signals[1][1]] + a.stop_data.signals[1][2]
   local rank_b = color_order[b.stop_data.signals[1][1]] + b.stop_data.signals[1][2]
   return rank_a < rank_b
 end
-egm.stored_functions[defs.names.functions.id_selector_valid] = function(text)
+egm.stored_functions[defs.functions.id_selector_valid] = function(text)
   local num = tonumber(text)
   return num and num == math.floor(num) and true
 end
 
-egm.stored_functions[defs.names.functions.station_row_constructor] = function(egm_table, data)
+egm.stored_functions[defs.functions.station_row_constructor] = function(egm_table, data)
   local parent = egm_table.content
   local stopdata = data.stop_data
   local stop_id = data.stop_id
@@ -30,11 +30,11 @@ egm.stored_functions[defs.names.functions.station_row_constructor] = function(eg
     local label = parent.add{
       type = "label",
       caption = stopdata.name,
-      style = defs.names.styles.station_tab.station_label,
+      style = defs.styles.station_tab.station_label,
     }
     egm.manager.register(
       label, {
-        action = defs.names.actions.select_station_entity,
+        action = defs.actions.select_station_entity,
         stop_entity = stopdata.entity,
       }
     )
@@ -76,13 +76,13 @@ egm.stored_functions[defs.names.functions.station_row_constructor] = function(eg
     if data.signal_col_count < 6 then
       local button = parent.add{
         type = "sprite-button",
-        style = defs.names.styles.shared.default_button,
+        style = defs.styles.shared.default_button,
         sprite = "item/ltn-combinator",
         tooltip = {"station.combinator-tt"},
       }
       egm.manager.register(
         button, {
-          action = defs.names.actions.select_ltnc,
+          action = defs.actions.select_ltnc,
           stop_entity = stopdata.entity,
           lamp_entity = stopdata.input,
         }
@@ -94,7 +94,7 @@ egm.stored_functions[defs.names.functions.station_row_constructor] = function(eg
 end
 
 local function build_station_tab(window)
-  local tab_index = defs.names.tabs.station
+  local tab_index = defs.tabs.station
   local station_tab = {
     filter = {
       cache = {},
@@ -106,7 +106,7 @@ local function build_station_tab(window)
   station_tab.root = flow
   local button_flow = flow.add{
     type = "flow",
-    style = defs.names.styles.shared.horizontal_container,
+    style = defs.styles.shared.horizontal_container,
     direction = "horizontal",
   }
   button_flow.style.horizontal_spacing = 4
@@ -118,7 +118,7 @@ local function build_station_tab(window)
   station_tab.id_selector = egm.misc.make_textbox_with_range(
     button_flow,
     {text = "-1"},
-    defs.names.functions.id_selector_valid
+    defs.functions.id_selector_valid
   )
   local checkbox = button_flow.add{
     type = "checkbox",
@@ -126,11 +126,11 @@ local function build_station_tab(window)
     caption = {"station.check-box-cap"},
     tooltip = {"station.check-box-tt"},
   }
-  egm.manager.register(checkbox, {action = defs.names.actions.update_tab})
+  egm.manager.register(checkbox, {action = defs.actions.update_tab})
   station_tab.checkbox = checkbox
   button_flow.add{
     type = "flow",
-    style = defs.names.styles.shared.horizontal_spacer,
+    style = defs.styles.shared.horizontal_spacer,
     direction = "horizontal",
   }
   label = button_flow.add{
@@ -141,11 +141,11 @@ local function build_station_tab(window)
   local filter = button_flow.add{type = "textfield"}
   egm.manager.register(
     filter,
-    {action = defs.names.actions.update_filter, filter = station_tab.filter})
+    {action = defs.actions.update_filter, filter = station_tab.filter})
   local table = egm.table.build(
     flow,
     {column_count = C.station_tab.n_columns},
-    defs.names.functions.station_row_constructor
+    defs.functions.station_row_constructor
   )
   for i = 1, C.station_tab.n_columns do
     egm.table.add_column_header(table, {
@@ -154,7 +154,7 @@ local function build_station_tab(window)
         caption = {"station.header-col-"..i},
         tooltip = {"station.header-col-"..i.."-tt"},
       },
-      defs.names.functions.station_sort .. i
+      defs.functions.station_sort .. i
     )
   end
   station_tab.table = table

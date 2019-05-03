@@ -44,7 +44,7 @@ default_gui["ltnt_it_scroll_pane"] =
   vertical_align = "center",
 }
 
-default[defs.names.styles.depot_tab.no_frame_scroll_pane] = {
+default[defs.styles.depot_tab.no_frame_scroll_pane] = {
   type = "scroll_pane_style",
   parent = egm_defs.style_names.table.scroll_pane,
   padding = 0,
@@ -63,7 +63,7 @@ default_gui["ltnt_slot_table_frame"] =
 	horizontally_stretchable = "off",
 }
 
-default[defs.names.styles.depot_tab.no_padding_frame] =
+default[defs.styles.depot_tab.no_padding_frame] =
 {
   type = "frame_style",
   padding = 0,

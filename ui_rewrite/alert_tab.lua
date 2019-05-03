@@ -4,11 +4,11 @@ local C = C
 local col_width = C.alert_tab.col_width
 local build_item_table = util.build_item_table
 
-egm.stored_functions[defs.names.functions.alert_sort .. 1] = function(a, b) return a.error_data.delivery.depot < b.error_data.delivery.depot end
-egm.stored_functions[defs.names.functions.alert_sort .. 2] = function(a, b) return a.error_data.delivery.from < b.error_data.delivery.from end
-egm.stored_functions[defs.names.functions.alert_sort .. 3] = function(a, b) return a.error_data.type < b.error_data.type end
+egm.stored_functions[defs.functions.alert_sort .. 1] = function(a, b) return a.error_data.delivery.depot < b.error_data.delivery.depot end
+egm.stored_functions[defs.functions.alert_sort .. 2] = function(a, b) return a.error_data.delivery.from < b.error_data.delivery.from end
+egm.stored_functions[defs.functions.alert_sort .. 3] = function(a, b) return a.error_data.type < b.error_data.type end
 -- TODO: make styles for labels with width included
-egm.stored_functions[defs.names.functions.alert_row_constructor] = function(egm_table, data)
+egm.stored_functions[defs.functions.alert_row_constructor] = function(egm_table, data)
   local parent = egm_table.content
   local error_id = data.error_id
   local error_data = data.error_data
@@ -136,22 +136,22 @@ egm.stored_functions[defs.names.functions.alert_row_constructor] = function(egm_
   local button_flow = parent.add{type = "table", column_count = 2, style = "slot_table"}
   elem = button_flow.add{
     type = "sprite-button",
-    style = defs.names.styles.shared.default_button,
+    style = defs.styles.shared.default_button,
     sprite = "ltnt_sprite_enter", --TODO: new sprite, add to defines
     tooltip = {"alert.select-tt"},
     enabled = enable_select_button,
   }
-  egm.manager.register(elem, {action = defs.names.actions.select_entity, entity = error_data.loco})
+  egm.manager.register(elem, {action = defs.actions.select_entity, entity = error_data.loco})
 
   elem = button_flow.add{
     type = "sprite-button",
-    style = defs.names.styles.shared.default_button,
+    style = defs.styles.shared.default_button,
     sprite = "utility/remove",
     tooltip = {"alert.delete-tt"},
   }
   egm.manager.register(
     elem, {
-      action = defs.names.actions.clear_single_alert,
+      action = defs.actions.clear_single_alert,
       row_data = data,
       egm_table = egm_table,
     }
@@ -159,12 +159,12 @@ egm.stored_functions[defs.names.functions.alert_row_constructor] = function(egm_
 end
 
 local function build_alert_tab(window)
-  local tab_index = defs.names.tabs.alert
+  local tab_index = defs.tabs.alert
   local flow = egm.tabs.add_tab(window.pane, tab_index, {caption = {"ltnt.tab5-caption"}})
   local table = egm.table.build(
     flow,
     {column_count = C.alert_tab.n_columns},
-    defs.names.functions.alert_row_constructor
+    defs.functions.alert_row_constructor
   )
   for i = 1, C.alert_tab.n_columns - 2 do
     egm.table.add_column_header(table, {
@@ -172,20 +172,20 @@ local function build_alert_tab(window)
         width = C.alert_tab.col_width[i],
         caption = {"alert.header-col-r-"..i},
       },
-      defs.names.functions.alert_sort .. i
+      defs.functions.alert_sort .. i
     )
   end
   table.root.children[1].add{
     type = "flow",
-    style = defs.names.styles.shared.horizontal_spacer,
+    style = defs.styles.shared.horizontal_spacer,
   }
   local button = table.root.children[1].add{
     type = "sprite-button",
-    style = defs.names.styles.shared.default_button,
+    style = defs.styles.shared.default_button,
     sprite = "utility/remove",
     tooltip = {"alert.delete-all-tt"},
   }
-  egm.manager.register(button, {action = defs.names.actions.clear_alerts, egm_table = table})
+  egm.manager.register(button, {action = defs.actions.clear_alerts, egm_table = table})
   return table
 end
 

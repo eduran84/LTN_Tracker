@@ -1,7 +1,7 @@
 local defs = defs
 local egm = egm
 local C = C
-local styles = defs.names.styles.depot_tab
+local styles = defs.styles.depot_tab
 
 local DEPOT_CONST = C.depot_tab
 local column_count_table_right = 3
@@ -12,7 +12,7 @@ local get_composition_string = util.train.get_train_composition_string
 local get_locomotive = util.train.get_main_locomotive
 local format = string.format
 
-egm.stored_functions[defs.names.functions.depot_row_constructor] = function(egm_table, data)
+egm.stored_functions[defs.functions.depot_row_constructor] = function(egm_table, data)
   local parent = egm_table.content
   -- first column: train composition
   local label = parent.add{
@@ -23,7 +23,7 @@ egm.stored_functions[defs.names.functions.depot_row_constructor] = function(egm_
   label.style.font_color = data.color
   if data.locomotive then
     egm.manager.register(label, {
-        action = defs.names.actions.select_entity,
+        action = defs.actions.select_entity,
         entity = data.locomotive,
       }
     )
@@ -31,7 +31,7 @@ egm.stored_functions[defs.names.functions.depot_row_constructor] = function(egm_
   -- second column: train status / current route
   local flow = parent.add{
     type = "flow",
-    style = defs.names.styles.shared.vertical_container,
+    style = defs.styles.shared.vertical_container,
     direction = "vertical"
   }
   label = flow.add{
@@ -49,7 +49,7 @@ egm.stored_functions[defs.names.functions.depot_row_constructor] = function(egm_
     }
     egm.manager.register(
       label, {
-        action = defs.names.actions.station_name_clicked,
+        action = defs.actions.station_name_clicked,
         name = label_txt_2
       }
     )
@@ -71,8 +71,8 @@ egm.stored_functions[defs.names.functions.depot_row_constructor] = function(egm_
   end
 end
 
-egm.stored_functions[defs.names.functions.depot_sort .. 1] = function(a, b) return a.composition < b.composition end
-egm.stored_functions[defs.names.functions.depot_sort .. 2] = function(a, b) return a.col_2_sort_rank < b.col_2_sort_rank end
+egm.stored_functions[defs.functions.depot_sort .. 1] = function(a, b) return a.composition < b.composition end
+egm.stored_functions[defs.functions.depot_sort .. 2] = function(a, b) return a.col_2_sort_rank < b.col_2_sort_rank end
 
 local function build_depot_button(parent, depot_name, depot_data)
   local bt = parent.add{
@@ -151,7 +151,7 @@ local function build_depot_button(parent, depot_name, depot_data)
 end
 
 local function build_depot_tab(window)
-  local tab_index = defs.names.tabs.depot
+  local tab_index = defs.tabs.depot
   local depot_tab = {}
   local flow = egm.tabs.add_tab(
     window.pane,
@@ -162,7 +162,7 @@ local function build_depot_tab(window)
   depot_tab.root = flow
   local frame_left = flow.add{
     type = "frame",
-    style = defs.names.styles.depot_tab.no_padding_frame,
+    style = defs.styles.depot_tab.no_padding_frame,
     caption = {"depot.frame-caption-left"},
     direction = "vertical",
   }
@@ -170,7 +170,7 @@ local function build_depot_tab(window)
   frame_left.style.width = DEPOT_CONST.pane_width_left
   local pane_left = frame_left.add{
     type = "scroll-pane",
-    style = defs.names.styles.depot_tab.no_frame_scroll_pane,
+    style = defs.styles.depot_tab.no_frame_scroll_pane,
     horizontal_scroll_policy = "never",
     vertical_scroll_policy = "auto-and-reserve-space",
   }
@@ -178,7 +178,7 @@ local function build_depot_tab(window)
 
   local frame_right = flow.add{
     type = "frame",
-    style = defs.names.styles.depot_tab.no_padding_frame,
+    style = defs.styles.depot_tab.no_padding_frame,
     caption = {"depot.frame-caption-right", ""},
     direction = "vertical",
   }
@@ -187,7 +187,7 @@ local function build_depot_tab(window)
   local table = egm.table.build(
     frame_right,
     {column_count = column_count_table_right},
-    defs.names.functions.depot_row_constructor
+    defs.functions.depot_row_constructor
   )
   for i = 1, column_count_table_right do
     egm.table.add_column_header(table, {
@@ -196,7 +196,7 @@ local function build_depot_tab(window)
         caption={"depot.header-col-r-"..i},
         tooltip={"depot.header-col-r-"..i.."-tt"},
       },
-      defs.names.functions.depot_sort .. i
+      defs.functions.depot_sort .. i
     )
   end
   depot_tab.table_right = table
@@ -273,7 +273,7 @@ local function update_depot_tab(depot_tab, ltn_data)
     local button = build_depot_button(pane_left, depot_name, depot_data)
     egm.manager.register(
       button, {
-        action = defs.names.actions.show_depot_details,
+        action = defs.actions.show_depot_details,
         depot_name = depot_name,
         depot_tab = depot_tab,
         ltn_data = ltn_data,
@@ -284,7 +284,7 @@ local function update_depot_tab(depot_tab, ltn_data)
 end
 
 egm.manager.define_action(
-  defs.names.actions.show_depot_details,
+  defs.actions.show_depot_details,
   function(event, data)
     data.depot_tab.selected_depot = data.depot_name
     update_details_view(data.depot_tab, data.ltn_data)

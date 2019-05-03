@@ -1,4 +1,4 @@
-local names = defs.names.styles.depot_tab
+local names = defs.styles.depot_tab
 
 default[names.label_col_1] = {
   type = "label_style",

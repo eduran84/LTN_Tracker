@@ -2,11 +2,11 @@ local defs = defs
 local egm = egm
 local C = C
 local n_cols_shipment = C.history_tab.n_cols_shipment
-local styles = defs.names.styles.hist_tab
+local styles = defs.styles.hist_tab
 
 local ticks_to_timestring = util.ticks_to_timestring
 local build_item_table = util.build_item_table
-egm.stored_functions[defs.names.functions.hist_row_constructor] = function(egm_table, data)
+egm.stored_functions[defs.functions.hist_row_constructor] = function(egm_table, data)
   local parent = egm_table.content
   local delivery = data.delivery
   parent.add{
@@ -20,13 +20,13 @@ egm.stored_functions[defs.names.functions.hist_row_constructor] = function(egm_t
     caption = delivery.from,
     style = styles.label_col_2
   }
-  egm.manager.register(label_from, {action = defs.names.actions.station_name_clicked, name = delivery.from})
+  egm.manager.register(label_from, {action = defs.actions.station_name_clicked, name = delivery.from})
   local label_to = flow.add{
     type = "label",
     caption = delivery.to,
     style = styles.label_col_2
   }
-  egm.manager.register(label_to, {action = defs.names.actions.station_name_clicked, name = delivery.to})
+  egm.manager.register(label_to, {action = defs.actions.station_name_clicked, name = delivery.to})
   -- network id
   parent.add{
     type = "label",
@@ -78,19 +78,19 @@ egm.stored_functions[defs.names.functions.hist_row_constructor] = function(egm_t
   end -- if delivery.residuals then
 end
 
-egm.stored_functions[defs.names.functions.hist_sort .. 1] = function(a, b) return a.delivery.depot < b.delivery.depot end
-egm.stored_functions[defs.names.functions.hist_sort .. 2] = function(a, b) return a.delivery.from < b.delivery.from end
-egm.stored_functions[defs.names.functions.hist_sort .. 3] = function(a, b) return a.delivery.networkID < b.delivery.networkID end
-egm.stored_functions[defs.names.functions.hist_sort .. 4] = function(a, b) return a.delivery.finished < b.delivery.finished end
-egm.stored_functions[defs.names.functions.hist_sort .. 5] = function(a, b) return a.delivery.finished < b.delivery.finished end
+egm.stored_functions[defs.functions.hist_sort .. 1] = function(a, b) return a.delivery.depot < b.delivery.depot end
+egm.stored_functions[defs.functions.hist_sort .. 2] = function(a, b) return a.delivery.from < b.delivery.from end
+egm.stored_functions[defs.functions.hist_sort .. 3] = function(a, b) return a.delivery.networkID < b.delivery.networkID end
+egm.stored_functions[defs.functions.hist_sort .. 4] = function(a, b) return a.delivery.finished < b.delivery.finished end
+egm.stored_functions[defs.functions.hist_sort .. 5] = function(a, b) return a.delivery.finished < b.delivery.finished end
 
 local function build_history_tab(window)
-  local tab_index = defs.names.tabs.history
+  local tab_index = defs.tabs.history
   local flow = egm.tabs.add_tab(window.pane, tab_index, {caption = {"ltnt.tab4-caption"}})
   local table = egm.table.build(
     flow,
     {column_count = C.history_tab.n_columns},
-    defs.names.functions.hist_row_constructor
+    defs.functions.hist_row_constructor
   )
   for i = 1, C.history_tab.n_columns - 1 do
     egm.table.add_column_header(table, {
@@ -99,7 +99,7 @@ local function build_history_tab(window)
         caption = {"history.header-col-"..i},
         tooltip = {"history.header-col-"..i.."-tt"},
       },
-      defs.names.functions.hist_sort .. i
+      defs.functions.hist_sort .. i
     )
   end
   egm.table.add_column_header(table, {
@@ -109,11 +109,11 @@ local function build_history_tab(window)
   })
   local button = table.root.children[1].add{
     type = "sprite-button",
-    style = defs.names.styles.shared.default_button,
+    style = defs.styles.shared.default_button,
     sprite = "utility/remove",
     tooltip = {"history.delete-tt"},
   }
-  egm.manager.register(button, {action = defs.names.actions.clear_history, egm_table = table})
+  egm.manager.register(button, {action = defs.actions.clear_history, egm_table = table})
   return table
 end
 

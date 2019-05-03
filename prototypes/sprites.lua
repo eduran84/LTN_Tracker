@@ -1,15 +1,6 @@
 data:extend({
   {
     type = "sprite",
-    name = "ltnt_sprite_refresh",
-    filename = "__core__/graphics/icons/refresh.png",
-    priority = "high",
-    width = 32,
-    height = 32,
-    scale = 1,
-  },
-  {
-    type = "sprite",
     name = "ltnt_sprite_delete",
     filename = "__core__/graphics/icons/trash.png",
     priority = "high",
