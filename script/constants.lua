@@ -62,8 +62,8 @@ CONST.depot_tab = {
   pane_width_left = 355,
 	col_width_left = {325, 55, 50, 52, 180},
 
-  pane_width_right = 580,
-	col_width_right = {160, 190, 101},
+  --pane_width_right = 580,
+	col_width_right = {170, 200, 101},
   -- parked / error / on delivery
   color_dict = {{r=0,g=1,b=0}, {r=1,g=0,b=0}, {r=1,g=1,b=1}},
 }

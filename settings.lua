@@ -9,9 +9,9 @@ data:extend({
 		name = "ltnt-window-height",
 		setting_type = "runtime-per-user",
 		type = "int-setting",
-		default_value = 750,
-		minimum_value = 500,
-		maximum_value = 2000,
+		default_value = 710,
+		minimum_value = 400,
+		maximum_value = 710,
 	},
   {
 		name = "ltnt-refresh-interval",

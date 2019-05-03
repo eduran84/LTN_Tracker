@@ -61,7 +61,6 @@ default_gui["ltnt_slot_table_frame"] =
   minimal_height = 38,
   vertically_stretchable = "off",
 	horizontally_stretchable = "off",
-  ignored_by_interaction = true,
 }
 
 default[defs.names.styles.depot_tab.no_padding_frame] =

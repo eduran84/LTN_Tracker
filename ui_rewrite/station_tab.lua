@@ -109,6 +109,7 @@ local function build_station_tab(window)
     style = defs.names.styles.shared.horizontal_container,
     direction = "horizontal",
   }
+  button_flow.style.horizontal_spacing = 4
   local label = button_flow.add{
     type = "label",
     caption = {"station.id_selector-caption"},

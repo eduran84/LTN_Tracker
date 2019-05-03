@@ -40,7 +40,6 @@ defs.names.styles = {
     no_frame_scroll_pane = mod_prefix .. "_bare_scroll_pane",
     no_padding_frame = mod_prefix .. "_no_padding_frame",
     depot_selector = mod_prefix .. "_depot_selector",
-    bt_inner_flow = mod_prefix .. "_inner_button_flow",
     depot_label = mod_prefix .. "_depot_name_label",
     cap_left_1 = mod_prefix .. "_bt_caption_1",
     cap_left_2 = mod_prefix .. "_bt_caption_2",

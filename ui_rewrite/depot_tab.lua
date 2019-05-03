@@ -14,63 +14,20 @@ local format = string.format
 
 egm.stored_functions[defs.names.functions.depot_row_constructor] = function(egm_table, data)
   local parent = egm_table.content
-  local train = data.train
-  local comp, counts = get_composition_string(train)
   -- first column: train composition
   local label = parent.add{
     type = "label",
-    caption = comp,
+    caption = data.composition,
     style = styles.label_col_1,
   }
-  --label.style.height = 38
-  local locomotive = get_locomotive(train)
-  if locomotive then
+  label.style.font_color = data.color
+  if data.locomotive then
     egm.manager.register(label, {
         action = defs.names.actions.select_entity,
-        entity = locomotive,
+        entity = data.locomotive,
       }
     )
   end
-  -- figure out train status
-  local label_txt_1, label_txt_2, error_type, state, color, sort_rank
-  local train_id = train.id
-  if data.depot_data.parked_trains[train_id] then
-    label_txt_1 = {"depot.parked"}
-    color = DEPOT_CONST.color_dict[1]
-    state = 0
-    sort_rank = 0
-  elseif global.data.deliveries[train_id] then
-    if train.schedule.current  == 1 then
-      -- assigned for delivery, but has not left yet
-      label_txt_1 = {"depot.parked"}
-      color = DEPOT_CONST.color_dict[3]
-      sort_rank = 1
-    else
-      -- display current delivery status
-      local delivery = global.data.deliveries[train_id]
-      if delivery.pickupDone then
-        label_txt_1 = (train.state == defines.train_state.wait_station) and {"depot.unloading"} or {"depot.dropping-off"}
-        label_txt_2 = delivery.to
-        sort_rank = 2
-      else
-        label_txt_1 = (train.state == defines.train_state.wait_station) and {"depot.loading"} or {"depot.picking-up"}
-        label_txt_2 = delivery.from
-        sort_rank = 3
-      end
-      color = DEPOT_CONST.color_dict[3]
-    end
-    state = 1
-  else
-    -- train returning to depot is the only option left
-    label_txt_1 = {"depot.returning"}
-    color = DEPOT_CONST.color_dict[3]
-    state = 0
-    sort_rank = 4
-  end
-  data.sort_rank = {comp, sort_rank}
-
-
-  label.style.font_color = color -- update color for first column
   -- second column: train status / current route
   local flow = parent.add{
     type = "flow",
@@ -79,10 +36,11 @@ egm.stored_functions[defs.names.functions.depot_row_constructor] = function(egm_
   }
   label = flow.add{
     type = "label",
-    caption = label_txt_1,
+    caption = data.label_txt_1,
     style = styles.label_col_2,
   }
-  label.style.font_color = color
+  label.style.font_color = data.color
+  local label_txt_2 = data.label_txt_2
   if label_txt_2 then
     label = flow.add{
       type = "label",
@@ -96,12 +54,11 @@ egm.stored_functions[defs.names.functions.depot_row_constructor] = function(egm_
       }
     )
   end
-
   -- third column: shipment
-  if state == 1 then
+  if data.shipment then
     build_item_table{
       parent = parent,
-      provided = global.data.deliveries[train.id].shipment,
+      provided = data.shipment,
       columns = 3,
       max_rows = 2,
     }
@@ -111,11 +68,11 @@ egm.stored_functions[defs.names.functions.depot_row_constructor] = function(egm_
       type = "label",
       caption = "",
     }
-  end -- if state == 1 then
+  end
 end
 
-egm.stored_functions[defs.names.functions.depot_sort .. 1] = function(a, b) return a.sort_rank[1] < b.sort_rank[1] end
-egm.stored_functions[defs.names.functions.depot_sort .. 2] = function(a, b) return a.sort_rank[2] < b.sort_rank[2] end
+egm.stored_functions[defs.names.functions.depot_sort .. 1] = function(a, b) return a.composition < b.composition end
+egm.stored_functions[defs.names.functions.depot_sort .. 2] = function(a, b) return a.col_2_sort_rank < b.col_2_sort_rank end
 
 local function build_depot_button(parent, depot_name, depot_data)
   local bt = parent.add{
@@ -124,14 +81,15 @@ local function build_depot_button(parent, depot_name, depot_data)
   }
   local flow = bt.add{
     type = "flow",
-    style = styles.bt_inner_flow,
     direction = "vertical",
+    ignored_by_interaction = true,
   }
   -- first row: depot name
   local label = flow.add{
     type = "label",
     caption = depot_name,
     style = styles.depot_label,
+    ignored_by_interaction = true,
   }
 
   -- second row: number of trains and capacity
@@ -141,12 +99,14 @@ local function build_depot_button(parent, depot_name, depot_data)
     style = styles.cap_left_1,
     caption = {"depot.header-col-2"},
     tooltip = {"depot.header-col-2-tt"},
+    ignored_by_interaction = true,
   }
 
   label = subflow.add{
     type = "label",
     style = styles.cap_left_2,
     caption = depot_data.n_parked .. "/" .. depot_data.n_all_trains,
+    ignored_by_interaction = true,
   }
 
   label = subflow.add{
@@ -154,22 +114,24 @@ local function build_depot_button(parent, depot_name, depot_data)
     style = styles.cap_left_1,
     caption = {"depot.header-col-3"},
     tooltip = {"depot.header-col-3-tt"},
+    ignored_by_interaction = true,
   }
   label = subflow.add{
     type = "label",
     style = styles.cap_left_2,
     caption =  format("%d stacks + %dk fluid", depot_data.cap,  depot_data.fcap/1000),
+    ignored_by_interaction = true,
   }
   label.style.width = DEPOT_CONST.col_width_left[5]
   -- third row: network id and depot state
-  subflow = flow.add{type = "flow"}
+  subflow = flow.add{type = "flow", ignored_by_interaction = true,}
   build_item_table{
     parent = subflow,
     columns = 4,
     signals = depot_data.signals,
     enabled = false,
   }
-  local elem = subflow.add{type = "frame", style = "ltnt_slot_table_frame"}
+  local elem = subflow.add{type = "frame", style = "ltnt_slot_table_frame", ignored_by_interaction = true,}
   elem.style.maximal_height = 44
   elem = elem.add{type = "table", column_count = 4, style = "slot_table"}
   local hash = {}
@@ -241,7 +203,8 @@ local function build_depot_tab(window)
   return depot_tab
 end
 
-local function update_details_view(depot_tab, depot_data)
+local function update_details_view(depot_tab, ltn_data)
+  local depot_data = ltn_data.depots[depot_tab.selected_depot]
   if not depot_data then return end
   local depot_name = depot_tab.selected_depot
   if not depot_name then return end
@@ -251,9 +214,55 @@ local function update_details_view(depot_tab, depot_data)
   -- list all trains assigned to the depot
   for train_index, train in pairs(depot_data.all_trains) do
     if train.valid then
-      egm.table.add_row(table, {train = train, depot_data = depot_data})
+      local composition, counts = get_composition_string(train)
+      local locomotive = get_locomotive(train)
+      -- figure out train status
+      local label_txt_1, label_txt_2, shipment, color, sort_rank
+      local train_id = train.id
+      if depot_data.parked_trains[train_id] then
+        label_txt_1 = {"depot.parked"}
+        color = DEPOT_CONST.color_dict[1]
+        sort_rank = 0
+      elseif ltn_data.deliveries[train_id] then
+        if train.schedule.current  == 1 then
+          -- assigned for delivery, but has not left yet
+          label_txt_1 = {"depot.parked"}
+          color = DEPOT_CONST.color_dict[3]
+          sort_rank = 1
+        else
+          -- display current delivery status
+          local delivery = ltn_data.deliveries[train_id]
+          if delivery.pickupDone then
+            label_txt_1 = (train.state == defines.train_state.wait_station) and {"depot.unloading"} or {"depot.dropping-off"}
+            label_txt_2 = delivery.to
+            sort_rank = 2
+          else
+            label_txt_1 = (train.state == defines.train_state.wait_station) and {"depot.loading"} or {"depot.picking-up"}
+            label_txt_2 = delivery.from
+            sort_rank = 3
+          end
+          color = DEPOT_CONST.color_dict[3]
+        end
+        shipment = ltn_data.deliveries[train.id].shipment
+      else
+        -- train returning to depot is the only option left
+        label_txt_1 = {"depot.returning"}
+        color = DEPOT_CONST.color_dict[3]
+        sort_rank = 4
+      end
+      egm.table.add_row_data(table, {
+        locomotive = locomotive,
+        depot_data = depot_data,
+        composition = composition,
+        col_2_sort_rank = sort_rank,
+        shipment = shipment,
+        label_txt_1 = label_txt_1,
+        label_txt_2 = label_txt_2,
+        color = color,
+      })
     end
   end
+  egm.table.sort_rows(table)
 end
 
 local function update_depot_tab(depot_tab, ltn_data)
@@ -267,18 +276,18 @@ local function update_depot_tab(depot_tab, ltn_data)
         action = defs.names.actions.show_depot_details,
         depot_name = depot_name,
         depot_tab = depot_tab,
-        depot_data = depot_data,
+        ltn_data = ltn_data,
       }
     )
   end
-  update_details_view(depot_tab, ltn_data.depots[depot_tab.selected_depot])
+  update_details_view(depot_tab, ltn_data)
 end
 
 egm.manager.define_action(
   defs.names.actions.show_depot_details,
   function(event, data)
     data.depot_tab.selected_depot = data.depot_name
-    update_details_view(data.depot_tab, data.depot_data)
+    update_details_view(data.depot_tab, data.ltn_data)
   end
 )
 
