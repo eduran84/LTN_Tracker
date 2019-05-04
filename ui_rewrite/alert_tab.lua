@@ -152,18 +152,10 @@ end
 local function build_alert_tab(window)
   local tab_index = defs.tabs.alert
   local flow = egm.tabs.add_tab(window.pane, tab_index, {caption = {"ltnt.tab5-caption"}})
-  local request_table = egm.table.build(flow, {column_count = 5, caption = "Open Requests"}, defs.functions.requests_row_contructor)
-  for i = 1, 5 do
-    egm.table.add_column_header(request_table, {
-      width = 86,
-      caption = {"inventory.header-col-" .. i},
-      tooltip = {"inventory.header-col-" .. i .. "-tt"},
-    })
-  end
 
   local table = egm.table.build(
     flow,
-    {column_count = C.alert_tab.n_columns, caption = "Train alerts"},
+    {column_count = C.alert_tab.n_columns},
     defs.functions.alert_row_constructor
   )
   for i = 1, C.alert_tab.n_columns - 2 do

@@ -114,6 +114,9 @@ local function build_inventory_tab(window)
   label.style.width = SUM_LABEL_WIDTH
   summary.add{type = "label", caption = "0", style = "ltnt_summary_number"}
 
+  local spacer_flow = details_frame.content.add{type = "flow"}
+  spacer_flow.style.height = 10
+
   local pane = details_frame.content.add{
     type = "scroll-pane",
     style = defs.styles.shared.no_frame_scroll_pane,
@@ -121,18 +124,14 @@ local function build_inventory_tab(window)
     horizontal_scroll_policy = "never",
   }
 
-  pane.add{type = "label", style = "ltnt_column_header", caption = {"inventory.stop_header_p"}}
-  local stop_table = pane.add{type = "table", column_count = 1}
-  stop_table.style.vertical_align = "center"
-  stop_table.style.horizontal_spacing = 0
+  pane.add{type = "label", style = "heading_2_label", caption = {"inventory.stop_header_p"}}
+  local stop_table = pane.add{type = "flow", style = defs.styles.shared.vertical_container, direction = "vertical"}
   label = stop_table.add{type = "label", caption = {"inventory.detail_label"}}
   label.style.single_line = false
   label.style.width = TOTAL_WIDTH - 30
 
-  pane.add{type = "label", style = "ltnt_column_header", caption = {"inventory.del_header"}}
-  local del_table = pane.add{type = "table", column_count = 1}
-  del_table.style.vertical_align = "center"
-  del_table.style.horizontal_spacing = 0
+  pane.add{type = "label", style = "heading_2_label", caption = {"inventory.del_header"}}
+  local del_table = pane.add{type = "flow", style = defs.styles.shared.vertical_container, direction = "vertical"}
 
   details_frame.stop_table = stop_table
   details_frame.delivery_table = del_table
