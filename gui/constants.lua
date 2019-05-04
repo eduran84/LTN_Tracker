@@ -1,20 +1,8 @@
 -- constant definitions
 local CONST = {}
 
-CONST.settings = {
-  proc = {
-    ["ltnt-history-limit"] = true,
-    ["ltnt-disable-underload-alert"] = true,
-  },
-}
-
-CONST.styles = {
-  font_color_black = {40, 39, 40}
-}
-
 -- ui_ctrl.lua
 CONST.ui_ctrl = {
-  refresh_delay = 60, -- shortest time in ticks between consecutive ui refreshes
   marker_circle_color = {r = 1, g = 0, b = 0, a = 0.5}
 }
 
@@ -29,17 +17,10 @@ CONST.proc = {
 
 -- UI layout
 CONST.window = {
-	n_tabs = 5,
   width = 930,
-  button_width = 185,
-  button_sprite_bare = "ltnt_bt_sprite",
-  button_sprite_alert = "ltnt_bt_alert_sprite",
-  button_highlight_style = "ltnt_tab_button_highlight",
-  button_default_style =  "ltnt_tab_button"
 }
 
 CONST.depot_tab = {
-	tab_index = 1,
   pane_width_left = 355,
 	col_width_left = {325, 55, 50, 52, 180},
 
@@ -50,15 +31,13 @@ CONST.depot_tab = {
 }
 
 CONST.station_tab = {
-	tab_index = 2,
   n_columns = 6,
-  col_width = {180, 37, 38*5+23, 38*4+23, 38*6+23, 1},
+  col_width = {190, 50, 37*5+23, 37*4+23, 37*6+23, 1},
   item_table_col_count = {5, 4, 5},
   item_table_max_rows = {4, 4, 2},
 }
 
 CONST.inventory_tab = {
-	tab_index = 3,
   item_table_column_count = 13,
   details_item_tb_col_count = 9,
   details_width = 400,
@@ -67,14 +46,12 @@ CONST.inventory_tab = {
 }
 
 CONST.history_tab = {
-	tab_index = 4,
   column_width = {200, 200, 50, 80, 90, 210},
 	n_columns = 6,
   n_cols_shipment = 6,
 }
 
 CONST.alert_tab = {
-	tab_index = 5,
   frame_width = 940,
   n_columns = 5,
 	col_width = {169, 178, 208, 245},
@@ -82,6 +59,7 @@ CONST.alert_tab = {
 
 -- LTN definitions, copied from LTN's control.lua
 local ltn = {
+
   ISDEPOT = "ltn-depot",
   NETWORKID = "ltn-network-id",
   MINTRAINLENGTH = "ltn-min-train-length",
@@ -96,6 +74,7 @@ local ltn = {
   PROVIDED_PRIORITY = "ltn-provider-priority",
   LOCKEDSLOTS = "ltn-locked-slots",
 }
+--[[
 ltn.is_control_signal = {
   [ltn.ISDEPOT] = true,
   [ltn.NETWORKID] = true,
@@ -110,7 +89,7 @@ ltn.is_control_signal = {
   [ltn.PROVIDED_STACK_THRESHOLD] = true,
   [ltn.PROVIDED_PRIORITY] = true,
   [ltn.LOCKEDSLOTS] = true,
-}
+}--]]
 ltn.ctrl_signal_var_name_bool = {
   [ltn.ISDEPOT] = "isDepot",
   [ltn.NOWARN] = "noWarnings",

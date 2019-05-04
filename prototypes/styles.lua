@@ -1,51 +1,12 @@
 default = data.raw["gui-style"].default
 local shared_styles = defs.styles.shared
 
-function add_style(name, style_definition)
-  default[name] = style_definition
-end
-local default_gui = data.raw["gui-style"].default
--- table styles
-do
-default_gui["ltnt_table_default"] = {
-  type = "table_style",
-	parent = "table_with_selection",
-}
-
-default_gui["ltnt_shipment_table"] =
-{
-  type = "table_style",
-  parent = "slot_table",
-  vertical_align = "center",
-  horizontal_align = "center",
-  width = 34,
-}
-end
-
--- pane styles
-default_gui["ltnt_sp_vertical"] =
-{
-  type = "scroll_pane_style",
-  parent = "scroll_pane",
-  vertical_scroll_policy = "auto",
-  horizontal_scroll_policy = "never",
-}
-
-default_gui["ltnt_it_scroll_pane"] =
-{
-  type = "scroll_pane_style",
-  vertical_scroll_policy = "auto-and-reserve-space",
-  horizontal_scroll_policy = "never",
-  vertical_align = "center",
-}
-
 default[shared_styles.no_frame_scroll_pane] = {
   type = "scroll_pane_style",
   parent = egm_defs.style_names.table.scroll_pane,
   padding = 0,
   horizontally_stretchable = "off",
 }
-
 default[shared_styles.default_button] = {
   type = "button_style",
   maximal_height = 32,
@@ -54,10 +15,7 @@ default[shared_styles.default_button] = {
   minimal_width = 32,
   padding = 0,
 }
-
--- frame styles
-default_gui["ltnt_slot_table_frame"] =
-{
+default[shared_styles.slot_table_frame] = {
   type = "frame_style",
   parent = "frame",
   padding = 0,
@@ -67,8 +25,40 @@ default_gui["ltnt_slot_table_frame"] =
 	horizontally_stretchable = "off",
 }
 
-require("prototypes.styles.buttons")
-require("prototypes.styles.labels")
+-- station tab
+local st_names = style_names.station_tab
+default[st_names.station_label] = {
+  type = "label_style",
+  parent = "hoverable_bold_label",
+  maximal_width = C.station_tab.col_width[1],
+  minimal_width = C.station_tab.col_width[1],
+  single_line = false,
+}
+
+-- history tab
+local ht_names = style_names.hist_tab
+for i = 1, 5 do
+  local parent = "label"
+  if i == 2 then
+    parent = "clickable_label"
+  end
+  default[ht_names["label_col_"..i]] = {
+    type = "label_style",
+    parent = parent,
+    maximal_width = C.history_tab.column_width[i],
+    minimal_width = C.history_tab.column_width[i],
+    right_padding = 4,
+  }
+end
+default[ht_names.label_col_3].horizontal_align = "right"
+default[ht_names.label_col_4].horizontal_align = "right"
+default[ht_names.label_col_5].horizontal_align = "right"
+default[ht_names.label_col_4_red] = {
+  type = "label_style",
+  parent = ht_names.label_col_4,
+  font_color = bright_red,
+}
+
 require("prototypes.styles.depot_tab")
 require("prototypes.styles.inventory_tab")
 require("prototypes.styles.alert_tab")

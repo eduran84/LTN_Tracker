@@ -15,11 +15,6 @@ end
 
 script.on_event(custom_events.on_train_alert, ui.on_new_alert)
 
-local function on_item_clicked(event, data_string)
-  -- item name and amount is encoded in data_string
-  GC.inv_tab:on_item_clicked(event.player_index, data_string)
-end
-
 return {
   on_new_alert = on_new_alert,
   clear_station_filter = clear_station_filter,

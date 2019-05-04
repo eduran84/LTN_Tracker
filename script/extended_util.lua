@@ -37,11 +37,11 @@ function util.build_item_table(args)
   local type = args.type
 
   -- outer frame
-  local frame =  args.parent.add{type = "frame", style = "ltnt_slot_table_frame"}
+  local frame =  args.parent.add{type = "frame", style = shared_styles.slot_table_frame}
   if args.max_rows then
     frame.style.maximal_height = args.max_rows * 36 + 18
     frame.style.width = column_count * 38 + 18
-    frame = frame.add{type = "scroll-pane", style = "ltnt_it_scroll_pane"}
+    frame = frame.add{type = "scroll-pane", style = shared_styles.no_frame_scroll_pane}
   end
   -- table for item sprites
 	local tble = frame.add{type = "table", column_count = column_count, style = "slot_table"}

@@ -1,17 +1,18 @@
 data:extend({
+  --[[
 	{
 		name = "ltnt-show-button",
 		setting_type = "runtime-per-user",
 		type = "bool-setting",
 		default_value = true,
-	},
+	},--]]
 	{
 		name = "ltnt-window-height",
 		setting_type = "runtime-per-user",
 		type = "int-setting",
 		default_value = 710,
 		minimum_value = 400,
-		maximum_value = 710,
+		maximum_value = 1500,
 	},
   {
 		name = "ltnt-refresh-interval",

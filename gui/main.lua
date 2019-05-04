@@ -43,7 +43,7 @@ local function build(pind)
   egm.window.add_button(window, {
     type = "sprite-button",
     style = defs.styles.shared.default_button,
-    sprite = defs.sprites.refresh,
+    sprite = "utility/refresh",
     tooltip = {"ltnt.refresh-bt"},
   },
   {action = defs.actions.refresh_button})
@@ -169,10 +169,7 @@ local function player_init(pind)
     gui_data.refresh_interval[pind] = nil
   end
   gui_data.station_select_mode[pind] = tonumber(settings.get_player_settings(player)[defs.settings.station_click_action].value)
-  -- build UI
-  if not settings.get_player_settings(player)["ltnt-show-button"].value then
-    --GC.toggle_button:hide(pind)
-  end
+
   build(pind)
 end
 script.on_event(defines.events.on_player_created, player_init)
@@ -195,29 +192,35 @@ function gui.on_load()
 end
 function gui.on_settings_changed(event)
   local pind = event.player_index
-  local player = game.players[pind]
-  local player_settings = settings.get_player_settings(player)
   local setting = event.setting
   if setting == defs.settings.window_height then
     build(pind)
-  elseif setting == "ltnt-show-button" then
+    return true
+  end
+  local player_settings = settings.get_player_settings(game.players[pind])
+  if setting == "ltnt-show-button" then
     -- show or hide toggle button
     if player_settings[setting].value then
-      GC.toggle_button:show(pind)
+      --GC.toggle_button:show(pind)
     else
-      GC.toggle_button:hide(pind)
+      --GC.toggle_button:hide(pind)
     end
-  elseif setting == defs.settings.refresh_interval then
-      local refresh_interval = player_settings[setting].value
+    return true
+  end
+  if setting == defs.settings.refresh_interval then
+    local refresh_interval = player_settings[setting].value
     if refresh_interval > 0 then
       gui_data.refresh_interval[pind] = refresh_interval * 60
     else
       gui_data.refresh_interval[pind] = nil
     end
-  elseif setting == defs.settings.station_click_action then
-    gui_data.station_select_mode[pind] = tonumber(player_settings[setting].value)
+    return true
   end
-
+  if setting == defs.settings.station_click_action then
+    gui_data.station_select_mode[pind] = tonumber(player_settings[setting].value)
+    return true
+  end
+  return false
 end
 function gui.on_configuration_changed(data)
   -- handle changes to LTN-Combinator
@@ -238,6 +241,7 @@ function gui.on_configuration_changed(data)
     for pind in pairs(game.players) do
       build(pind)
     end
+    gui.clear_station_filter()
   end
 end
 

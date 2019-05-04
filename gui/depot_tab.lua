@@ -131,7 +131,7 @@ local function build_depot_button(parent, depot_name, depot_data)
     signals = depot_data.signals,
     enabled = false,
   }
-  local elem = subflow.add{type = "frame", style = "ltnt_slot_table_frame", ignored_by_interaction = true,}
+  local elem = subflow.add{type = "frame", style = defs.styles.shared.slot_table_frame, ignored_by_interaction = true,}
   elem.style.maximal_height = 44
   elem = elem.add{type = "table", column_count = 4, style = "slot_table"}
   local hash = {}
@@ -142,7 +142,7 @@ local function build_depot_button(parent, depot_name, depot_data)
         sprite = network_id_sprite,
         number = id,
         enabled = false,
-        style = "ltnt_empty_button",
+        style = defs.styles.shared.gray_button,
       }
       hash[id] = true
     end

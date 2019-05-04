@@ -1,4 +1,5 @@
 local egm_defs = require("__GUI_Modules__.defines")
+
 local defs = {
   pathes = {},
 }
@@ -9,11 +10,12 @@ defs.mod_name = "LTN_Tracker"
 defs.mod_prefix = mod_prefix
 
 defs.settings = {
+  debug_mode = mod_prefix .. "-debug-level",
   window_height = mod_prefix .. "-window-height",
-  debug_level = mod_prefix .. "-debug-level",
   refresh_interval = mod_prefix .. "-refresh-interval",
   station_click_action = mod_prefix .. "-station-click-behavior",
-  debug_mode = mod_prefix .. "-debug-level",
+  history_limit = mod_prefix .. "-history-limit",
+  disable_underload = mod_prefix .. "-disable-underload-alert",
 }
 
 mod_prefix = mod_prefix .. "_"
@@ -69,10 +71,11 @@ defs.functions = {
 defs.styles = {
   shared = {
     default_button = mod_prefix .. "default_button",
+    slot_table_frame = mod_prefix .. "ltnt_slot_table_frame",
+    no_frame_scroll_pane = mod_prefix .. "bare_scroll_pane",
     horizontal_spacer = egm_defs.style_names.shared.horizontal_spacer,
     horizontal_container = egm_defs.style_names.shared.horizontal_container,
     vertical_container = egm_defs.style_names.shared.vertical_container,
-    no_frame_scroll_pane = mod_prefix .. "bare_scroll_pane",
     red_button = egm_defs.style_names.item_table.red_button,
     green_button = egm_defs.style_names.item_table.green_button,
     gray_button = egm_defs.style_names.item_table.gray_button,
@@ -90,6 +93,7 @@ defs.styles = {
     label_col_2_bold = mod_prefix .. "lb_depot_col2_bold",
   },
   inventory_tab = {
+    summary_number = mod_prefix .. "summary_number",
     stops_col_1 = mod_prefix .. "lb_inv_stop_1",
     stops_col_2 = mod_prefix .. "lb_inv_stop_2",
     del_col_1 = mod_prefix .. "lb_inv_del_1",
@@ -115,16 +119,18 @@ defs.styles = {
   },
 }
 
-defs.sprites = {
-  refresh = "utility/refresh",
-}
-
 defs.controls = {
   toggle_hotkey = mod_prefix .. "toggle_hotkey",
   shortcut = mod_prefix .. "toggle_shortcut"
 }
 
 defs.remote = {
+  ltn = "logistic-train-network",
+  ltn_stop_update = "on_stops_updated",
+  ltn_dispatcher_update = "on_dispatcher_updated",
+  ltn_pickup_complete = "on_delivery_pickup_complete",
+  ltn_delivery_failed = "on_delivery_failed",
+  ltn_delivery_completed = "on_delivery_completed",
   ltnc_interface = "ltn-combinator",
   ltnc_close = "close_ltn_combinator",
 }
@@ -132,9 +138,9 @@ defs.remote = {
 local gui_modules = "__GUI_Modules__."
 local optera_lib = "__OpteraLib__."
 local LTNT = "__LTN_Tracker__."
-local ui_rewrite = LTNT .. "ui_rewrite."
+local gui = LTNT .. "gui."
 defs.pathes.modules = {
-  constants = LTNT .. "script.constants",
+  constants = LTNT .. "gui.constants",
   olib_logger = optera_lib .. "script.logger",
   olib_misc = optera_lib .. "script.misc",
   olib_train = optera_lib .. "script.train",
@@ -142,24 +148,20 @@ defs.pathes.modules = {
   data_processing = LTNT .. "script.data_processing",
   util = LTNT .. "script.extended_util",
 
-  gui = ui_rewrite .. "gui",
-  depot_tab = ui_rewrite .. "depot_tab",
-  inventory_tab = ui_rewrite .. "inventory_tab",
-  request_tab = ui_rewrite .. "request_tab",
-  station_tab = ui_rewrite .. "station_tab",
-  history_tab = ui_rewrite .. "history_tab",
-  alert_tab = ui_rewrite .. "alert_tab",
-  action_definitions = ui_rewrite .. "action_definitions",
+  gui_main = gui .. "main",
+  depot_tab = gui .. "depot_tab",
+  inventory_tab = gui .. "inventory_tab",
+  request_tab = gui .. "request_tab",
+  station_tab = gui .. "station_tab",
+  history_tab = gui .. "history_tab",
+  alert_tab = gui .. "alert_tab",
+  action_definitions = gui .. "action_definitions",
 }
 
 defs.pathes.sprites = {
   shortcut_icon_32 = "__LTN_Tracker__/graphics/shortcut_x32.png",
   shortcut_icon_24 = "__LTN_Tracker__/graphics/shortcut_x24.png",
   shortcut_icon_24_white = "__LTN_Tracker__/graphics/shortcut_x24_white.png",
-  --[[
-  shortcut_icon_32 = "__LTN_Tracker__/graphics/shortcut_icon_32.png",
-  shortcut_icon_32_white = "__LTN_Tracker__/graphics/shortcut_icon_32_white.png",
-  shortcut_icon_24 = "__LTN_Tracker__/graphics/shortcut_icon_24.png",
-  shortcut_icon_24_white = "__LTN_Tracker__/graphics/shortcut_icon_24_white.png",--]]
 }
+
 return defs

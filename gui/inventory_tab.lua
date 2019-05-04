@@ -106,13 +106,13 @@ local function build_inventory_tab(window)
   details_frame.summary = summary
   label = summary.add{type = "label", caption = {"inventory.detail-prov"}, style = "bold_label"}
   label.style.width = SUM_LABEL_WIDTH
-  summary.add{type = "label", caption = "0", style = "ltnt_summary_number"}
+  summary.add{type = "label", caption = "0", style = styles.summary_number}
   label = summary.add{type = "label", caption = {"inventory.detail-req"}, style = "bold_label"}
   label.style.width = SUM_LABEL_WIDTH
-  summary.add{type = "label", caption = "0", style = "ltnt_summary_number"}
+  summary.add{type = "label", caption = "0", style = styles.summary_number}
   label = summary.add{type = "label", caption = {"inventory.detail-tr"}, style = "bold_label"}
   label.style.width = SUM_LABEL_WIDTH
-  summary.add{type = "label", caption = "0", style = "ltnt_summary_number"}
+  summary.add{type = "label", caption = "0", style = styles.summary_number}
 
   local spacer_flow = details_frame.content.add{type = "flow"}
   spacer_flow.style.height = 10

@@ -77,22 +77,20 @@ local events -- custom event ids
 
 -- constants
 --local HISTORY_LIMIT = require("script.constants").proc.history_limit
-local STOPS_PER_TICK = require("script.constants").proc.stops_per_tick
-local DELIVERIES_PER_TICK = require("script.constants").proc.deliveries_per_tick
-local TRAINS_PER_TICK = require("script.constants").proc.trains_per_tick
-local ITEMS_PER_TICK = require("script.constants").proc.items_per_tick
-local LTN_CONSTANTS = require("script.constants").ltn
-local HISTORY_LIMIT = settings.global["ltnt-history-limit"].value
-local FILENAME = "data.log"
+local STOPS_PER_TICK = C.proc.stops_per_tick
+local DELIVERIES_PER_TICK = C.proc.deliveries_per_tick
+local TRAINS_PER_TICK = C.proc.trains_per_tick
+local ITEMS_PER_TICK = C.proc.items_per_tick
+local LTN_CONSTANTS = C.ltn
+local HISTORY_LIMIT = settings.global[defs.settings.history_limit].value
 
-local out = out
 ---------------------
 -- DATA PROCESSING --
 ---------------------
 -- functions here are called from data_processor, defined below
 
-local ctrl_signal_var_name_bool = require("script.constants").ltn.ctrl_signal_var_name_bool
-local ctrl_signal_var_name_num = require("script.constants").ltn.ctrl_signal_var_name_num
+local ctrl_signal_var_name_bool = C.ltn.ctrl_signal_var_name_bool
+local ctrl_signal_var_name_num = C.ltn.ctrl_signal_var_name_num
 local function get_lamp_color(stop) -- helper functions for state 1
   --local color_signal = stop.lampControl.get_control_behavior().get_signal(1)
   --return color_signal and color_signal.signal.name
@@ -384,19 +382,15 @@ data_processor = function(event)
 end
 
 -- delivery tracking  local get_main_loco
-local get_main_loco
-do
-  require("__OpteraLib__.script.train")
-  get_main_loco = get_main_locomotive
-end
-local FLUID_TOL = require("script.constants").proc.fluid_tolerance
+local get_main_loco = util.train.get_main_locomotive
+local FLUID_TOL = C.proc.fluid_tolerance
 local abs = math.abs
 local function item_match(strg)
   return string.match(strg, "%w+,([%w_%-]+)")
 end
 
 local function store_history(history)
-  if debug_log then
+  if debug_mode then
     log2("New history record:\n", history)
   end
   history.finished = game.tick
@@ -416,7 +410,7 @@ local function raise_alert(delivery, train, alert_type, actual_cargo)
     delivery = delivery,
     cargo = actual_cargo,
   }
-  if debug_log then
+  if debug_mode then
     log2("Train error state detected:\n", data.trains_error[data.train_error_count])
   end
   script.raise_event(events.on_train_alert, data.trains_error[data.train_error_count])
@@ -431,7 +425,7 @@ local function on_pickup_completed(event)
   local fluid_cargo = train.get_fluid_contents()
   local old_delivery = data.deliveries[train.id]
   local actual_cargo = {}
-  if debug_log then
+  if debug_mode then
     log2("Pickup complete event received.\nEvent data:\n", event, "\nItem cargo:", item_cargo, "\nFluid cargo:", fluid_cargo, "\nOld delivery:\n", old_delivery)
   end
   local keys = {}
@@ -476,7 +470,7 @@ local function on_pickup_completed(event)
 end
 
 local function on_delivery_completed(event)
-  if debug_log then
+  if debug_mode then
     log2("Delivery complete event received.\nEvent data:\n", event)
   end
   -- check train for residual content
@@ -498,7 +492,7 @@ local function on_delivery_completed(event)
 end
 
 local function on_delivery_failed(event)
-  if debug_log then
+  if debug_mode then
     log2("Delivery failed event received.\nEvent data:\n", event)
   end
   local delivery = event.delivery
@@ -525,11 +519,11 @@ local function on_load()
 
   -- cache event IDs
   events = custom_events
-  events.on_stops_updated_event = remote.call("logistic-train-network", "on_stops_updated")
-  events.on_dispatcher_updated_event = remote.call("logistic-train-network", "on_dispatcher_updated")
-  events.on_delivery_completed_event = remote.call("logistic-train-network", "on_delivery_completed")
-  events.on_delivery_failed_event = remote.call("logistic-train-network", "on_delivery_failed")
-  events.on_pickup_completed = remote.call("logistic-train-network", "on_delivery_pickup_complete")
+  events.on_stops_updated_event = remote.call(defs.remote.ltn, defs.remote.ltn_stop_update)
+  events.on_dispatcher_updated_event = remote.call(defs.remote.ltn,  defs.remote.ltn_dispatcher_update)
+  events.on_delivery_completed_event = remote.call(defs.remote.ltn, defs.remote.ltn_delivery_completed)
+  events.on_delivery_failed_event = remote.call(defs.remote.ltn, defs.remote.ltn_delivery_failed)
+  events.on_pickup_completed = remote.call(defs.remote.ltn, defs.remote.ltn_pickup_complete)
 
   -- register for conditional events
   if global.proc.state == 0 then
@@ -541,14 +535,11 @@ local function on_load()
   script.on_event(events.on_delivery_completed_event, on_delivery_completed)
   script.on_event(events.on_delivery_failed_event, on_delivery_failed)
   script.on_event(events.on_pickup_completed, on_pickup_completed)
-  if debug_log then
-    log2("data processor status after on_load:", global.proc)
-  end
 end
 
 local function on_init()
   global.raw = global.raw or {}
-  global.proc = global.proc or {state = 0, underload_is_alert = settings.global["ltnt-disable-underload-alert"].value}
+  global.proc = global.proc or {state = 0, underload_is_alert = settings.global[defs.settings.disable_underload].value}
 
   global.data = global.data or {} -- storage for processed data, ready to be used by UI
   global.data.stops = global.data.stops or {}
@@ -570,15 +561,19 @@ local function on_init()
 end
 
 local function on_settings_changed(event)
-  if event.setting == "ltnt-history-limit" then
-    HISTORY_LIMIT = settings.global["ltnt-history-limit"].value
+  local setting = event.setting
+  if setting == defs.settings.history_limit then
+    HISTORY_LIMIT = settings.global[setting].value
     global.data.history_limit = HISTORY_LIMIT
     global.data.newest_history_index = 1
     global.data.delivery_hist = {}
+    return true
   end
-  if event.setting == "ltnt-disable-underload-alert" then
-    global.proc.underload_is_alert = not settings.global["ltnt-disable-underload-alert"].value
+  if setting == defs.settings.disable_underload then
+    global.proc.underload_is_alert = not settings.global[setting].value
+    return true
   end
+  return false
 end
 
 return {

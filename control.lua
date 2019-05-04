@@ -30,7 +30,7 @@ util = require(defs.pathes.modules.util)
 logger = require(defs.pathes.modules.olib_logger)
 log2 = logger.log
 egm = require(defs.pathes.modules.import_egm)
-local gui = require(defs.pathes.modules.gui)
+local gui = require(defs.pathes.modules.gui_main)
 local prc = require(defs.pathes.modules.data_processing)
 if debug_mode then
   logger.add_debug_commands()
@@ -38,7 +38,7 @@ end
 
 script.on_init(function()
   -- check for LTN interface, just in case
-  if not remote.interfaces["logistic-train-network"] then
+  if not remote.interfaces[defs.remote.ltn] then
     error("LTN interface is not registered.")
   end
   if debug_mode then
@@ -61,33 +61,28 @@ end)
 -----------------------------------
 ------- settings and config -------
 -----------------------------------
-local setting_dict = require("script.constants").settings
 script.on_event(defines.events.on_runtime_mod_setting_changed, function(event)
   -- notifies modules if one of their settings changed
-  if not event then return end
-  gui.on_settings_changed(event)
-  local pind = event.player_index
-  local player = game.players[pind]
-  local setting = event.setting
+  local setting = event and event.setting
+  if not(setting and setting.sub(1, 4) == defs.mod_prefix) then return end
   if debug_mode then
-    log2("Player", player.name, "changed setting", setting)
+    log2("Player", game.players[event.player_index].name, "changed setting", setting)
   end
-  if setting_dict.proc[setting] then
-    prc.on_settings_changed(event)
-  end
-  if setting == defs.settings.debug_level then
+  if setting == defs.settings.debug_mode then
     debug_mode = settings.global[setting].value
+    return
   end
+  local setting_found = gui.on_settings_changed(event)
+  if setting_found then return end
+  prc.on_settings_changed(event)
 end)
 
 script.on_configuration_changed(function(data)
   if not data then return end
-  -- handle changes to LTN
-  gui.on_configuration_changed(data)
   if not game.active_mods[defs.names.ltn] then
     error("LogisticTrainNetwork is required to run LTNT.")
   end
-  -- handles changes to LTNT
+  gui.on_configuration_changed(data)
   if data.mod_changes[defs.names.mod_name] then
     -- migration to 0.10.7
     global.proc.underload_is_alert = not settings.global["ltnt-disable-underload-alert"].value

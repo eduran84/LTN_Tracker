@@ -2,8 +2,8 @@ local defs = defs
 local egm = egm
 local C = C
 
-local MAX_ROWS = require("script.constants").station_tab.item_table_max_rows
-local COL_COUNTS = require("script.constants").station_tab.item_table_col_count
+local MAX_ROWS = C.station_tab.item_table_max_rows
+local COL_COUNTS = C.station_tab.item_table_col_count
 local build_item_table = util.build_item_table
 
 local color_order = {["signal-red"] = 0, ["signal-pink"] = 3, ["signal-blue"] = 4, ["signal-yellow"] = 4.1, ["signal-green"] = 10000}
@@ -44,8 +44,8 @@ egm.stored_functions[defs.functions.station_row_constructor] = function(egm_tabl
       sprite = "virtual-signal/"..stopdata.signals[1][1],
       number = stopdata.signals[1][2],
       enabled = false,
-      style = "ltnt_empty_button",
-    }
+      style = defs.styles.shared.gray_button,
+    }.style.width = 50
     -- third column: provided and requested items
     build_item_table{
       parent = parent,
