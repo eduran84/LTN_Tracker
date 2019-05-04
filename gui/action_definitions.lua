@@ -100,7 +100,6 @@ egm.manager.define_action(
   defs.actions.update_filter,
   function(event, data)
     if event.name ~= defines.events.on_gui_text_changed then return end
-    logger.print("update_filter:", event, data)
     local elem = event.element
     if elem.text then
       local input = trim(elem.text)
