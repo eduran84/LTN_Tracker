@@ -153,9 +153,13 @@ defs.pathes.modules = {
 }
 
 defs.pathes.sprites = {
+  shortcut_icon_32 = "__LTN_Tracker__/graphics/shortcut_x32.png",
+  shortcut_icon_24 = "__LTN_Tracker__/graphics/shortcut_x24.png",
+  shortcut_icon_24_white = "__LTN_Tracker__/graphics/shortcut_x24_white.png",
+  --[[
   shortcut_icon_32 = "__LTN_Tracker__/graphics/shortcut_icon_32.png",
   shortcut_icon_32_white = "__LTN_Tracker__/graphics/shortcut_icon_32_white.png",
   shortcut_icon_24 = "__LTN_Tracker__/graphics/shortcut_icon_24.png",
-  shortcut_icon_24_white = "__LTN_Tracker__/graphics/shortcut_icon_24_white.png",
+  shortcut_icon_24_white = "__LTN_Tracker__/graphics/shortcut_icon_24_white.png",--]]
 }
 return defs

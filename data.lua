@@ -32,6 +32,7 @@ data:extend({
       scale = 1,
       flags = {"icon"}
     },
+    --[[
     disabled_icon =
     {
       filename = defs.pathes.sprites.shortcut_icon_32_white,
@@ -39,7 +40,7 @@ data:extend({
       size = 32,
       scale = 1,
       flags = {"icon"}
-    },
+    },--]]
     small_icon =
     {
       filename = defs.pathes.sprites.shortcut_icon_24,

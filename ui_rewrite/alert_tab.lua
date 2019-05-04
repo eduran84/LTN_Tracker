@@ -94,14 +94,14 @@ egm.stored_functions[defs.functions.alert_row_constructor] = function(egm_table,
     if error_data.delivery.pickupDone then
       elem = parent.add{
         type = "label",
-        style = styles.alert_col_3,
+        style = styles.label_col_3,
         caption = {"error.train-timeout-post-pickup"},
         tooltip = {"error.train-timeout-post-pickup-tt"},
       }
     else
       elem = parent.add{
         type = "label",
-        style = styles.alert_col_3,
+        style = styles.label_col_3,
         caption = {"error.train-timeout-pre-pickup"},
         tooltip = {"error.train-timeout-pre-pickup-tt"},
       }
@@ -128,7 +128,7 @@ egm.stored_functions[defs.functions.alert_row_constructor] = function(egm_table,
   elem = button_flow.add{
     type = "sprite-button",
     style = defs.styles.shared.default_button,
-    sprite = "ltnt_sprite_enter", --TODO: new sprite, add to defines
+    sprite = "utility/gps_map_icon", --"ltnt_sprite_enter", --TODO: new sprite, add to defines
     tooltip = {"alert.select-tt"},
     enabled = enable_select_button,
   }

@@ -54,7 +54,7 @@ egm.stored_functions[defs.functions.hist_row_constructor] = function(egm_table, 
     caption = data.time[2],
     style = styles.label_col_5
   }
-  -- shipement and residual items, if any
+  -- shipment and residual items, if any
   if delivery.residuals then
     local tb = parent.add{type = "table", column_count = 1, style = "slot_table"}
     build_item_table{
@@ -81,15 +81,15 @@ end
 egm.stored_functions[defs.functions.hist_sort .. 1] = function(a, b) return a.delivery.depot < b.delivery.depot end
 egm.stored_functions[defs.functions.hist_sort .. 2] = function(a, b) return a.delivery.from < b.delivery.from end
 egm.stored_functions[defs.functions.hist_sort .. 3] = function(a, b) return a.delivery.networkID < b.delivery.networkID end
-egm.stored_functions[defs.functions.hist_sort .. 4] = function(a, b) return a.delivery.finished < b.delivery.finished end
-egm.stored_functions[defs.functions.hist_sort .. 5] = function(a, b) return a.delivery.finished < b.delivery.finished end
+egm.stored_functions[defs.functions.hist_sort .. 4] = function(a, b) return a.time[1] < b.time[1] end
+egm.stored_functions[defs.functions.hist_sort .. 5] = function(a, b) return a.time[2] < b.time[2] end
 
 local function build_history_tab(window)
   local tab_index = defs.tabs.history
   local flow = egm.tabs.add_tab(window.pane, tab_index, {caption = {"ltnt.tab4-caption"}})
   local table = egm.table.build(
     flow,
-    {column_count = C.history_tab.n_columns},
+    {column_count = C.history_tab.n_columns, draw_horizontal_lines = true},
     defs.functions.hist_row_constructor
   )
   for i = 1, C.history_tab.n_columns - 1 do

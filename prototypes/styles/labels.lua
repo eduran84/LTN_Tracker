@@ -40,6 +40,7 @@ for i = 1, 5 do
     parent = parent,
     maximal_width = C.history_tab.column_width[i],
     minimal_width = C.history_tab.column_width[i],
+    right_padding = 4,
   }
 end
 default[ht_names.label_col_3].horizontal_align = "right"
