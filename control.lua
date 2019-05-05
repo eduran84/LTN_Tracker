@@ -10,7 +10,7 @@
 ------------------------------------------------------------------------------------
 -- initialization
 ------------------------------------------------------------------------------------
-defs = require("__LTN_Tracker__.defines")
+defs = require("defines")
 C = require(defs.pathes.modules.constants)
 util = require(defs.pathes.modules.util)
 debug_mode = util.get_setting(defs.settings.debug_mode)

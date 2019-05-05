@@ -1,4 +1,4 @@
-local names = require("__LTN_Tracker__.defines").settings
+local names = require("defines").settings
 data:extend({
 ------------------------------------------------------------------------------------
 -- per-player settings

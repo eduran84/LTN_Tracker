@@ -28,6 +28,7 @@ egm.manager.define_action(defs.actions.show_alerts,
     local main_window = gui.get(event.player_index)
     egm.tabs.set_active_tab(main_window.pane, defs.tabs.alert)
     main_window.root.visible = true
+    game.players[event.player_index].opened = main_window.root
     gui.update_tab(event)
   end
 )

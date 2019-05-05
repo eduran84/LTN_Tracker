@@ -117,7 +117,7 @@ defs.styles = {
   alert_tab = {
     label_col_1 = mod_prefix .. "lb_alert_col1",
     label_col_2 = mod_prefix .. "lb_alert_col2",
-    label_col_2_hover = mod_prefix .. "lb_alert_col2",
+    label_col_2_hover = mod_prefix .. "lb_alert_col2_hover",
     label_col_3 = mod_prefix .. "lb_alert_col3",
     label_col_4 = mod_prefix .. "lb_alert_col4",
   },
@@ -171,18 +171,19 @@ defs.errors = {
   },
 }
 
-local gui_modules = "__GUI_Modules__."
-local optera_lib = "__OpteraLib__."
-local LTNT = "__LTN_Tracker__."
-local gui = LTNT .. "gui."
+local gui_modules = "__GUI_Modules__/"
+local optera_lib = "__OpteraLib__/"
+--local LTNT = "__LTN_Tracker__."
+local LTNT = "__LTN_Tracker_beta__/"
+local gui = LTNT .. "gui/"
 defs.pathes.modules = {
-  constants = LTNT .. "gui.constants",
-  olib_logger = optera_lib .. "script.logger",
-  olib_misc = optera_lib .. "script.misc",
-  olib_train = optera_lib .. "script.train",
+  constants = LTNT .. "gui/constants",
+  olib_logger = optera_lib .. "script/logger",
+  olib_misc = optera_lib .. "script/misc",
+  olib_train = optera_lib .. "script/train",
   import_egm = gui_modules .. "import",
-  data_processing = LTNT .. "script.data_processing",
-  util = LTNT .. "script.extended_util",
+  data_processing = LTNT .. "script/data_processing",
+  util = LTNT .. "script/extended_util",
 
   gui_main = gui .. "main",
   depot_tab = gui .. "depot_tab",
@@ -195,10 +196,10 @@ defs.pathes.modules = {
 }
 
 defs.pathes.sprites = {
-  gui_spritesheet = "__GUI_Modules__/graphics/gui.png",
-  shortcut_icon_32 = "__LTN_Tracker__/graphics/shortcut_x32.png",
-  shortcut_icon_24 = "__LTN_Tracker__/graphics/shortcut_x24.png",
-  shortcut_icon_24_white = "__LTN_Tracker__/graphics/shortcut_x24_white.png",
+  gui_spritesheet = gui_modules .. "graphics/gui.png",
+  shortcut_icon_32 = LTNT .. "graphics/shortcut_x32.png",
+  shortcut_icon_24 = LTNT .. "graphics/shortcut_x24.png",
+  shortcut_icon_24_white = LTNT .. "graphics/shortcut_x24_white.png",
 }
 
 return defs

@@ -32,15 +32,23 @@ egm.stored_functions[defs.functions.alert_row_constructor] = function(egm_table,
     local elem = inner_flow.add{
       type = "label",
       style = styles.label_col_2_hover,
-      caption =delivery.from,
+      caption = delivery.from,
       tooltip = delivery.from,
     }
+    egm.manager.register(elem, {
+      action = defs.actions.station_name_clicked,
+      name = delivery.from
+    })
     elem = inner_flow.add{
       type = "label",
       style = styles.label_col_2_hover,
       caption = delivery.to,
       tooltip = delivery.to,
     }
+    egm.manager.register(elem, {
+      action = defs.actions.station_name_clicked,
+      name = delivery.to
+    })
   else
     local elem = parent.add{
       type = "label",
@@ -53,7 +61,6 @@ egm.stored_functions[defs.functions.alert_row_constructor] = function(egm_table,
     style = styles.label_col_3,
     caption = error_data.time,
   }
-  --elem.style.width = 60
 
   local error_type = error_data.type
   elem = parent.add{
