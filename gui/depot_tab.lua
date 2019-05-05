@@ -8,8 +8,7 @@ local column_count_table_right = 3
 local network_id_sprite = "virtual-signal/" .. C.ltn.NETWORKID
 
 local build_item_table = util.build_item_table
-local get_composition_string = util.train.get_train_composition_string
-local get_locomotive = util.train.get_main_locomotive
+local util_train = util.train
 local format = string.format
 
 egm.stored_functions[defs.functions.depot_row_constructor] = function(egm_table, data)
@@ -202,6 +201,23 @@ local function build_depot_tab(window)
   end
   depot_tab.table_right = table
   return depot_tab
+end
+
+local get_composition_string, get_locomotive
+do
+  local cache_c, cache_l = {}, {}
+  get_composition_string = function(train)
+    if not cache_c[train.id] then
+      cache_c[train.id] = util_train.get_train_composition_string(train)
+    end
+    return cache_c[train.id]
+  end
+  get_locomotive = function(train)
+    if not cache_c[train.id] then
+      cache_c[train.id] = util_train.get_main_locomotive(train)
+    end
+    return cache_c[train.id]
+  end
 end
 
 local function update_details_view(depot_tab, ltn_data)
