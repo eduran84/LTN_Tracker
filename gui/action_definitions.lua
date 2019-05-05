@@ -2,8 +2,7 @@ local defs = defs
 local egm = egm
 local gui = gui
 
-egm.manager.define_action(
-  defs.actions.update_tab,
+egm.manager.define_action(defs.actions.update_tab,
   function(event, data)
     gui.update_tab(event)
   end
@@ -21,8 +20,7 @@ local render_arguments = {
   time_to_live = 300,
   players = {0},
 }
-egm.manager.define_action(
-  defs.actions.station_name_clicked,
+egm.manager.define_action(defs.actions.station_name_clicked,
   function(event, data)
     if debug_mode then log2("station_name_clicked", event, data) end
 
@@ -43,8 +41,7 @@ egm.manager.define_action(
     end
   end
 )
-egm.manager.define_action(
-  defs.actions.select_station_entity,
+egm.manager.define_action(defs.actions.select_station_entity,
   function(event, data)
     if debug_mode then log2("select_station_entity", event, data) end
     local stop_entity = data.stop_entity
@@ -62,8 +59,7 @@ egm.manager.define_action(
     end
   end
 )
-egm.manager.define_action(
-  defs.actions.select_ltnc,
+egm.manager.define_action(defs.actions.select_ltnc,
   function(event, data)
     local pind = event.player_index
     local lamp_entity = data.lamp_entity
@@ -82,8 +78,7 @@ egm.manager.define_action(
     end
   end
 )
-egm.manager.define_action(
-  defs.actions.select_entity,
+egm.manager.define_action(defs.actions.select_entity,
   function(event, data)
     local player = game.players[event.player_index]
     if data.entity.valid and player then
@@ -96,8 +91,7 @@ local function trim(s)
   local from = s:match("^%s*()")
   return from > #s and "" or s:match(".*%S", from)
 end
-egm.manager.define_action(
-  defs.actions.update_filter,
+egm.manager.define_action(defs.actions.update_filter,
   function(event, data)
     if event.name ~= defines.events.on_gui_text_changed then return end
     local elem = event.element
@@ -113,24 +107,21 @@ egm.manager.define_action(
   end
 )
 
-egm.manager.define_action(
-  defs.actions.clear_history,
+egm.manager.define_action(defs.actions.clear_history,
   function(event, data)
     global.data.delivery_hist = {}
     global.data.newest_history_index = 1
     egm.table.clear(data.egm_table)
   end
 )
-egm.manager.define_action(
-  defs.actions.clear_alerts,
+egm.manager.define_action(defs.actions.clear_alerts,
   function(event, data)
     global.data.trains_error = {}
     global.data.train_error_count = 1
     egm.table.clear(data.egm_table)
   end
 )
-egm.manager.define_action(
-  defs.actions.clear_single_alert,
+egm.manager.define_action(defs.actions.clear_single_alert,
   function(event, data)
     global.data.trains_error[data.row_data.error_id] = nil
     egm.table.delete_row(data.egm_table, data.row_data.row_index)

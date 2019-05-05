@@ -1,4 +1,6 @@
 local util = require("util")
+util.misc =  require(defs.pathes.modules.olib_misc)
+util.train = require(defs.pathes.modules.olib_train)
 
 local btest = bit32.btest
 function util.get_items_in_network(ltn_item_list, selected_networkID)
@@ -98,7 +100,18 @@ function util.build_item_table(args)
 	return frame
 end
 
-util.ticks_to_timestring = require(defs.pathes.modules.olib_misc).ticks_to_timestring
-util.train = require(defs.pathes.modules.olib_train)
+function util.get_setting(setting, player)
+  if settings.global[setting] then
+    return settings.global[setting].value
+  elseif settings.player[setting] then
+    if not player then
+      error(logger.tostring("No player specified when trying to read per-player setting", setting))
+    end
+    return settings.get_player_settings(player)[setting].value
+  elseif settings.startup[setting] then
+    return settings.startup[setting].value
+  end
+  error("Mod setting", setting, "does not exist.")
+end
 
 return util

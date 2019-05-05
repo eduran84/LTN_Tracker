@@ -13,7 +13,7 @@ local function on_new_alert(event)
   end
 end
 
-script.on_event(custom_events.on_train_alert, ui.on_new_alert)
+script.on_event(defines.events.on_train_alert, ui.on_new_alert)
 
 return {
   on_new_alert = on_new_alert,

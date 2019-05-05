@@ -80,9 +80,7 @@ local events -- custom event ids
 local STOPS_PER_TICK = C.proc.stops_per_tick
 local DELIVERIES_PER_TICK = C.proc.deliveries_per_tick
 local TRAINS_PER_TICK = C.proc.trains_per_tick
-local ITEMS_PER_TICK = C.proc.items_per_tick
-local LTN_CONSTANTS = C.ltn
-local HISTORY_LIMIT = settings.global[defs.settings.history_limit].value
+local HISTORY_LIMIT = util.get_setting(defs.settings.history_limit)
 
 ---------------------
 -- DATA PROCESSING --
@@ -288,10 +286,10 @@ end
 data_processor = function(event)
   local proc = global.proc
   if proc.state == 0 then -- new data arrived, init processing
-    script.on_event(defines.events.on_tick, data_processor)
+    script.on_event(events.on_tick, data_processor)
     -- suspend LTN interface during data processing
-    script.on_event(events.on_stops_updated_event, nil)
-    script.on_event(events.on_dispatcher_updated_event, nil)
+    script.on_event(events.on_stops_updated, nil)
+    script.on_event(events.on_dispatcher_updated, nil)
 
     -- reset raw data
     raw.depots = {}
@@ -372,9 +370,9 @@ data_processor = function(event)
     data.stop_ids = raw.stop_ids
 
     -- stop on_tick updates, start listening for LTN interface
-    script.on_event(events.on_stops_updated_event, on_stops_updated)
-    script.on_event(events.on_dispatcher_updated_event, on_dispatcher_updated)
-    script.on_event(defines.events.on_tick, nil)
+    script.on_event(events.on_stops_updated, on_stops_updated)
+    script.on_event(events.on_dispatcher_updated, on_dispatcher_updated)
+    script.on_event(events.on_tick, nil)
     script.raise_event(events.on_data_updated, {})
 
     proc.state = 0
@@ -518,28 +516,34 @@ local function on_load()
   data = global.data
 
   -- cache event IDs
-  events = custom_events
-  events.on_stops_updated_event = remote.call(defs.remote.ltn, defs.remote.ltn_stop_update)
-  events.on_dispatcher_updated_event = remote.call(defs.remote.ltn,  defs.remote.ltn_dispatcher_update)
-  events.on_delivery_completed_event = remote.call(defs.remote.ltn, defs.remote.ltn_delivery_completed)
-  events.on_delivery_failed_event = remote.call(defs.remote.ltn, defs.remote.ltn_delivery_failed)
-  events.on_pickup_completed = remote.call(defs.remote.ltn, defs.remote.ltn_pickup_complete)
+  local get_ltn_event = function(event_name)
+    return remote.call(defs.remote.ltn, defs.remote[event_name])
+  end
+  events = defines.events
+  events.on_stops_updated = get_ltn_event("ltn_stop_update")
+  events.on_dispatcher_updated = get_ltn_event("ltn_dispatcher_update")
+  events.on_delivery_completed = get_ltn_event("ltn_delivery_completed")
+  events.on_delivery_failed = get_ltn_event("ltn_delivery_failed")
+  events.on_pickup_completed = get_ltn_event("ltn_pickup_complete")
 
   -- register for conditional events
   if global.proc.state == 0 then
-    script.on_event(events.on_stops_updated_event, on_stops_updated)
-    script.on_event(events.on_dispatcher_updated_event, on_dispatcher_updated)
+    script.on_event(events.on_stops_updated, on_stops_updated)
+    script.on_event(events.on_dispatcher_updated, on_dispatcher_updated)
   else
-    script.on_event(defines.events.on_tick, data_processor)
+    script.on_event(events.on_tick, data_processor)
   end
-  script.on_event(events.on_delivery_completed_event, on_delivery_completed)
-  script.on_event(events.on_delivery_failed_event, on_delivery_failed)
+  script.on_event(events.on_delivery_completed, on_delivery_completed)
+  script.on_event(events.on_delivery_failed, on_delivery_failed)
   script.on_event(events.on_pickup_completed, on_pickup_completed)
 end
 
 local function on_init()
   global.raw = global.raw or {}
-  global.proc = global.proc or {state = 0, underload_is_alert = settings.global[defs.settings.disable_underload].value}
+  global.proc = global.proc or {
+    state = 0,
+    underload_is_alert = util.get_setting(defs.settings.disable_underload),
+  }
 
   global.data = global.data or {} -- storage for processed data, ready to be used by UI
   global.data.stops = global.data.stops or {}
@@ -563,14 +567,14 @@ end
 local function on_settings_changed(event)
   local setting = event.setting
   if setting == defs.settings.history_limit then
-    HISTORY_LIMIT = settings.global[setting].value
+    HISTORY_LIMIT = util.get_setting[setting]
     global.data.history_limit = HISTORY_LIMIT
     global.data.newest_history_index = 1
     global.data.delivery_hist = {}
     return true
   end
   if setting == defs.settings.disable_underload then
-    global.proc.underload_is_alert = not settings.global[setting].value
+    global.proc.underload_is_alert = not util.get_setting(setting)
     return true
   end
   return false

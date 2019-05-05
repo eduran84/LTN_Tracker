@@ -2,7 +2,8 @@ local defs = defs
 local tab_names = defs.tabs
 local egm = egm
 local C = C
-local gui_data = {
+local mod_gui = require("mod-gui")
+local gui_data = {  -- cached global table data
   windows = {},
   is_ltnc_active = false,
   is_ltnc_open = {},
@@ -12,8 +13,10 @@ local gui_data = {
 }
 gui = {}
 
+------------------------------------------------------------------------------------
+-- load ui modules
+------------------------------------------------------------------------------------
 require(defs.pathes.modules.action_definitions)
-local mod_gui = require("mod-gui")
 
 local build_funcs, update_funcs = {}, {}
 build_funcs[tab_names.depot], update_funcs[tab_names.depot] = unpack(require(defs.pathes.modules.depot_tab))
@@ -23,19 +26,39 @@ build_funcs[tab_names.station], update_funcs[tab_names.station] = unpack(require
 build_funcs[tab_names.history], update_funcs[tab_names.history] = unpack(require(defs.pathes.modules.history_tab))
 build_funcs[tab_names.alert], update_funcs[tab_names.alert] = unpack(require(defs.pathes.modules.alert_tab))
 
+------------------------------------------------------------------------------------
+-- gui module functions
+------------------------------------------------------------------------------------
+
+--[[ build(player_index) -> custom egm_window
+Creates the GUI for the given player.
+
+Parameters:
+  player_index :: uint
+
+Public module function.
+]]
 local function build(pind)
-  local frame_flow = mod_gui.get_frame_flow(game.players[pind])
+  local frame_flow
+  local player = game.players[pind]
+  local height = util.get_setting(defs.settings.window_height, player)
+  if util.get_setting(defs.settings.window_location, player) == "left" then
+    frame_flow = mod_gui.get_frame_flow(player)
+    height = height < 710 and height or 710
+  else
+    frame_flow = player.gui.center
+  end
+
   local preexisting_window = frame_flow[defs.names.window]
   if preexisting_window and preexisting_window.valid then
     preexisting_window.destroy()
   end
   egm.manager.delete_player_data(pind)
 
-  local window_height = settings.get_player_settings(game.players[pind])[defs.settings.window_height].value
   local window = egm.window.build(frame_flow, {
     name = defs.names.window,
     caption = {"ltnt.mod-name"},
-    height = window_height,
+    height = height,
     width = C.window.width,
     direction = "vertical",
   })
@@ -61,7 +84,16 @@ local function build(pind)
   gui_data.windows[pind] = window
   return window
 end
+gui.build = build
 
+--[[ get(player_index) -> custom egm_window
+Returns the GUI for the given player if it exists. Creates it otherwise.
+
+Parameters
+  player_index :: uint
+
+Public module function.
+]]
 local function get(pind)
   local window = gui_data.windows[pind]
   if window and window.content and window.content.valid then
@@ -70,36 +102,141 @@ local function get(pind)
     return build(pind)
   end
 end
+gui.get = get
 
+--[[ update_tab(event)
+Updates the currently visible tab for the player given by event.player_index. Does
+nothing if GUI is closed.
+
+Parameters
+  table with fields:
+    player_index :: uint
+
+Public module function.
+]]
 local function update_tab(event)
   local pind = event.player_index
   local window = get(pind)
   local tab_index = window.root.visible and window.pane.active_tab
-  log2("update tab:", event, tab_index)
   if update_funcs[tab_index] then
     update_funcs[tab_index](window.tabs[tab_index], global.data)
     gui_data.last_refresh_tick[pind] = game.tick
   end
 end
+gui.update_tab = update_tab
 
-script.on_event({
-    defines.events.on_tab_changed,
-    defines.events.on_textbox_valid_value_changed,
-  },
-  update_tab
-)
+--[[ update_tab_no_spam(event)
+Updates the currently visible tab for the player given by event.player_index. Does
+nothing if GUI is closed or if the last update happened less than 60 ticks ago
 
-egm.manager.define_action(defs.actions.refresh_button, update_tab)
+Parameters
+  table with fields:
+    player_index :: uint
+]]
+local function update_tab_no_spam(event)
+  local pind = event.player_index
+  local tick = game.tick
+  if tick - gui_data.last_refresh_tick[pind] > 60 then
+    local window = get(pind)
+    local tab_index = window.root.visible and window.pane.active_tab
+    if update_funcs[tab_index] then
+      logger.print("updating")
+      update_funcs[tab_index](window.tabs[tab_index], global.data)
+      gui_data.last_refresh_tick[pind] = tick
+    end
+  end
+end
 
-script.on_event({
+--[[ on_toggle_button_click(event)
+Toggles the visibility of the GUI window player given by event.player_index.
+
+Parameters
+  table with fields:
+    player_index :: uint
+]]
+local function on_toggle_button_click(event)
+  local pind = event.player_index
+  local new_state = egm.window.toggle(get(pind))
+  if new_state then
+    game.players[pind].opened = get(pind).root
+    game.players[pind].set_shortcut_toggled(defs.controls.shortcut, true)
+    gui.update_tab(event)
+  else
+    game.players[pind].set_shortcut_toggled(defs.controls.shortcut, false)
+  end
+end
+
+--[[ player_init(player_index)
+Initializes global table for given player and builds GUI.
+
+Parameters
+  player_index :: uint
+]]
+local function player_init(pind)
+  local player = game.players[pind]
+  if debug_mode then
+    log2("Building UI for player", player.name)
+  end
+  -- set UI state globals
+  gui_data.last_refresh_tick[pind] = 0
+  local refresh_interval = util.get_setting(defs.settings.refresh_interval, player)
+  if refresh_interval > 0 then
+    gui_data.refresh_interval[pind] = refresh_interval * 60
+  else
+    gui_data.refresh_interval[pind] = nil
+  end
+  gui_data.station_select_mode[pind] = tonumber(util.get_setting(defs.settings.station_click_action, player))
+
+  build(pind)
+end
+gui.player_init = player_init
+
+--[[ clear_station_filter()
+Resets station tab's cached filter results. Forces a cache rebuild next time the
+station tab is updated.
+]]
+function gui.clear_station_filter()
+  for pind in pairs(game.players) do
+    local filter = get(pind).tabs[defs.tabs.station].filter
+    filter.cache = {}
+    filter.last = nil
+  end
+end
+------------------------------------------------------------------------------------
+-- event registration
+------------------------------------------------------------------------------------
+script.on_event({  -- gui interactions handling is done by egm manager module
     defines.events.on_gui_click,
     defines.events.on_gui_text_changed,
   },
   egm.manager.on_gui_input
 )
 
-script.on_event(
-  defines.events.on_gui_closed,
+script.on_event(defines.events.on_train_alert, on_new_alert)
+script.on_event(defs.controls.toggle_hotkey, on_toggle_button_click)
+script.on_event(defines.events.on_player_created, player_init)
+
+-- different sources triggering tab update
+script.on_event({
+    defines.events.on_tab_changed,
+    defines.events.on_textbox_valid_value_changed,
+  },
+  update_tab
+)
+script.on_event(defs.controls.refresh_hotkey, update_tab_no_spam)
+egm.manager.define_action(defs.actions.refresh_button, update_tab_no_spam)
+
+
+
+script.on_event(defines.events.on_gui_closed,
+--[[ on_gui_closed(event)
+Closes LTNT GUI or LTNC GUI, depending on which one is open.
+
+Parameters
+  table with fields:
+    player_index :: uint
+    element :: LuaGuiElement
+]]
   function(event)
     -- event triggers whenever any UI element is closed, so check if it is actually the ltnt UI that is supposed to close
     if not (event.element and event.element.valid) then return end
@@ -119,21 +256,7 @@ script.on_event(
   end
 )
 
-local function on_toggle_button_click(event)
-  local pind = event.player_index
-  local new_state = egm.window.toggle(get(pind))
-  if new_state then
-    game.players[pind].opened = get(pind).root
-    game.players[pind].set_shortcut_toggled(defs.controls.shortcut, true)
-    gui.update_tab(event)
-  else
-    game.players[pind].set_shortcut_toggled(defs.controls.shortcut, false)
-  end
-end
-
-script.on_event(defs.controls.toggle_hotkey, on_toggle_button_click)
-script.on_event(
-  defines.events.on_lua_shortcut,
+script.on_event(defines.events.on_lua_shortcut,
   function(event)
     if event.prototype_name == defs.controls.shortcut then
       on_toggle_button_click(event)
@@ -141,11 +264,9 @@ script.on_event(
   end
 )
 
-script.on_event(
-  defines.events.on_data_updated,
+script.on_event(defines.events.on_data_updated,
   function(event)
     local tick = game.tick
-    --local interval = gui_data.refresh_interval
     for pind, interval in pairs(gui_data.refresh_interval) do
       if tick - gui_data.last_refresh_tick[pind] > interval  then
         gui_data.last_refresh_tick[pind] = tick
@@ -154,30 +275,9 @@ script.on_event(
     end
   end
 )
-
-local function player_init(pind)
-  local player = game.players[pind]
-  if debug_mode then
-    log2("Building UI for player", player.name)
-  end
-  -- set UI state globals
-  gui_data.last_refresh_tick[pind] = 0
-  local refresh_interval = settings.get_player_settings(player)[defs.settings.refresh_interval].value
-  if refresh_interval > 0 then
-    gui_data.refresh_interval[pind] = refresh_interval * 60
-  else
-    gui_data.refresh_interval[pind] = nil
-  end
-  gui_data.station_select_mode[pind] = tonumber(settings.get_player_settings(player)[defs.settings.station_click_action].value)
-
-  build(pind)
-end
-script.on_event(defines.events.on_player_created, player_init)
-
-gui.build = build
-gui.get = get
-gui.update_tab = update_tab
-gui.player_init = player_init
+------------------------------------------------------------------------------------
+-- initialization and configuration (called from control.lua)
+------------------------------------------------------------------------------------
 function gui.on_init()
   global.gui_data = global.gui_data or gui_data
   egm.manager.on_init()
@@ -186,29 +286,23 @@ function gui.on_init()
     player_init(pind)
   end
 end
+
 function gui.on_load()
   gui_data = global.gui_data
   egm.manager.on_load()
 end
+
 function gui.on_settings_changed(event)
   local pind = event.player_index
   local setting = event.setting
-  if setting == defs.settings.window_height then
+  if     setting == defs.settings.window_height
+      or setting == defs.settings.window_location then
     build(pind)
     return true
   end
-  local player_settings = settings.get_player_settings(game.players[pind])
-  if setting == "ltnt-show-button" then
-    -- show or hide toggle button
-    if player_settings[setting].value then
-      --GC.toggle_button:show(pind)
-    else
-      --GC.toggle_button:hide(pind)
-    end
-    return true
-  end
+  local player = game.players[pind]
   if setting == defs.settings.refresh_interval then
-    local refresh_interval = player_settings[setting].value
+    local refresh_interval = util.get_setting(setting, player)
     if refresh_interval > 0 then
       gui_data.refresh_interval[pind] = refresh_interval * 60
     else
@@ -217,13 +311,14 @@ function gui.on_settings_changed(event)
     return true
   end
   if setting == defs.settings.station_click_action then
-    gui_data.station_select_mode[pind] = tonumber(player_settings[setting].value)
+    gui_data.station_select_mode[pind] = tonumber(util.get_setting(setting, player))
     return true
   end
   return false
 end
+
 function gui.on_configuration_changed(data)
-  -- handle changes to LTN-Combinator
+   -- handle changes to LTN-Combinator
   local reset = false
   if data.mod_changes[defs.names.ltnc] then
     local was_active = gui_data.is_ltnc_active
@@ -238,19 +333,10 @@ function gui.on_configuration_changed(data)
     reset = true
   end
   if reset then
+    gui.clear_station_filter()
     for pind in pairs(game.players) do
       build(pind)
     end
-    gui.clear_station_filter()
-  end
-end
-
-function gui.clear_station_filter()
-  -- hacky way to force reset of cached filter results
-  for pind in pairs(game.players) do
-    local filter = get(pind).tabs[defs.tabs.station].filter
-    filter.cache = {}
-    filter.last = nil
   end
 end
 

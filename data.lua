@@ -15,6 +15,11 @@ data:extend({
     consuming = "none",
   },
   {
+    type = "custom-input",
+    name = defs.controls.refresh_hotkey,
+    key_sequence = "R",
+  },
+  {
     type = "shortcut",
     name = defs.controls.shortcut,
     order = "a[ltnt-toggle-shortcut]",
@@ -32,15 +37,6 @@ data:extend({
       scale = 1,
       flags = {"icon"}
     },
-    --[[
-    disabled_icon =
-    {
-      filename = defs.pathes.sprites.shortcut_icon_32_white,
-      priority = "extra-high-no-scale",
-      size = 32,
-      scale = 1,
-      flags = {"icon"}
-    },--]]
     small_icon =
     {
       filename = defs.pathes.sprites.shortcut_icon_24,

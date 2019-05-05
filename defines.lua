@@ -4,21 +4,20 @@ local defs = {
   pathes = {},
 }
 
-local mod_prefix = "ltnt"
-
 defs.mod_name = "LTN_Tracker"
-defs.mod_prefix = mod_prefix
+defs.mod_prefix = "ltnt"
 
+local mod_prefix = defs.mod_prefix .. "_"
 defs.settings = {
-  debug_mode = mod_prefix .. "-debug-level",
-  window_height = mod_prefix .. "-window-height",
-  refresh_interval = mod_prefix .. "-refresh-interval",
-  station_click_action = mod_prefix .. "-station-click-behavior",
-  history_limit = mod_prefix .. "-history-limit",
-  disable_underload = mod_prefix .. "-disable-underload-alert",
+  debug_mode = mod_prefix .. "debug_level",
+  window_location = mod_prefix .. "window_location",
+  window_height = mod_prefix .. "window_height",
+  refresh_interval = mod_prefix .. "refresh_interval",
+  station_click_action = mod_prefix .. "station_click_behavior",
+  history_limit = mod_prefix .. "history_limit",
+  disable_underload = mod_prefix .. "disable_underload_alert",
 }
 
-mod_prefix = mod_prefix .. "_"
 defs.names = {
   ltn = "LogisticTrainNetwork",
   ltnc = "LTN_Combinator",
@@ -121,7 +120,8 @@ defs.styles = {
 
 defs.controls = {
   toggle_hotkey = mod_prefix .. "toggle_hotkey",
-  shortcut = mod_prefix .. "toggle_shortcut"
+  refresh_hotkey = mod_prefix .. "refresh_hotkey",
+  shortcut = mod_prefix .. "toggle_shortcut",
 }
 
 defs.remote = {
