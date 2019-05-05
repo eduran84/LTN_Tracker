@@ -1,5 +1,4 @@
 local egm_defs = require("__GUI_Modules__.defines")
-
 local defs = {
   pathes = {},
 }

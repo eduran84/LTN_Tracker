@@ -16,7 +16,6 @@ util = require(defs.pathes.modules.util)
 debug_mode = util.get_setting(defs.settings.debug_mode)
 logger = require(defs.pathes.modules.olib_logger)
 log2 = logger.log
-if debug_mode then logger.add_debug_commands() end
 
 defines.events.on_data_updated = script.generate_event_name()
 defines.events.on_train_alert = script.generate_event_name()
@@ -46,6 +45,11 @@ end)
 script.on_load(function()
   gui.on_load()
   prc.on_load()
+  if debug_mode then
+    logger.add_debug_commands()
+  else
+    logger.remove_debug_commands()
+  end
 end)
 
 -------------------------------------------------------------------------------------
@@ -60,6 +64,11 @@ script.on_event(defines.events.on_runtime_mod_setting_changed, function(event)
   end
   if setting == defs.settings.debug_mode then
     debug_mode = util.get_setting(setting)
+    if debug_mode then
+      logger.add_debug_commands()
+    else
+      logger.remove_debug_commands()
+    end
     return
   end
   local setting_found = gui.on_settings_changed(event)

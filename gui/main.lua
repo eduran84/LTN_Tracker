@@ -267,9 +267,7 @@ Parameters
   player_index :: uint
 ]]
   local player = game.players[pind]
-  if debug_mode then
-    log2("Building UI for player", player.name)
-  end
+  if debug_mode then log2("Building UI for player", player.name) end
   -- set UI state globals
   gui_data.show_alerts[pind] = util.get_setting(defs.settings.show_alerts, player)  or nil
   gui_data.last_refresh_tick[pind] = 0
