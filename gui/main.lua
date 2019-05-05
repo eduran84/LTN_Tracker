@@ -5,6 +5,8 @@ local C = C
 local mod_gui = require("mod-gui")
 local gui_data = {  -- cached global table data
   windows = {},
+  alert_popup = {},
+  show_alerts = {},
   is_ltnc_active = false,
   is_ltnc_open = {},
   station_select_mode = {},
@@ -30,15 +32,13 @@ build_funcs[tab_names.alert], update_funcs[tab_names.alert] = unpack(require(def
 -- gui module functions
 ------------------------------------------------------------------------------------
 
+local function build(pind)
 --[[ build(player_index) -> custom egm_window
 Creates the GUI for the given player.
 
 Parameters:
   player_index :: uint
-
-Public module function.
 ]]
-local function build(pind)
   local frame_flow
   local player = game.players[pind]
   local height = util.get_setting(defs.settings.window_height, player)
@@ -71,8 +71,7 @@ local function build(pind)
   },
   {action = defs.actions.refresh_button})
 
-  local pane = egm.tabs.build(window.content, {direction = "vertical"})
-  window.pane = pane
+  window.pane = egm.tabs.build(window.content, {direction = "vertical"})
 
   window.tabs = {}
   window.tabs[tab_names.depot] = build_funcs[tab_names.depot](window)
@@ -86,15 +85,14 @@ local function build(pind)
 end
 gui.build = build
 
+
+local function get(pind)
 --[[ get(player_index) -> custom egm_window
 Returns the GUI for the given player if it exists. Creates it otherwise.
 
 Parameters
   player_index :: uint
-
-Public module function.
 ]]
-local function get(pind)
   local window = gui_data.windows[pind]
   if window and window.content and window.content.valid then
     return window
@@ -104,6 +102,7 @@ local function get(pind)
 end
 gui.get = get
 
+local function update_tab(event)
 --[[ update_tab(event)
 Updates the currently visible tab for the player given by event.player_index. Does
 nothing if GUI is closed.
@@ -111,10 +110,7 @@ nothing if GUI is closed.
 Parameters
   table with fields:
     player_index :: uint
-
-Public module function.
 ]]
-local function update_tab(event)
   local pind = event.player_index
   local window = get(pind)
   local tab_index = window.root.visible and window.pane.active_tab
@@ -125,6 +121,7 @@ local function update_tab(event)
 end
 gui.update_tab = update_tab
 
+local function update_tab_no_spam(event)
 --[[ update_tab_no_spam(event)
 Updates the currently visible tab for the player given by event.player_index. Does
 nothing if GUI is closed or if the last update happened less than 60 ticks ago
@@ -133,7 +130,6 @@ Parameters
   table with fields:
     player_index :: uint
 ]]
-local function update_tab_no_spam(event)
   local pind = event.player_index
   local tick = game.tick
   if tick - gui_data.last_refresh_tick[pind] > 60 then
@@ -147,6 +143,7 @@ local function update_tab_no_spam(event)
   end
 end
 
+local function on_toggle_button_click(event)
 --[[ on_toggle_button_click(event)
 Toggles the visibility of the GUI window player given by event.player_index.
 
@@ -154,7 +151,6 @@ Parameters
   table with fields:
     player_index :: uint
 ]]
-local function on_toggle_button_click(event)
   local pind = event.player_index
   local new_state = egm.window.toggle(get(pind))
   if new_state then
@@ -166,18 +162,116 @@ local function on_toggle_button_click(event)
   end
 end
 
+function gui.clear_station_filter()
+--[[ clear_station_filter()
+Resets station tab's cached filter results. Forces a cache rebuild next time the
+station tab is updated.
+]]
+  for pind in pairs(game.players) do
+    local filter = get(pind).tabs[defs.tabs.station].filter
+    filter.cache = {}
+    filter.last = nil
+  end
+end
+
+local function build_alert_popup(pind)
+--[[ build_alert_popup(player_index) -> custom egm_window
+Creates the alert popup for the given player.
+
+Parameters:
+  player_index :: uint
+]]
+  local frame_flow = mod_gui.get_frame_flow(game.players[pind])
+  local preexisting_window = frame_flow[defs.names.alert_popup]
+  if preexisting_window and preexisting_window.valid then
+    egm.manager.unregister(preexisting_window)
+    preexisting_window.destroy()
+  end
+  local alert_popup = egm.window.build(frame_flow, {
+      frame_style = defs.styles.alert_notice.frame,
+      title_style = defs.styles.alert_notice.frame_caption,
+      width = 160,
+      caption = {"alert.popup-caption"},
+      name = defs.names.alert_popup,
+    }
+  )
+  local button = egm.window.add_button(alert_popup, {
+      type = "sprite-button",
+      style = defs.styles.shared.large_close_button,
+      sprite = "utility/go_to_arrow",
+      tooltip = {"alert.open-button"},
+    },
+    {action = defs.actions.show_alerts, window = alert_popup}
+  )
+  egm.window.add_button(alert_popup, {
+      type = "sprite-button",
+      style = defs.styles.shared.large_close_button,
+      sprite = "utility/close_black",
+      tooltip = {"alert.close-button"},
+    },
+    {action = defs.actions.close_popup, window = alert_popup}
+  )
+  gui_data.alert_popup[pind] = alert_popup
+  return alert_popup
+end
+
+local function get_alert_popup(pind)
+--[[ get_alert_popup(player_index) -> custom egm_window
+Returns the alert popup window for the given player if it exists. Creates it otherwise.
+
+Parameters
+  player_index :: uint
+]]
+  local window = gui_data.alert_popup[pind]
+  if window and window.content and window.content.valid then
+    egm.window.clear(window)
+    return window
+  else
+    return build_alert_popup(pind)
+  end
+end
+
+local function on_new_alert(event)
+--[[ on_new_alert(event)
+Opens alert pop-up for all players.
+
+Parameters
+  table with fields:
+    type :: string: name of the alert
+    loco :: LuaEntity: a locomotive entity
+    delivery :: Table: delivery data as received from LTN
+    cargo :: Table: [item] = count
+]]
+  for pind in pairs(gui_data.show_alerts) do
+    if get(pind).root.visible then
+      event.player_index = pind
+      update_tab(event)
+    else
+      local alert_popup = get_alert_popup(pind)
+      alert_popup.root.visible = true
+      alert_popup.content.add{
+        type = "label",
+        style = "tooltip_heading_label",
+        caption = defs.errors[event.type].caption,
+        tooltip = defs.errors[event.type].tooltip,
+      }.style.single_line = false
+    end
+  end
+end
+
+local function player_init(pind)
 --[[ player_init(player_index)
 Initializes global table for given player and builds GUI.
 
 Parameters
   player_index :: uint
 ]]
-local function player_init(pind)
   local player = game.players[pind]
   if debug_mode then
     log2("Building UI for player", player.name)
   end
   -- set UI state globals
+  gui_data.show_alerts[pind] = util.get_setting(defs.settings.show_alerts, player)  or nil
   gui_data.last_refresh_tick[pind] = 0
   local refresh_interval = util.get_setting(defs.settings.refresh_interval, player)
   if refresh_interval > 0 then
@@ -190,18 +284,6 @@ local function player_init(pind)
   build(pind)
 end
 gui.player_init = player_init
-
---[[ clear_station_filter()
-Resets station tab's cached filter results. Forces a cache rebuild next time the
-station tab is updated.
-]]
-function gui.clear_station_filter()
-  for pind in pairs(game.players) do
-    local filter = get(pind).tabs[defs.tabs.station].filter
-    filter.cache = {}
-    filter.last = nil
-  end
-end
 ------------------------------------------------------------------------------------
 -- event registration
 ------------------------------------------------------------------------------------
@@ -225,8 +307,6 @@ script.on_event({
 )
 script.on_event(defs.controls.refresh_hotkey, update_tab_no_spam)
 egm.manager.define_action(defs.actions.refresh_button, update_tab_no_spam)
-
-
 
 script.on_event(defines.events.on_gui_closed,
 --[[ on_gui_closed(event)
@@ -312,6 +392,10 @@ function gui.on_settings_changed(event)
   end
   if setting == defs.settings.station_click_action then
     gui_data.station_select_mode[pind] = tonumber(util.get_setting(setting, player))
+    return true
+  end
+  if setting == defs.settings.show_alerts then
+    gui_data.show_alerts[pind] = util.get_setting(defs.settings.show_alerts) or nil
     return true
   end
   return false

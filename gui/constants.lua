@@ -1,11 +1,6 @@
 -- constant definitions
 local CONST = {}
 
--- ui_ctrl.lua
-CONST.ui_ctrl = {
-  marker_circle_color = {r = 1, g = 0, b = 0, a = 0.5}
-}
-
 -- data_processing.lua
 CONST.proc = {
   fluid_tolerance = 0.1,
@@ -18,6 +13,7 @@ CONST.proc = {
 -- UI layout
 CONST.window = {
   width = 930,
+  marker_circle_color = {r = 1, g = 0, b = 0, a = 0.5}
 }
 
 CONST.depot_tab = {
@@ -40,7 +36,8 @@ CONST.station_tab = {
 CONST.inventory_tab = {
   item_table_column_count = 13,
   details_item_tb_col_count = 9,
-  details_width = 400,
+  details_width = 390,
+  summary_number_width = 100,
   details_tb_col_width_stations = {300, 45},
   details_tb_col_width_deliveries = {160, 25, 160}
 }
@@ -52,9 +49,8 @@ CONST.history_tab = {
 }
 
 CONST.alert_tab = {
-  frame_width = 940,
-  n_columns = 5,
-	col_width = {169, 178, 208, 245},
+  n_columns = 6,
+	col_width = {160, 165, 75, 160, 245},
 }
 
 -- LTN definitions, copied from LTN's control.lua
@@ -74,22 +70,7 @@ local ltn = {
   PROVIDED_PRIORITY = "ltn-provider-priority",
   LOCKEDSLOTS = "ltn-locked-slots",
 }
---[[
-ltn.is_control_signal = {
-  [ltn.ISDEPOT] = true,
-  [ltn.NETWORKID] = true,
-  [ltn.MINTRAINLENGTH] = true,
-  [ltn.MAXTRAINLENGTH] = true,
-  [ltn.MAXTRAINS] = true,
-  [ltn.REQUESTED_THRESHOLD] = true,
-  [ltn.REQUESTED_STACK_THRESHOLD] = true,
-  [ltn.REQUESTED_PRIORITY] = true,
-  [ltn.NOWARN] = true,
-  [ltn.PROVIDED_THRESHOLD] = true,
-  [ltn.PROVIDED_STACK_THRESHOLD] = true,
-  [ltn.PROVIDED_PRIORITY] = true,
-  [ltn.LOCKEDSLOTS] = true,
-}--]]
+
 ltn.ctrl_signal_var_name_bool = {
   [ltn.ISDEPOT] = "isDepot",
   [ltn.NOWARN] = "noWarnings",

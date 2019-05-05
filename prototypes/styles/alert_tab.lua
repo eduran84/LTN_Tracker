@@ -14,8 +14,12 @@ default[names.label_col_2] = {
   width = C.alert_tab.col_width[2],
 }
 default[names.label_col_3] = {
+  type = "label_style",
+  width = C.alert_tab.col_width[3],
+}
+default[names.label_col_4] = {
 	type = "label_style",
 	parent = "bold_red_label",
   single_line = false,
-  width = C.alert_tab.col_width[3],
+  width = C.alert_tab.col_width[4],
 }

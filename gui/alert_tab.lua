@@ -3,11 +3,13 @@ local egm = egm
 local C = C
 local styles = defs.styles.alert_tab
 local build_item_table = util.build_item_table
+local error_defs = defs.errors
 
 egm.stored_functions[defs.functions.alert_sort .. 1] = function(a, b) return a.error_data.delivery.depot < b.error_data.delivery.depot end
 egm.stored_functions[defs.functions.alert_sort .. 2] = function(a, b) return a.error_data.delivery.from < b.error_data.delivery.from end
-egm.stored_functions[defs.functions.alert_sort .. 3] = function(a, b) return a.error_data.type < b.error_data.type end
--- TODO: make styles for labels with width included
+egm.stored_functions[defs.functions.alert_sort .. 3] = function(a, b) return a.error_data.time < b.error_data.time end
+egm.stored_functions[defs.functions.alert_sort .. 4] = function(a, b) return a.error_data.type < b.error_data.type end
+
 egm.stored_functions[defs.functions.alert_row_constructor] = function(egm_table, data)
   local parent = egm_table.content
   local error_id = data.error_id
@@ -20,6 +22,7 @@ egm.stored_functions[defs.functions.alert_row_constructor] = function(egm_table,
     caption = delivery.depot,
     tooltip = delivery.depot,
   }
+  -- route name
   if delivery.to and delivery.from then
     local inner_flow = parent.add{
       type = "flow",
@@ -41,94 +44,60 @@ egm.stored_functions[defs.functions.alert_row_constructor] = function(egm_table,
   else
     local elem = parent.add{
       type = "label",
-      style = styles.alert_col_2,
+      style = styles.label_col_2,
       caption = "unknown",
     }
   end
+  elem = parent.add{
+    type = "label",
+    style = styles.label_col_3,
+    caption = error_data.time,
+  }
+  --elem.style.width = 60
+
+  local error_type = error_data.type
+  elem = parent.add{
+    type = "label",
+    style = styles.label_col_4,
+    caption = error_defs[error_type].caption,
+    tooltip = error_defs[error_type].tooltip,
+  }
+  local inner_flow = parent.add{type = "flow", direction = "vertical"}
   local enable_select_button = true
-  if error_data.type == "residuals" then
-    local elem = parent.add{
-      type = "label",
-      style = styles.label_col_3,
-      caption = {"error.train-leftover-cargo"},
-      tooltip = {"error.train-leftover-cargo-tt"},
-    }
-    -- residual item overview
-    elem = parent.add{type = "flow", direction = "vertical"}
+  if error_type == "train_invalid" then
+    inner_flow.style.width = C.alert_tab.col_width[5]
+    enable_select_button =  false
+  else
     build_item_table{
-      parent = elem,
+      parent = inner_flow,
       provided = error_data.delivery.shipment,
       columns = 6,
       no_negate = true,
     }
+  end
+  if error_type == "residuals" then
+    -- residual item overview
     build_item_table{
-      parent = elem,
+      parent = inner_flow,
       requested = error_data.cargo[2],
       columns = 6,
       type = error_data.cargo[1],
       no_negate = true,
     }
-  elseif error_data.type == "incorrect_cargo" then
+  elseif error_type == "incorrect_cargo" then
     -- cargo table
-    local elem = parent.add{
-      type = "label",
-      style = styles.label_col_3,
-      caption = {"error.train-incorrect-cargo"},
-      tooltip = {"error.train-incorrect-cargo-tt"},
-    }
-    elem = parent.add{type = "flow", direction = "vertical"}
     build_item_table{
-      parent = elem,
-      provided = error_data.delivery.shipment,
-      columns = 6,
-      no_negate = true,
-    }
-    build_item_table{
-      parent = elem,
+      parent = inner_flow,
       requested = error_data.cargo,
       columns = 6,
       no_negate = true,
     }
-  elseif error_data.type == "timeout" then
-    local elem
-    if error_data.delivery.pickupDone then
-      elem = parent.add{
-        type = "label",
-        style = styles.label_col_3,
-        caption = {"error.train-timeout-post-pickup"},
-        tooltip = {"error.train-timeout-post-pickup-tt"},
-      }
-    else
-      elem = parent.add{
-        type = "label",
-        style = styles.label_col_3,
-        caption = {"error.train-timeout-pre-pickup"},
-        tooltip = {"error.train-timeout-pre-pickup-tt"},
-      }
-    end
-    build_item_table{
-      parent = parent,
-      provided = error_data.delivery.shipment,
-      columns = 6,
-      no_negate = true,
-    }
-  else
-    --train invalid
-    local elem = parent.add{
-      type = "label",
-      style = styles.label_col_3,
-      caption = {"error.train-invalid"},
-      caption = {"error.train-invalid-tt"},
-    }
-    elem = parent.add{type = "flow"}
-    elem.style.width = C.alert_tab.col_width[4]
-    enable_select_button =  false
   end
   local button_flow = parent.add{type = "table", column_count = 2, style = "slot_table"}
   elem = button_flow.add{
     type = "sprite-button",
     style = defs.styles.shared.default_button,
-    sprite = "utility/gps_map_icon", --"ltnt_sprite_enter", --TODO: new sprite, add to defines
+    sprite = "utility/gps_map_icon",
     tooltip = {"alert.select-tt"},
     enabled = enable_select_button,
   }
@@ -155,7 +124,7 @@ local function build_alert_tab(window)
 
   local table = egm.table.build(
     flow,
-    {column_count = C.alert_tab.n_columns},
+    {column_count = C.alert_tab.n_columns, draw_horizontal_lines = true},
     defs.functions.alert_row_constructor
   )
   for i = 1, C.alert_tab.n_columns - 2 do

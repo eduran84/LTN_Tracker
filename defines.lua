@@ -12,6 +12,7 @@ defs.settings = {
   debug_mode = mod_prefix .. "debug_level",
   window_location = mod_prefix .. "window_location",
   window_height = mod_prefix .. "window_height",
+  show_alerts = mod_prefix .. "show_alert_popups",
   refresh_interval = mod_prefix .. "refresh_interval",
   station_click_action = mod_prefix .. "station_click_behavior",
   history_limit = mod_prefix .. "history_limit",
@@ -22,6 +23,7 @@ defs.names = {
   ltn = "LogisticTrainNetwork",
   ltnc = "LTN_Combinator",
   window = mod_prefix .. "main_window",
+  alert_popup = mod_prefix .. "alert_popup_window",
 }
 
 defs.tabs = {
@@ -36,6 +38,8 @@ defs.tabs = {
 defs.actions = {
   update_tab = "update_single_tab",
   refresh_button = "refresh_button_clicked",
+  show_alerts = "open_alert_tab",
+  close_popup = "close_alert_popup",
 
   show_depot_details = "show_depot_details",
 
@@ -70,6 +74,7 @@ defs.functions = {
 defs.styles = {
   shared = {
     default_button = mod_prefix .. "default_button",
+    large_close_button = mod_prefix .. "large_close_button",
     slot_table_frame = mod_prefix .. "ltnt_slot_table_frame",
     no_frame_scroll_pane = mod_prefix .. "bare_scroll_pane",
     horizontal_spacer = egm_defs.style_names.shared.horizontal_spacer,
@@ -115,6 +120,11 @@ defs.styles = {
     label_col_2 = mod_prefix .. "lb_alert_col2",
     label_col_2_hover = mod_prefix .. "lb_alert_col2",
     label_col_3 = mod_prefix .. "lb_alert_col3",
+    label_col_4 = mod_prefix .. "lb_alert_col4",
+  },
+  alert_notice = {
+    frame = egm_defs.style_names.frame.outer_frame_red_transparent,
+    frame_caption = mod_prefix .. "lb_alert_frame_caption",
   },
 }
 
@@ -133,6 +143,33 @@ defs.remote = {
   ltn_delivery_completed = "on_delivery_completed",
   ltnc_interface = "ltn-combinator",
   ltnc_close = "close_ltn_combinator",
+}
+
+defs.errors = {
+  residuals = {
+    caption = {"error.train-leftover-cargo"},
+    tooltip = {"error.train-leftover-cargo-tt"},
+  },
+  incorrect_cargo = {
+    caption = {"error.train-incorrect-cargo"},
+    tooltip = {"error.train-incorrect-cargo-tt"},
+  },
+  incorrect_cargo = {
+    caption = {"error.train-incorrect-cargo"},
+    tooltip = {"error.train-incorrect-cargo-tt"},
+  },
+  timeout_post = {
+    caption = {"error.train-timeout-post-pickup"},
+    tooltip = {"error.train-timeout-post-pickup-tt"},
+  },
+  timeout_pre = {
+    caption = {"error.train-timeout-pre-pickup"},
+    tooltip = {"error.train-timeout-pre-pickup-tt"},
+  },
+  train_invalid = {
+    caption = {"error.train-invalid"},
+    tooltip = {"error.train-invalid-tt"},
+  },
 }
 
 local gui_modules = "__GUI_Modules__."
@@ -159,6 +196,7 @@ defs.pathes.modules = {
 }
 
 defs.pathes.sprites = {
+  gui_spritesheet = "__GUI_Modules__/graphics/gui.png",
   shortcut_icon_32 = "__LTN_Tracker__/graphics/shortcut_x32.png",
   shortcut_icon_24 = "__LTN_Tracker__/graphics/shortcut_x24.png",
   shortcut_icon_24_white = "__LTN_Tracker__/graphics/shortcut_x24_white.png",

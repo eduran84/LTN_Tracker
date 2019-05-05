@@ -28,12 +28,10 @@ default[names.del_col_3] = {
   width = C.inventory_tab.details_tb_col_width_deliveries[3],
 }
 
-local SUMMARY_NUM_WIDTH = 100
-
 default[names.summary_number] = {
   type = "label_style",
 	parent = "bold_label",
   font = "ltnt_font_default",
 	horizontal_align = "right",
-	width = SUMMARY_NUM_WIDTH,
+	width = C.inventory_tab.summary_number_width,
 }

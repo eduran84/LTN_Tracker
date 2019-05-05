@@ -29,6 +29,13 @@ data:extend({
     order = "e",
 	},
   {
+		name = names.show_alerts,
+    setting_type = "runtime-per-user",
+		type = "bool-setting",
+    default_value = true,
+    order = "f",
+	},
+  {
 		name = names.refresh_interval,
 		setting_type = "runtime-per-user",
 		type = "int-setting",

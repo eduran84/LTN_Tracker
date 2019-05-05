@@ -7,8 +7,6 @@ local tonumber, match, btest = tonumber, string.match, bit32.btest
 local get_items_in_network = util.get_items_in_network
 local build_item_table = util.build_item_table
 
-local TOTAL_WIDTH = C.inventory_tab.details_width
-local SUM_LABEL_WIDTH =  TOTAL_WIDTH - 150
 local COL_COUNT =  C.inventory_tab.details_item_tb_col_count
 
 local function build_inventory_tab(window)
@@ -58,8 +56,8 @@ local function build_inventory_tab(window)
     left_pane, {
       caption = {"inventory.provide-caption"},
       item_list = {},
-      width = 398,
-      column_count = 10,
+      --width = 398,
+      column_count = C.inventory_tab.item_table_column_count,
       row_count = 3,
       color = "green",
       action = defs.actions.show_item_details,
@@ -70,8 +68,8 @@ local function build_inventory_tab(window)
     left_pane, {
       caption = {"inventory.request-caption"},
       item_list = {},
-      column_count = 10,
-      width = 398,
+      column_count = C.inventory_tab.item_table_column_count,
+      --width = 398,
       row_count = 2,
       color = "red",
       action = defs.actions.show_item_details,
@@ -82,8 +80,8 @@ local function build_inventory_tab(window)
     left_pane, {
       caption = {"inventory.transit-caption"},
       item_list = {},
-      column_count = 10,
-      width = 398,
+      column_count = C.inventory_tab.item_table_column_count,
+      --width = 398,
       row_count = 2,
       action = defs.actions.show_item_details,
       super = inv_tab,
@@ -103,15 +101,16 @@ local function build_inventory_tab(window)
   details_frame.icon = button
   -- summary at the top of the pane
   local summary = details_frame.content.add{type = "table", column_count = 2, style = "slot_table"}
+  local width = C.inventory_tab.details_width - C.inventory_tab.summary_number_width
   details_frame.summary = summary
   label = summary.add{type = "label", caption = {"inventory.detail-prov"}, style = "bold_label"}
-  label.style.width = SUM_LABEL_WIDTH
+  label.style.width = width
   summary.add{type = "label", caption = "0", style = styles.summary_number}
   label = summary.add{type = "label", caption = {"inventory.detail-req"}, style = "bold_label"}
-  label.style.width = SUM_LABEL_WIDTH
+  label.style.width = width
   summary.add{type = "label", caption = "0", style = styles.summary_number}
   label = summary.add{type = "label", caption = {"inventory.detail-tr"}, style = "bold_label"}
-  label.style.width = SUM_LABEL_WIDTH
+  label.style.width = width
   summary.add{type = "label", caption = "0", style = styles.summary_number}
 
   local spacer_flow = details_frame.content.add{type = "flow"}
@@ -128,7 +127,7 @@ local function build_inventory_tab(window)
   local stop_table = pane.add{type = "flow", style = defs.styles.shared.vertical_container, direction = "vertical"}
   label = stop_table.add{type = "label", caption = {"inventory.detail_label"}}
   label.style.single_line = false
-  label.style.width = TOTAL_WIDTH - 30
+  label.style.width = C.inventory_tab.details_width - 45
 
   pane.add{type = "label", style = "heading_2_label", caption = {"inventory.del_header"}}
   local del_table = pane.add{type = "flow", style = defs.styles.shared.vertical_container, direction = "vertical"}

@@ -398,6 +398,7 @@ local function store_history(history)
   data.newest_history_index = (data.newest_history_index % HISTORY_LIMIT) + 1
 end
 
+local ticks_to_timestring = util.misc.ticks_to_timestring
 local function raise_alert(delivery, train, alert_type, actual_cargo)
   local loco = get_main_loco(train)
   delivery.to_id = delivery.to_id or data.name2id[delivery.to] or 0
@@ -407,6 +408,7 @@ local function raise_alert(delivery, train, alert_type, actual_cargo)
     loco = loco,
     delivery = delivery,
     cargo = actual_cargo,
+    time = ticks_to_timestring(),
   }
   if debug_mode then
     log2("Train error state detected:\n", data.trains_error[data.train_error_count])
@@ -499,7 +501,9 @@ local function on_delivery_failed(event)
     -- train still valid -> delivery timed out
     delivery.timed_out = true
     delivery.depot = train.schedule and train.schedule.records[1] and train.schedule.records[1].station
-    raise_alert(delivery, train, "timeout")
+    raise_alert(delivery, train,
+        delivery.pickupDone and "timeout_post" or "timeout_pre"
+    )
   else
     -- train became invalid during delivery
     raise_alert(delivery, train, "train_invalid")
