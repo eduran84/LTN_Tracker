@@ -21,28 +21,4 @@ data:extend({
     from = "default",
     size = 14
   },
-  {
-    type = "font",
-    name = "ltnt_font_bold",
-    from = "default-bold",
-    size = 14
-    },
-  {
-    type = "font",
-    name = "ltnt_font_tab_caption",
-    from = "default-semibold",
-    size = 18
-  },
-  {
-    type = "font",
-    name = "ltnt_font_frame_caption",
-    from = "default-semibold",
-    size = 20
-  },
-  {
-    type = "font",
-    name = "ltnt_font_subheading",
-    from = "default",
-    size = 18
-  },
 })

@@ -182,6 +182,7 @@ local function build_depot_tab(window)
     caption = {"depot.frame-caption-right", ""},
     direction = "vertical",
   }
+  frame_right.style.width = 548
   depot_tab.frame_right = frame_right
 
   local table = egm.table.build(

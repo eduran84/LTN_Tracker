@@ -26,8 +26,7 @@ default[shared_styles.slot_table_frame] = {
 }
 
 -- station tab
-local st_names = style_names.station_tab
-default[st_names.station_label] = {
+default[defs.styles.station_tab.station_label] = {
   type = "label_style",
   parent = "hoverable_bold_label",
   maximal_width = C.station_tab.col_width[1],
@@ -36,7 +35,7 @@ default[st_names.station_label] = {
 }
 
 -- history tab
-local ht_names = style_names.hist_tab
+local ht_names = defs.styles.hist_tab
 for i = 1, 5 do
   local parent = "label"
   if i == 2 then
