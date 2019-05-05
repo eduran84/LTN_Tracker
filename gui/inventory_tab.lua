@@ -101,17 +101,17 @@ local function build_inventory_tab(window)
   details_frame.icon = button
   -- summary at the top of the pane
   local summary = details_frame.content.add{type = "table", column_count = 2, style = "slot_table"}
-  local width = C.inventory_tab.details_width - C.inventory_tab.summary_number_width
+  local width = C.inventory_tab.details_width - C.inventory_tab.summary_number_width - 25
   details_frame.summary = summary
   label = summary.add{type = "label", caption = {"inventory.detail-prov"}, style = "bold_label"}
   label.style.width = width
-  summary.add{type = "label", caption = "0", style = styles.summary_number}
+  summary.add{type = "label", caption = "0", style = styles.summary_number}.style.width = 90
   label = summary.add{type = "label", caption = {"inventory.detail-req"}, style = "bold_label"}
   label.style.width = width
-  summary.add{type = "label", caption = "0", style = styles.summary_number}
+  summary.add{type = "label", caption = "0", style = styles.summary_number}.style.width = 90
   label = summary.add{type = "label", caption = {"inventory.detail-tr"}, style = "bold_label"}
   label.style.width = width
-  summary.add{type = "label", caption = "0", style = styles.summary_number}
+  summary.add{type = "label", caption = "0", style = styles.summary_number}.style.width = 90
 
   local spacer_flow = details_frame.content.add{type = "flow"}
   spacer_flow.style.height = 10
