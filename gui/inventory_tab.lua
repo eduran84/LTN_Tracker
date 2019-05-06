@@ -46,22 +46,39 @@ local function build_inventory_tab(window)
     defs.functions.id_selector_valid
   )
 
+  local checkbox = button_flow.add{
+    type = "checkbox",
+    state = true,
+    tooltip = {"inventory.show-all-tt"},
+  }
+  egm.manager.register(checkbox, {
+    action = defs.actions.show_all_items,
+    super = inv_tab
+  })
+  label = button_flow.add{
+    type = "label",
+    caption = {"inventory.show-all"},
+    tooltip = {"inventory.show-all-tt"},
+  }
+
   local left_pane = left_flow.add{
     type = "scroll-pane",
     style = defs.styles.shared.no_frame_scroll_pane,
     horizontal_scroll_policy = "never",
     vertical_scroll_policy = "auto-and-reserve-space",
   }
+  local width = 504
   inv_tab.item_tables[1] = egm.item_table.build(
     left_pane, {
       caption = {"inventory.provide-caption"},
       item_list = {},
-      --width = 398,
+      width = width,
       column_count = C.inventory_tab.item_table_column_count,
       row_count = 3,
       color = "green",
       action = defs.actions.show_item_details,
       super = inv_tab,
+      show_inactive_icons = true,
     }
   )
   inv_tab.item_tables[2] = egm.item_table.build(
@@ -69,7 +86,7 @@ local function build_inventory_tab(window)
       caption = {"inventory.request-caption"},
       item_list = {},
       column_count = C.inventory_tab.item_table_column_count,
-      --width = 398,
+      width = width,
       row_count = 2,
       color = "red",
       action = defs.actions.show_item_details,
@@ -81,7 +98,7 @@ local function build_inventory_tab(window)
       caption = {"inventory.transit-caption"},
       item_list = {},
       column_count = C.inventory_tab.item_table_column_count,
-      --width = 398,
+      width = width,
       row_count = 2,
       action = defs.actions.show_item_details,
       super = inv_tab,
@@ -101,7 +118,7 @@ local function build_inventory_tab(window)
   details_frame.icon = button
   -- summary at the top of the pane
   local summary = details_frame.content.add{type = "table", column_count = 2, style = "slot_table"}
-  local width = C.inventory_tab.details_width - C.inventory_tab.summary_number_width - 25
+  width = C.inventory_tab.details_width - C.inventory_tab.summary_number_width - 25
   details_frame.summary = summary
   label = summary.add{type = "label", caption = {"inventory.detail-prov"}, style = "bold_label"}
   label.style.width = width
@@ -261,20 +278,35 @@ end
 local function update_inventory_tab(inv_tab, ltn_data)
   local selector_data = egm.manager.get_registered_data(inv_tab.id_selector)
   local selected_network_id = tonumber(selector_data.last_valid_value)
-  egm.item_table.set_items(inv_tab.item_tables[1], get_items_in_network(ltn_data.provided, selected_network_id))
-  egm.item_table.set_items(inv_tab.item_tables[2], get_items_in_network(ltn_data.requested, selected_network_id))
-  egm.item_table.set_items(inv_tab.item_tables[3], get_items_in_network(ltn_data.in_transit, selected_network_id))
+  egm.item_table.update_items(inv_tab.item_tables[1], get_items_in_network(ltn_data.provided, selected_network_id))
+  egm.item_table.update_items(inv_tab.item_tables[2], get_items_in_network(ltn_data.requested, selected_network_id))
+  egm.item_table.update_items(inv_tab.item_tables[3], get_items_in_network(ltn_data.in_transit, selected_network_id))
 
   update_details(inv_tab, selected_network_id)
 end
 
-egm.manager.define_action(
-  defs.actions.show_item_details,
-  function(event, data)
+egm.manager.define_action(defs.actions.show_item_details,--[[
+Triggering elements:
+  item icons @ egm_item_table
+Event: on_gui_click
+Data:
+  super :: egm_object: the parent object of the item table the clicked icon belongs to
+  item :: string: the item name of the clicked icon in "<type>,<name>" format
+]]function(event, data)
     data.super.selected_item = data.item
     local selector_data = egm.manager.get_registered_data(data.super.id_selector)
     local selected_network_id = tonumber(selector_data.last_valid_value)
     update_details(data.super, selected_network_id)
+  end
+)
+egm.manager.define_action(defs.actions.show_all_items,--[[
+Triggering elements:
+  item icons @ egm_item_table
+Event: on_gui_click
+Data:
+  super :: egm_object: the parent object of the item table the clicked icon belongs to
+]]function(event, data)
+    egm.item_table.toggle_inactive_items(data.super.item_tables[1])
   end
 )
 

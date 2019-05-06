@@ -2,6 +2,8 @@ local util = require("util")
 util.misc =  require(defs.pathes.modules.olib_misc)
 util.train = require(defs.pathes.modules.olib_train)
 
+local pairs = pairs
+
 local btest = bit32.btest
 function util.get_items_in_network(ltn_item_list, selected_networkID)
 	local items = {}

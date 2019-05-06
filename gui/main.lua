@@ -401,7 +401,7 @@ end
 
 function gui.on_configuration_changed(data)
    -- handle changes to LTN-Combinator
-  local reset = false
+  local reset = true  -- TODO implement proper logic for UI reset
   if data.mod_changes[defs.names.ltnc] then
     local was_active = gui_data.is_ltnc_active
     local is_active = game.active_mods[defs.names.ltnc] and true or false

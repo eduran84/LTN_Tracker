@@ -43,6 +43,8 @@ defs.actions = {
   show_depot_details = "show_depot_details",
 
   show_item_details = "show_item_details",
+  show_all_items = "show_all_items",
+  filter_items = "filter_items",
 
   update_filter = "filter_changed",
 
@@ -96,6 +98,7 @@ defs.styles = {
     label_col_2_bold = mod_prefix .. "lb_depot_col2_bold",
   },
   inventory_tab = {
+    filter_button = mod_prefix .. "filter_button",
     summary_number = mod_prefix .. "summary_number",
     stops_col_1 = mod_prefix .. "lb_inv_stop_1",
     stops_col_2 = mod_prefix .. "lb_inv_stop_2",
