@@ -3,13 +3,37 @@ data:extend({
 ------------------------------------------------------------------------------------
 -- per-player settings
 ------------------------------------------------------------------------------------
+  {
+		name = names.station_click_action,
+    setting_type = "runtime-per-user",
+		type = "string-setting",
+    default_value = "2",
+    allowed_values = {"1", "3", "2"},
+    order = "a",
+	},
+  {
+		name = names.show_alerts,
+    setting_type = "runtime-per-user",
+		type = "bool-setting",
+    default_value = true,
+    order = "b",
+	},
+  {
+		name = names.fade_timeout,
+    setting_type = "runtime-per-user",
+		type = "int-setting",
+		default_value = 5,
+		minimum_value = 0,
+		maximum_value = 60,
+    order = "c",
+	},
 	{
 		name = names.window_location,
     setting_type = "runtime-per-user",
 		type = "string-setting",
     default_value = "center",
     allowed_values = {"left", "center"},
-    order = "a",
+    order = "d",
 	},
 	{
 		name = names.window_height,
@@ -18,22 +42,7 @@ data:extend({
 		default_value = 710,
 		minimum_value = 400,
 		maximum_value = 2000,
-    order = "c",
-	},
-  {
-		name = names.station_click_action,
-    setting_type = "runtime-per-user",
-		type = "string-setting",
-    default_value = "2",
-    allowed_values = {"1", "3", "2"},
     order = "e",
-	},
-  {
-		name = names.show_alerts,
-    setting_type = "runtime-per-user",
-		type = "bool-setting",
-    default_value = true,
-    order = "f",
 	},
   {
 		name = names.refresh_interval,
@@ -42,7 +51,7 @@ data:extend({
 		default_value = 0,
 		minimum_value = 0,
 		maximum_value = 30,
-    order = "y",
+    order = "f",
 	},
 ------------------------------------------------------------------------------------
 -- global settings

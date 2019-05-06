@@ -35,6 +35,7 @@ CONST.station_tab = {
 
 CONST.inventory_tab = {
   item_table_column_count = 13,
+  item_table_width = 504,
   details_item_tb_col_count = 9,
   details_width = 390,
   summary_number_width = 90,

@@ -21,7 +21,7 @@ defines.events.on_data_updated = script.generate_event_name()
 defines.events.on_train_alert = script.generate_event_name()
 defines.events.on_ui_invalid = script.generate_event_name()
 
-item_groups = {}
+item_groups, item_data = {}, {}  -- cached item prototype data
 
 local cache_item_data = require("script.category_grabber")
 egm = require(defs.pathes.modules.import_egm)
@@ -37,7 +37,9 @@ script.on_init(function()
     log2("Starting mod initialization for mod", defs.mod_name .. ".")
   end
   -- module init
-  cache_item_data(item_groups)
+  cache_item_data(item_groups, item_data)
+  global.item_groups = item_groups
+  global.item_data = item_data
   gui.on_init()
   prc.on_init()
 
@@ -47,7 +49,8 @@ script.on_init(function()
 end)
 
 script.on_load(function()
-  cache_item_data(item_groups)
+  item_groups = global.item_groups
+  item_data = global.item_data
   gui.on_load()
   prc.on_load()
   if debug_mode then
@@ -86,7 +89,7 @@ script.on_configuration_changed(function(data)
   if not game.active_mods[defs.names.ltn] then
     error("LogisticTrainNetwork is required to run LTNT.")
   end
-  cache_item_data(item_groups)
+  cache_item_data(global.item_groups, global.item_data)
   gui.on_configuration_changed(data)
   local ltnt_data = data.mod_changes[defs.names.mod_name]
   if ltnt_data and ltnt_data.old_version

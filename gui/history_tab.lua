@@ -64,9 +64,8 @@ egm.stored_functions[defs.functions.hist_row_constructor] = function(egm_table, 
     }
     build_item_table{
       parent = tb,
-      requested = delivery.residuals[2],
+      requested = delivery.residuals,
       columns = n_cols_shipment,
-      type = delivery.residuals[1],
       no_negate = true,
     }
   else

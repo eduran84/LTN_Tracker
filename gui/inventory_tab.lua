@@ -3,7 +3,7 @@ local egm = egm
 local C = C
 local styles = defs.styles.inventory_tab
 
-local tonumber, match, btest = tonumber, string.match, bit32.btest
+local tonumber, match, btest, gsub = tonumber, string.match, bit32.btest, string.gsub
 local get_items_in_network = util.get_items_in_network
 local build_item_table = util.build_item_table
 
@@ -46,28 +46,16 @@ local function build_inventory_tab(window)
     defs.functions.id_selector_valid
   )
 
-  local checkbox = button_flow.add{
-    type = "checkbox",
-    state = true,
-    tooltip = {"inventory.show-all-tt"},
-  }
-  egm.manager.register(checkbox, {
-    action = defs.actions.show_all_items,
-    super = inv_tab
-  })
-  label = button_flow.add{
-    type = "label",
-    caption = {"inventory.show-all"},
-    tooltip = {"inventory.show-all-tt"},
-  }
-
   local left_pane = left_flow.add{
     type = "scroll-pane",
     style = defs.styles.shared.no_frame_scroll_pane,
     horizontal_scroll_policy = "never",
     vertical_scroll_policy = "auto-and-reserve-space",
   }
-  local width = 504
+
+  local fade_time = util.get_setting(defs.settings.station_click_action, game.players[window.player_index]) * 60 * 60
+  if fade_time == 0 then fade_time = nil end
+  local width = C.inventory_tab.item_table_width
   inv_tab.item_tables[1] = egm.item_table.build(
     left_pane, {
       caption = {"inventory.provide-caption"},
@@ -78,7 +66,7 @@ local function build_inventory_tab(window)
       color = "green",
       action = defs.actions.show_item_details,
       super = inv_tab,
-      show_inactive_icons = true,
+      fade_timeout = fade_time,
     }
   )
   inv_tab.item_tables[2] = egm.item_table.build(
@@ -156,31 +144,39 @@ local function build_inventory_tab(window)
   return inv_tab
 end
 
+local function set_fadeout_time(pind)
+  local setting_value = util.get_setting(defs.settings.fade_timeout, game.players[pind]) * 60 * 60
+  if setting_value == 0 then setting_value = nil end
+  gui.get(pind).tabs[defs.tabs.inventory].item_tables[1].fade_timeout = setting_value
+end
+
 local function update_details(inv_tab, network_id)
   local item = inv_tab.selected_item
   if not item then return end
-  local item_type, item_name = match(item, "([^,]+),(.+)") -- format: "<item_type>,<item_name>"
-  local localised_name = item_name
-  local data = global.data
-  -- set item name and icon
-  local proto
-  if item_type == "fluid" then
-    proto = game.fluid_prototypes[item_name]
-  elseif item_type == "item" then
-    proto = game.item_prototypes[item_name]
+  local item_info = global.item_data[item]
+  local sprite, name
+  if item_info then
+    name = item_info.localised_name or item_info.name
+    sprite = item_info.sprite
+  else
+    name = match(item, "[^,]+,(.+)") -- format: "<item_type>,<item_name>"
+    sprite = gsub(item, ",", "/")
   end
+  local data = global.data
 
+  -- set item name and icon
   local details_frame = inv_tab.details_frame
   details_frame.root.children[1].children[1].caption = {
     "inventory.detail-caption",
-    proto and proto.localised_name or item_name
+    name,
   }
-  details_frame.icon.sprite = proto and item_type .. "/" .. item_name or ""
+  details_frame.icon.sprite = sprite
   -- update totals
   local chd = details_frame.summary.children
-  chd[2].caption = get_items_in_network(data.provided, network_id)[item] or 0
-  chd[4].caption = get_items_in_network(data.requested, network_id)[item] or 0
-  chd[6].caption = get_items_in_network(data.in_transit, network_id)[item] or 0
+  local format_number = util.format_number
+  chd[2].caption = format_number(get_items_in_network(data.provided, network_id)[item])
+  chd[4].caption = format_number(get_items_in_network(data.requested, network_id)[item])
+  chd[6].caption = format_number(get_items_in_network(data.in_transit, network_id)[item])
 
   -- update stop table with relevant stops
   local stop_table = details_frame.stop_table
@@ -299,15 +295,9 @@ Data:
     update_details(data.super, selected_network_id)
   end
 )
-egm.manager.define_action(defs.actions.show_all_items,--[[
-Triggering elements:
-  item icons @ egm_item_table
-Event: on_gui_click
-Data:
-  super :: egm_object: the parent object of the item table the clicked icon belongs to
-]]function(event, data)
-    egm.item_table.toggle_inactive_items(data.super.item_tables[1])
-  end
-)
 
-return {build_inventory_tab, update_inventory_tab}
+return {
+  build = build_inventory_tab,
+  update = update_inventory_tab,
+  set_fadeout_time = set_fadeout_time,
+}

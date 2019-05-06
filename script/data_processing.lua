@@ -480,13 +480,18 @@ local function on_delivery_completed(event)
   delivery.depot = train.schedule and train.schedule.records[1] and train.schedule.records[1].station or "unknown"
   local res = train.get_contents() -- does return empty table when train is empty, not nil
   local fres = train.get_fluid_contents()
-  if next(res) or next(fres) then
-    if next(res) then
-      delivery.residuals = {"item", res}
-    else
-      delivery.residuals = {"fluid", fres}
-    end
-    raise_alert(delivery, train, "residuals", delivery.residuals)
+  local residuals_found, residuals = false, {}
+  for name, amount in pairs(res) do
+    residuals["item," .. name] = amount
+    residuals_found = true
+  end
+  for name, amount in pairs(fres) do
+    residuals["fluid," .. name] = amount
+    residuals_found = true
+  end
+  if residuals_found then
+    raise_alert(delivery, train, "residuals", residuals)
+    delivery.residuals = residuals
   end
   store_history(delivery)
 end

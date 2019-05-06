@@ -17,9 +17,12 @@ local type_blacklist = {
 }
 
 return
-  function(item_groups)
+  function(item_groups, item_data)
     for k in pairs(item_groups) do
       item_groups[k] = nil
+    end
+    for k in pairs(item_groups) do
+      item_data[k] = nil
     end
     local group_index = {}
     local group_count = 0
@@ -45,11 +48,14 @@ return
         end
         local key = "item," .. name
         item_groups[index].item_data[key] = {
+          name = prototype.name,
           sprite = "item/" .. name,
+          localised_name = prototype.localised_name,
           order_group = group.order,
           order_subgroub = prototype.subgroup.order,
           order = prototype.order,
         }
+        item_data[key] = item_groups[index].item_data[key]
       end
     end
     for name, prototype in pairs(game.fluid_prototypes) do
@@ -70,11 +76,14 @@ return
       end
       local key = "fluid," .. name
       item_groups[index].item_data[key] = {
+        name = prototype.name,
         sprite = "fluid/" .. name,
+        localised_name = prototype.localised_name,
         order_group = group.order,
         order_subgroub = prototype.subgroup.order,
         order = prototype.order,
       }
+      item_data[key] = item_groups[index].item_data[key]
     end
     table.sort(item_groups, function(a, b) return a.order < b.order end)
 
@@ -89,6 +98,6 @@ return
         end
       end)
     end
-    return item_groups
+    return item_groups, item_data
   end
 

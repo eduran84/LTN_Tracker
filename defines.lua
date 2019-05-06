@@ -13,6 +13,7 @@ defs.settings = {
   window_height = mod_prefix .. "window_height",
   show_alerts = mod_prefix .. "show_alert_popups",
   refresh_interval = mod_prefix .. "refresh_interval",
+  fade_timeout = mod_prefix .. "fade_timeout",
   station_click_action = mod_prefix .. "station_click_behavior",
   history_limit = mod_prefix .. "history_limit",
   disable_underload = mod_prefix .. "disable_underload_alert",
@@ -43,7 +44,6 @@ defs.actions = {
   show_depot_details = "show_depot_details",
 
   show_item_details = "show_item_details",
-  show_all_items = "show_all_items",
   filter_items = "filter_items",
 
   update_filter = "filter_changed",

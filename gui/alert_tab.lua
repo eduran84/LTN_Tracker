@@ -86,9 +86,8 @@ egm.stored_functions[defs.functions.alert_row_constructor] = function(egm_table,
     -- residual item overview
     build_item_table{
       parent = inner_flow,
-      requested = error_data.cargo[2],
+      requested = error_data.cargo,
       columns = 6,
-      type = error_data.cargo[1],
       no_negate = true,
     }
   elseif error_type == "incorrect_cargo" then

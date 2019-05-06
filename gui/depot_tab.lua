@@ -72,7 +72,7 @@ end
 
 egm.stored_functions[defs.functions.depot_sort .. 1] = function(a, b) return a.composition < b.composition end
 egm.stored_functions[defs.functions.depot_sort .. 2] = function(a, b) return a.col_2_sort_rank < b.col_2_sort_rank end
-
+local format_number = util.format_number
 local function build_depot_button(parent, depot_name, depot_data)
   local bt = parent.add{
     type = "button",
@@ -118,7 +118,7 @@ local function build_depot_button(parent, depot_name, depot_data)
   label = subflow.add{
     type = "label",
     style = styles.cap_left_2,
-    caption =  format("%d stacks + %dk fluid", depot_data.cap,  depot_data.fcap/1000),
+    caption =  format("%s stacks + %s fluid", format_number(depot_data.cap),  format_number(depot_data.fcap)),
     ignored_by_interaction = true,
   }
   label.style.width = DEPOT_CONST.col_width_left[5]
