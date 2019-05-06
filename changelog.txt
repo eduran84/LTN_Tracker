@@ -1,4 +1,14 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.1.1
+Date: 2019-05-06
+
+  Features:
+    - items on inventory tab are sorted
+    - items on inventory tab can be filtered by category
+
+  Bugfixes:
+    - some, now down to a bit less than lots of bugs
+---------------------------------------------------------------------------------------------------
 Version: 0.1.0
 Date: 2019-05-05
 
