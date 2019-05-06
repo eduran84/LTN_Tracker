@@ -1,6 +1,9 @@
 default = data.raw["gui-style"].default
-local shared_styles = defs.styles.shared
 
+------------------------------------------------------------------------------------
+-- shared
+------------------------------------------------------------------------------------
+local shared_styles = defs.styles.shared
 default[shared_styles.no_frame_scroll_pane] = {
   type = "scroll_pane_style",
   parent = egm_defs.style_names.table.scroll_pane,
@@ -34,7 +37,9 @@ default[shared_styles.slot_table_frame] = {
 	horizontally_stretchable = "off",
 }
 
--- alert notifier
+------------------------------------------------------------------------------------
+-- alert popup
+------------------------------------------------------------------------------------
 default[defs.styles.alert_notice.frame_caption] = {
   type = "label_style",
   parent = "heading_1_label",
@@ -44,7 +49,59 @@ default[defs.styles.alert_notice.frame_caption] = {
   width = 90
 }
 
+------------------------------------------------------------------------------------
+-- depot tab
+------------------------------------------------------------------------------------
+local names = defs.styles.depot_tab
+default[names.label_col_1] = {
+  type = "label_style",
+  parent = "hoverable_bold_label",
+  width = C.depot_tab.col_width_right[1],
+}
+default[names.label_col_2] = {
+  type = "label_style",
+  width = C.depot_tab.col_width_right[2],
+}
+default[names.label_col_2_bold] = {
+  type = "label_style",
+  parent = "hoverable_bold_label",
+  width = C.depot_tab.col_width_right[2],
+}
+default[names.depot_selector] = {
+  type = "button_style",
+  parent = "button",
+  padding = 0,
+  minimal_height = 100,
+  maximal_height = 100,
+  minimal_width = C.depot_tab.pane_width_left - 20,
+  maximal_width = C.depot_tab.pane_width_left - 20,
+}
+default[names.depot_label] = {
+  type = "label_style",
+  parent = "tooltip_heading_label",
+  width = C.depot_tab.col_width_left[1]
+}
+default[names.cap_left_1] = {
+  type = "label_style",
+  font = "ltnt_font_depot_caption",
+  font_color = {},
+  width = C.depot_tab.col_width_left[2]
+}
+default[names.cap_left_2] = {
+  type = "label_style",
+  font = "ltnt_font_depot_value",
+  width = C.depot_tab.col_width_left[3]
+}
+default[names.cap_left_3] = {
+  type = "label_style",
+  font = "ltnt_font_depot_caption",
+  font_color = {},
+  width = C.depot_tab.col_width_left[4]
+}
+
+------------------------------------------------------------------------------------
 -- station tab
+------------------------------------------------------------------------------------
 default[defs.styles.station_tab.station_label] = {
   type = "label_style",
   parent = "hoverable_bold_label",
@@ -52,8 +109,60 @@ default[defs.styles.station_tab.station_label] = {
   minimal_width = C.station_tab.col_width[1],
   single_line = false,
 }
+local names = defs.styles.inventory_tab
 
+
+default[names.stops_col_1] = {
+  type = "label_style",
+  parent = "hoverable_bold_label",
+  width = C.inventory_tab.details_tb_col_width_stations[1],
+  single_line = false
+}
+default[names.stops_col_2] = {
+  type = "label_style",
+  parent = names.stops_col_1,
+  width = C.inventory_tab.details_tb_col_width_stations[2],
+}
+
+default[names.del_col_1] = {
+  type = "label_style",
+  parent = names.stops_col_1,
+  width = C.inventory_tab.details_tb_col_width_deliveries[1],
+}
+default[names.del_col_2] = {
+  type = "label_style",
+  width = C.inventory_tab.details_tb_col_width_deliveries[2],
+}
+default[names.del_col_3] = {
+  type = "label_style",
+  parent = names.stops_col_1,
+  width = C.inventory_tab.details_tb_col_width_deliveries[3],
+}
+
+default[names.summary_number] = {
+  type = "label_style",
+	parent = "bold_label",
+  font = "ltnt_font_default",
+	horizontal_align = "right",
+	width = C.inventory_tab.summary_number_width,
+}
+
+local gs = default.tool_button.clicked_graphical_set
+default[names.filter_button] = {
+  type = "button_style",
+	parent = "tool_button",
+  padding = -2,
+  disabled_graphical_set = {
+    base = {
+      corner_size = 8,
+      position = {225, 17},
+    },
+  }
+}
+
+------------------------------------------------------------------------------------
 -- history tab
+------------------------------------------------------------------------------------
 local ht_names = defs.styles.hist_tab
 for i = 1, 5 do
   local parent = "label"
@@ -77,7 +186,9 @@ default[ht_names.label_col_4_red] = {
   font_color = bright_red,
 }
 
+------------------------------------------------------------------------------------
 -- alert tab
+------------------------------------------------------------------------------------
 local at_styles = defs.styles.alert_tab
 default[at_styles.label_col_1] = {
   type = "label_style",
@@ -104,6 +215,3 @@ default[at_styles.label_col_4] = {
   single_line = false,
   width = C.alert_tab.col_width[4],
 }
-
-require("prototypes.styles.depot_tab")
-require("prototypes.styles.inventory_tab")
