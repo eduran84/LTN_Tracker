@@ -203,23 +203,8 @@ local function build_depot_tab(window)
   return depot_tab
 end
 
-local get_composition_string, get_locomotive
-do
-  local cache_c, cache_l = {}, {}
-  get_composition_string = function(train)
-    if not cache_c[train.id] then
-      cache_c[train.id] = util_train.get_train_composition_string(train)
-    end
-    return cache_c[train.id]
-  end
-  get_locomotive = function(train)
-    if not cache_c[train.id] then
-      cache_c[train.id] = util_train.get_main_locomotive(train)
-    end
-    return cache_c[train.id]
-  end
-end
-
+local get_composition_string = util.get_train_composition_string
+local get_locomotive = util.get_main_locomotive
 local function update_details_view(depot_tab, ltn_data)
   local depot_data = ltn_data.depots[depot_tab.selected_depot]
   if not depot_data then return end

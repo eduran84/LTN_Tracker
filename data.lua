@@ -20,6 +20,12 @@ data:extend({
     key_sequence = "R",
   },
   {
+    type = "custom-input",
+    name = defs.controls.toggle_filter,
+    key_sequence = "",
+    linked_game_control = "focus-search",
+  },
+  {
     type = "shortcut",
     name = defs.controls.shortcut,
     order = "a[ltnt-toggle-shortcut]",

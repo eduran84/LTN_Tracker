@@ -136,8 +136,9 @@ local function build_station_tab(window)
   label = button_flow.add{
     type = "label",
     caption = {"station.filter_lb"},
+    tooltip = {"station.filter_tt"},
   }
-  local filter = button_flow.add{type = "textfield"}
+  local filter = button_flow.add{type = "textfield", tooltip = {"station.filter_tt"}}
   egm.manager.register(
     filter,
     {action = defs.actions.update_filter, filter = station_tab.filter})
@@ -160,8 +161,7 @@ local function build_station_tab(window)
   return station_tab
 end
 
-local find = string.find
-local lower = string.lower
+local find, lower = string.find, string.lower
 local insert = table.insert
 local name2lowercase = setmetatable({}, {
   __index = function(self, station_name)
@@ -221,4 +221,12 @@ local function update_station_tab(station_tab, ltn_data)
   egm.table.sort_rows(station_table)
 end
 
-return {build_station_tab, update_station_tab}
+local function focus_filter(window)
+  window.tabs[defs.tabs.station].root.children[1].children[6].focus()
+end
+
+return {
+  build = build_station_tab,
+  update = update_station_tab,
+  focus_filter = focus_filter,
+}

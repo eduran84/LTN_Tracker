@@ -6,29 +6,27 @@ logger.settings.class_dictionary.LuaGroup = {
   order = true,
 }
 
-local type_blacklist = {
-  ["blueprint-book"] = true,
-  ["selection-tool"] = true,
-  ["blueprint"] = true,
-  ["copy-paste-tool"] = true,
-  ["deconstruction-item"] = true,
-  ["upgrade-item"] = true,
-  ["rail-planner"] = true,
-}
+local function item_sort_function(a, b)
+  if a.order_group ~= b.order_group then
+    return a.order_group < b.order_group
+  elseif a.order_subgroub ~= b.order_subgroub then
+    return a.order_subgroub < b.order_subgroub
+  else
+    return a.order < b.order
+  end
+end
 
 return
-  function(item_groups, item_data)
+  function(item_groups)
+    -- delete all entries to keep reference alive
     for k in pairs(item_groups) do
       item_groups[k] = nil
-    end
-    for k in pairs(item_groups) do
-      item_data[k] = nil
     end
     local group_index = {}
     local group_count = 0
     for name, prototype in pairs(game.item_prototypes) do
       local is_hidden = prototype.flags and prototype.flags.hidden
-          or type_blacklist[prototype.type]
+          or defs.item_display_blacklist[prototype.type]
       if not is_hidden then
         local group = prototype.group
         local index
@@ -55,7 +53,6 @@ return
           order_subgroub = prototype.subgroup.order,
           order = prototype.order,
         }
-        item_data[key] = item_groups[index].item_data[key]
       end
     end
     for name, prototype in pairs(game.fluid_prototypes) do
@@ -83,21 +80,10 @@ return
         order_subgroub = prototype.subgroup.order,
         order = prototype.order,
       }
-      item_data[key] = item_groups[index].item_data[key]
     end
+
     table.sort(item_groups, function(a, b) return a.order < b.order end)
-
     for _, group in pairs(item_groups) do
-      table.sort(group.item_data, function(a, b)
-        if a.order_group ~= b.order_group then
-          return a.order_group < b.order_group
-        elseif a.order_subgroub ~= b.order_subgroub then
-          return a.order_subgroub < b.order_subgroub
-        else
-          return a.order < b.order
-        end
-      end)
+      group.item_data = util.sort(group.item_data, item_sort_function)
     end
-    return item_groups, item_data
   end
-

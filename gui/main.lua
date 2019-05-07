@@ -26,7 +26,9 @@ local inventory_funcs = require(defs.pathes.modules.inventory_tab)
 build_funcs[tab_names.inventory] = inventory_funcs.build
 update_funcs[tab_names.inventory] = inventory_funcs.update
 --build_funcs[tab_names.requests], update_funcs[tab_names.requests] = unpack(require(defs.pathes.modules.request_tab))
-build_funcs[tab_names.station], update_funcs[tab_names.station] = unpack(require(defs.pathes.modules.station_tab))
+local station_funcs = require(defs.pathes.modules.station_tab)
+build_funcs[tab_names.station] = station_funcs.build
+update_funcs[tab_names.station] = station_funcs.update
 build_funcs[tab_names.history], update_funcs[tab_names.history] = unpack(require(defs.pathes.modules.history_tab))
 build_funcs[tab_names.alert], update_funcs[tab_names.alert] = unpack(require(defs.pathes.modules.alert_tab))
 
@@ -293,6 +295,12 @@ script.on_event({  -- gui interactions handling is done by egm manager module
 
 script.on_event(defines.events.on_train_alert, on_new_alert)
 script.on_event(defs.controls.toggle_hotkey, on_toggle_button_click)
+script.on_event(defs.controls.toggle_filter, function(event)
+  local window = get(event.player_index)
+  if window.root.visible and window.pane.active_tab == defs.tabs.station then
+    station_funcs.focus_filter(window)
+  end
+end)
 script.on_event(defines.events.on_player_created, player_init)
 
 -- different sources triggering tab update

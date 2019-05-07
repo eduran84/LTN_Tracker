@@ -153,24 +153,15 @@ end
 local function update_details(inv_tab, network_id)
   local item = inv_tab.selected_item
   if not item then return end
-  local item_info = global.item_data[item]
-  local sprite, name
-  if item_info then
-    name = item_info.localised_name or item_info.name
-    sprite = item_info.sprite
-  else
-    name = match(item, "[^,]+,(.+)") -- format: "<item_type>,<item_name>"
-    sprite = gsub(item, ",", "/")
-  end
   local data = global.data
 
   -- set item name and icon
   local details_frame = inv_tab.details_frame
   details_frame.root.children[1].children[1].caption = {
     "inventory.detail-caption",
-    name,
+    util.get_item_name(item),
   }
-  details_frame.icon.sprite = sprite
+  details_frame.icon.sprite = util.get_item_sprite(item)
   -- update totals
   local chd = details_frame.summary.children
   local format_number = util.format_number

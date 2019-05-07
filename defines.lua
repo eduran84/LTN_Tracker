@@ -133,6 +133,7 @@ defs.styles = {
 defs.controls = {
   toggle_hotkey = mod_prefix .. "toggle_hotkey",
   refresh_hotkey = mod_prefix .. "refresh_hotkey",
+  toggle_filter = mod_prefix .. "toggle_filter",
   shortcut = mod_prefix .. "toggle_shortcut",
 }
 
@@ -185,8 +186,11 @@ defs.pathes.modules = {
   olib_misc = optera_lib .. "script/misc",
   olib_train = optera_lib .. "script/train",
   import_egm = gui_modules .. "import",
-  data_processing = LTNT .. "script/data_processing",
+
   util = LTNT .. "script/extended_util",
+  data_processing = LTNT .. "script/data_processing",
+  cache_item_data = LTNT .. "script/functions/cache_item_data",
+  build_item_table = LTNT .. "script/functions/build_item_table",
 
   gui_main = gui .. "main",
   depot_tab = gui .. "depot_tab",
@@ -205,4 +209,13 @@ defs.pathes.sprites = {
   shortcut_icon_24_white = LTNT .. "graphics/shortcut_x24_white.png",
 }
 
+defs.item_display_blacklist = {
+  ["blueprint-book"] = true,
+  ["selection-tool"] = true,
+  ["blueprint"] = true,
+  ["copy-paste-tool"] = true,
+  ["deconstruction-item"] = true,
+  ["upgrade-item"] = true,
+  ["rail-planner"] = true,
+}
 return defs

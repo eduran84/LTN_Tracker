@@ -1,131 +1,95 @@
 local util = require("util")
 util.misc =  require(defs.pathes.modules.olib_misc)
 util.train = require(defs.pathes.modules.olib_train)
+util.build_item_table = require(defs.pathes.modules.build_item_table)
 
-local pairs = pairs
+local match, format = string.match, string.format
+local floor, math_log = math.floor, math.log
 
-local match, format, floor, math_log, btest = string.match, string.format, math.floor, math.log, bit32.btest
+function util.get_items_in_network(items_by_network, network_id)--[[
+Extracts number of items provided in a certain network from list items_by_network.
 
-function util.get_items_in_network(ltn_item_list, selected_networkID)
-	local items = {}
-	for networkID, item_data in pairs(ltn_item_list) do
-		if btest(selected_networkID, networkID) then
-			for item, count in pairs(item_data) do
-				items[item] = (items[item] or 0) + count
+Parameters:
+  items_by_network :: dictionary int -> LtnItemList
+  network id :: int: the selected network ID
+
+Return value:
+  items_in_network :: LtnItemList
+]]local new_item_list = {}
+  local btest = bit32.btest
+	for items_network_id, item_list in pairs(items_by_network) do
+		if btest(network_id, items_network_id) then
+			for item, count in pairs(item_list) do
+				new_item_list[item] = (new_item_list[item] or 0) + count
 			end
 		end
   end
-	return items
+	return new_item_list
 end
-
-local function item2sprite(iname, itype)
-  if not itype then
-    itype, iname= match(iname, "(.+),(.+)")
-  end
-  if iname and (game.item_prototypes[iname] or game.fluid_prototypes[iname]) then
-    return itype .. "/" .. iname
-  else
-    return nil
-  end
-end
-util.item2sprite = item2sprite
 
 local base_1000 = math_log(1000)
-local metric_prefix = {
-  [0] = "",
-  [1] = "k",
-  [2] = "M",
-  [3] = "G",
-  [4] = "T",
-}
-function util.format_number(x)
-  if x then
+local metric_prefix = {[0] = "", [1] = "k", [2] = "M", [3] = "G", [4] = "T"}
+function util.format_number(x)--[[ --> string
+Formats large number N into nnn[prefix] format.
+
+Parameters:
+  x :: int or float
+
+Return value:
+  formatted number :: string
+]]if x then
     local sign = 1
     if x < 0 then
       sign = -1
       x = -x
     elseif x == 0 then
-      return 0
+      return "0"
     end
     local order = floor(math_log(x) / base_1000)
     return format("%3d%s", sign * x / (1000 ^ order), metric_prefix[order])
   end
-  return 0
+  return "0"
 end
 
--- display a shipment of items as icons
-local shared_styles = defs.styles.shared
-function util.build_item_table(args)
-  --required arguments: parent, columns (without any of provided / requested / signals an empty frame is produced)
-  --optional arguments: provided, requested, signals, enabled, no_negate, max_rows
+function util.sort(t, func)--[[ --> table
+Sort table with non-integer keys. Works because of Factorio's pairs() implementation.
+Does NOT work in-place, sorted table is returned.
+See: https://lua-api.factorio.com/latest/Libraries.html
 
-  -- parse arguments
-  local column_count = args.columns
+Parameters:
+  t :: table: the table to be sorted
+  func :: function (optional): function to use for sorting (same as you would use for table.sort)
 
-  -- outer frame
-  local frame =  args.parent.add{type = "frame", style = shared_styles.slot_table_frame}
-  if args.max_rows then
-    frame.style.maximal_height = args.max_rows * 36 + 18
-    frame.style.width = column_count * 38 + 18
-    frame = frame.add{type = "scroll-pane", style = shared_styles.no_frame_scroll_pane}
+Return value:
+  sorted table ::  table
+]]local keys = {}
+  local n = 0
+  for k, v in pairs(t) do
+    n = n + 1
+    keys[n] = k
   end
-  -- table for item sprites
-	local tble = frame.add{type = "table", column_count = column_count, style = "slot_table"}
-  local enabled
-	if args.enabled then
-    enabled = args.enabled
-  else
-		enabled = false
-    tble.ignored_by_interaction = true
-	end
-  local count = 0
-  -- add items to table
-  local item_data = global.item_data
-  local tbl_add = tble.add
-  local button_args = {
-    type = "sprite-button",
-    sprite = "",
-    number = 0,
-    enabled = enabled,
-    style = shared_styles.green_button,
-  }
-	if args.provided then
-		for item, amount in pairs(args.provided) do
-      button_args.sprite = item_data[item] and item_data[item].sprite
-      button_args.number = amount
-			tbl_add(button_args)
-      count = count + 1
-		end
-	end
-  if args.requested then
-    button_args.style = shared_styles.red_button
-		for item, amount in pairs(args.requested) do
-      button_args.sprite = item_data[item] and item_data[item].sprite
-      button_args.number = args.no_negate and amount or -amount
-			tbl_add(button_args)
-      count = count + 1
-		end
-	end
-  button_args.style = shared_styles.gray_button
-  if args.signals then
-		for name, amount in pairs(args.signals) do
-      button_args.sprite = "virtual-signal/" .. name
-      button_args.number = amount
-			tbl_add(button_args)
-      count = count + 1
-		end
-	end
-  button_args.sprite = ""
-  button_args.number = nil
-  button_args.enabled = false
-  while count % column_count > 0 or count == 0 do
-    tbl_add(button_args)
-    count = count + 1
+  table.sort(keys, function(a, b)
+    local value_a, value_b = t[a], t[b]
+    return func(value_a, value_b)
+  end)
+  local sorted_t = {}
+  for i = 1, n do
+    local key = keys[i]
+    sorted_t[key] = t[key]
   end
-	return frame
+  return sorted_t
 end
 
-function util.get_setting(setting, player)
+function util.get_setting(setting, player)--[[ --> string, int or bool
+Get value of "setting".
+
+Parameters:
+  setting :: string: name of the setting
+  player :: LuaPlayer (optional): needed for per-player settings
+
+Return value:
+  value :: string, int or bool: value of the setting
+]]
   if settings.global[setting] then
     return settings.global[setting].value
   elseif settings.player[setting] then
@@ -136,7 +100,81 @@ function util.get_setting(setting, player)
   elseif settings.startup[setting] then
     return settings.startup[setting].value
   end
-  error("Mod setting", setting, "does not exist.")
+  error(logger.tostring("Mod setting", setting, "does not exist."))
+end
+
+local sprite_cache = {}
+function util.get_item_sprite(item)--[[ --> string
+Gets the sprite name for an item.
+
+Parameters
+  item :: LtnItem
+
+Return value
+  sprite :: string
+]]if sprite_cache[item] then return sprite_cache[item] end
+  local type, name = match(item, "([^,]+),(.+)") -- format: "<item_type>,<item_name>"
+  if (type and name) then
+    local proto
+    if type == "item" then
+      proto = game.item_prototypes[name]
+    else
+      proto = game.fluid_prototypes[name]
+    end
+    if proto then
+      sprite_cache[item] = type .. "/" .. name
+    else
+      sprite_cache[item] = ""
+    end
+  else
+    sprite_cache[item] = ""
+  end
+  return sprite_cache[item]
+end
+
+local name_cache = {}
+function util.get_item_name(item)--[[ --> string
+Gets the localized name for an item.
+
+Parameters
+  item :: LtnItem
+
+Return value
+  name :: string
+]]if name_cache[item] then return name_cache[item] end
+  local type, name = match(item, "([^,]+),(.+)") -- format: "<item_type>,<item_name>"
+  if (type and name) then
+    local proto
+    if type == "item" then
+      proto = game.item_prototypes[name]
+    else
+      proto = game.fluid_prototypes[name]
+    end
+    if proto then
+      name_cache[item] = proto.localised_name or name
+    else
+      name_cache[item] = ""
+    end
+  else
+    name_cache[item] = ""
+  end
+  return name_cache[item]
+end
+
+local composition_cache = {}
+function util.get_train_composition_string(train)
+  if not composition_cache[train.id] then
+    composition_cache[train.id] = util.train.get_train_composition_string(train)
+  end
+  return composition_cache[train.id]
+end
+
+local locomotive_cache = {}
+function util.get_main_locomotive(train)
+  if not locomotive_cache[train.id] then
+    locomotive_cache[train.id] = util.train.get_main_locomotive(train)
+  end
+  return locomotive_cache[train.id]
 end
 
 return util
