@@ -22,6 +22,7 @@ return
     for k in pairs(item_groups) do
       item_groups[k] = nil
     end
+    local item_list = {}
     local group_index = {}
     local group_count = 0
     for name, prototype in pairs(game.item_prototypes) do
@@ -53,6 +54,8 @@ return
           order_subgroub = prototype.subgroup.order,
           order = prototype.order,
         }
+        item_list[key] = true
+        global.archive[key] = global.archive[key] or {}
       end
     end
     for name, prototype in pairs(game.fluid_prototypes) do
@@ -80,10 +83,18 @@ return
         order_subgroub = prototype.subgroup.order,
         order = prototype.order,
       }
+      item_list[key] = true
+      global.archive[key] = global.archive[key] or {}
     end
 
     table.sort(item_groups, function(a, b) return a.order < b.order end)
     for _, group in pairs(item_groups) do
       group.item_data = util.sort(group.item_data, item_sort_function)
+    end
+
+    for item_key in pairs(global.archive) do
+      if not item_list[item_key] then
+        global.archive[item_key] = nil
+      end
     end
   end

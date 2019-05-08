@@ -105,11 +105,14 @@ local function build_inventory_tab(window)
   button.enabled = false
   details_frame.icon = button
   -- summary at the top of the pane
+
+  inv_tab.bar_graph = egm.bar_graph.build(details_frame.content)
   local summary = details_frame.content.add{type = "table", column_count = 2, style = "slot_table"}
   width = C.inventory_tab.details_width - C.inventory_tab.summary_number_width - 25
   details_frame.summary = summary
   label = summary.add{type = "label", caption = {"inventory.detail-prov"}, style = "bold_label"}
   label.style.width = width
+
   summary.add{type = "label", caption = "0", style = styles.summary_number}.style.width = 90
   label = summary.add{type = "label", caption = {"inventory.detail-req"}, style = "bold_label"}
   label.style.width = width
@@ -154,7 +157,9 @@ local function update_details(inv_tab, network_id)
   local item = inv_tab.selected_item
   if not item then return end
   local data = global.data
-
+  if global.archive[item] then
+    egm.bar_graph.set_height(inv_tab.bar_graph, global.archive[item])
+  end
   -- set item name and icon
   local details_frame = inv_tab.details_frame
   details_frame.root.children[1].children[1].caption = {

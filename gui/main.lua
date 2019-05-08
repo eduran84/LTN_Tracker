@@ -72,7 +72,6 @@ Return value
 
   window.tabs = {}
   for tab_name, funcs in pairs(tab_functions) do
-    log2(tab_name, funcs, tab_functions)
     window.tabs[tab_name] = tab_functions[tab_name].build(window)
   end
   gui_data.windows[pind] = window

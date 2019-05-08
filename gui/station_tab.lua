@@ -162,7 +162,6 @@ local function build_station_tab(window)
 end
 
 local find, lower = string.find, string.lower
-local insert = table.insert
 local name2lowercase = setmetatable({}, {
   __index = function(self, station_name)
     local name = lower(station_name)
@@ -176,26 +175,25 @@ local function get_stops(station_tab, ltn_data)
       station_tab.filter.cache = {}
       local filter_lower = lower(station_tab.filter.current)
       local find = find
-      for _, stop_id in pairs(ltn_data.stop_ids) do
+      for stop_id, stop_data in pairs(ltn_data.stops) do
         local match = true
         for word in filter_lower:gmatch("%S+") do
-          if not find(name2lowercase[ltn_data.stops[stop_id].name], word, 1, true) then match = false end
+          if not find(name2lowercase[stop_data.name], word, 1, true) then match = false end
         end
-        if match then insert(station_tab.filter.cache, stop_id) end
+        if match then station_tab.filter.cache[stop_id] = stop_data end
       end
       station_tab.filter.last = station_tab.filter.current
     end
     return station_tab.filter.cache
   else
-    return ltn_data.stop_ids
+    return ltn_data.stops
   end
 end
 
 local function update_station_tab(station_tab, ltn_data)
   local station_table = station_tab.table
   egm.table.clear(station_table)
-  local ltnc_active = global.gui_data.is_ltnc_active
-  local signal_col_count = C.station_tab.item_table_col_count[3] + (ltnc_active and 0 or 1)
+  local signal_col_count = C.station_tab.item_table_col_count[3] + (global.gui_data.is_ltnc_active and 0 or 1)
   local selector_data = egm.manager.get_registered_data(station_tab.id_selector)
   local selected_network_id = tonumber(selector_data.last_valid_value)
   local testfun
@@ -204,19 +202,14 @@ local function update_station_tab(station_tab, ltn_data)
   else
     testfun = bit32.btest
   end
-  local stops_to_list = get_stops(station_tab, ltn_data)
-  for i = 1, #stops_to_list do
-    local stop_id = stops_to_list[i]
-    if stop_id and ltn_data.stops[stop_id] then
-      local row_data = {
+  for stop_id, stop_data in pairs(get_stops(station_tab, ltn_data)) do
+      egm.table.add_row_data(station_table, {
         signal_col_count = signal_col_count,
         testfun = testfun,
         selected_network_id = selected_network_id,
         stop_id = stop_id,
-        stop_data = ltn_data.stops[stop_id],
-      }
-      egm.table.add_row_data(station_table, row_data)
-    end
+        stop_data = stop_data,
+      })
   end
   egm.table.sort_rows(station_table)
 end

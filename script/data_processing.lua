@@ -71,12 +71,9 @@ after processing finishes, all global.raw tables are moved to global.data, with 
 local pairs, next = pairs, next
 
 -- local references to globals, set during on_load
-local raw
-local data
-local events -- custom event ids
+local raw, data, archive, events
 
 -- constants
---local HISTORY_LIMIT = require("script.constants").proc.history_limit
 local STOPS_PER_TICK = C.proc.stops_per_tick
 local DELIVERIES_PER_TICK = C.proc.deliveries_per_tick
 local TRAINS_PER_TICK = C.proc.trains_per_tick
@@ -90,13 +87,10 @@ local HISTORY_LIMIT = util.get_setting(defs.settings.history_limit)
 local ctrl_signal_var_name_bool = C.ltn.ctrl_signal_var_name_bool
 local ctrl_signal_var_name_num = C.ltn.ctrl_signal_var_name_num
 local function get_lamp_color(stop) -- helper functions for state 1
-  --local color_signal = stop.lampControl.get_control_behavior().get_signal(1)
-  --return color_signal and color_signal.signal.name
   return stop.lampControl.get_control_behavior().get_signal(1).signal.name
 end
 local function get_control_signals(stop)
   local color_signal = stop.lampControl.get_control_behavior().get_signal(1)
-  --local status = color_signal and {color_signal.signal.name,  color_signal.count}
   local signals = {}
   for sig_name,v in pairs(ctrl_signal_var_name_bool) do
      signals[sig_name] = stop[v] and 1 or nil
@@ -107,15 +101,9 @@ local function get_control_signals(stop)
   return {{color_signal.signal.name,  color_signal.count}, signals}
 end
 
-local function update_stops(stop_id) -- state 1
+local function update_stops() -- state 1
   local stops = raw.stops
-  --local counter = 0
-  --while counter < STOPS_PER_TICK do -- process only a limited amount of stops per tick
-    --counter = counter + 1
-    --local stop
   for stop_id, stop in pairs(stops) do
-    --stop_id, stop = next(stops, stop_id)
-    --if stop then
     if stop.entity.valid and stop.lampControl.valid then
       local name = stop.entity.backer_name
       if stop.isDepot then
@@ -137,25 +125,20 @@ local function update_stops(stop_id) -- state 1
             fcap = 0,
           }
         end
+        raw.stops[stop_id] = nil
       else  -- non-depot stop
         raw.name2id[name] = stop_id  -- list in name lookup table
         stop.name = name
         stop.signals = get_control_signals(stop)
         stop.incoming = {}
         stop.outgoing = {}
-        raw.stop_ids[#raw.stop_ids+1] = stop_id
       end
-    end   -- if stop.valid
-   -- else
-    --  return nil -- all stops done
-    --end --if stop_id then
+    end
   end
-  return nil --stop_id
 end
 
 local function check_for_new_stops()
-  if not data.stop_ids then log2(data) end
-  for _, stop_id in pairs(data.stop_ids) do
+  for stop_id in pairs(data.stops) do
     if not raw.stops[stop_id] then
       gui.clear_station_filter()
       break
@@ -170,7 +153,6 @@ local function update_depots(raw, depot_name) -- state 3
     local depot
     depot_name, depot = next(raw.depots, depot_name)
     if depot then
-      --while counter < TRAINS_PER_TICK do
       for train_index, train in pairs(depot.all_trains) do
         if train.valid then
           depot.n_all_trains = depot.n_all_trains + 1
@@ -182,7 +164,7 @@ local function update_depots(raw, depot_name) -- state 3
             depot.fcap = depot.fcap + av_trains[train_id].fluid_capacity
           end
         end
-      end  -- inner while
+      end
     else
       return nil
     end -- if depot
@@ -194,6 +176,7 @@ end
 local function update_provided(raw) -- state 4
   -- sort provided items by network id
   local i2s = raw.item2stop
+  local tick = game.tick
   for stop_id, provided in pairs(raw.provided_by_stop) do
     local stop = raw.stops[stop_id]
     if stop then
@@ -205,6 +188,9 @@ local function update_provided(raw) -- state 4
         -- store provided amount for each network id and item
         raw.provided[networkID] = raw.provided[networkID] or {}
         raw.provided[networkID][item] = (raw.provided[networkID][item] or 0) + count
+        if archive[item] then
+          archive[item][tick] = (archive[item][tick] or 0) + count
+        end
       end
     end
   end
@@ -214,6 +200,7 @@ local function update_requested(raw) -- state 5
     -- sort requested items by network id
   local i2s = raw.item2stop
   local requests = raw.requests_by_stop
+  local tick = game.tick - 1
   for stop_id, request in pairs(requests) do
     if raw.stops[stop_id] then
       local networkID = raw.stops[stop_id].network_id
@@ -224,6 +211,9 @@ local function update_requested(raw) -- state 5
         -- store requested amount for each network id and item
         raw.requested[networkID] = raw.requested[networkID] or {}
         raw.requested[networkID][item] = (raw.requested[networkID][item] or 0) - count
+        if archive[item] then
+          archive[item][tick] = (archive[item][tick] or 0) - count
+        end
       end
     end
   end
@@ -299,11 +289,10 @@ data_processor = function(event)
     raw.name2id = {}
     raw.item2stop = {}
     raw.item2delivery = {}
-    raw.stop_ids = {}
 
     -- reset state
     -- could be condensed down to just one variable, but it's more readable this way
-    proc.next_stop_id = nil
+    -- proc.next_stop_id = nil
     proc.next_depot_name = nil
     proc.next_delivery_id = nil
 
@@ -317,12 +306,8 @@ data_processor = function(event)
   ---- state 6 unused ------
   elseif proc.state == 1 then
   -- processing stops first, information gathered here is required for other steps
-    local stop_id = update_stops(raw, proc.next_stop_id)
-    if stop_id then
-      proc.next_stop_id = stop_id -- store last processed id, so we know where to continue next tick
-    else
-      proc.state = 2 -- go to next state
-    end
+    update_stops()
+    proc.state = 2
   elseif proc.state == 2 then
     check_for_new_stops()
     proc.state = 3
@@ -367,7 +352,6 @@ data_processor = function(event)
     data.item2delivery = raw.item2delivery
     data.provided_by_stop = raw.provided_by_stop
     data.requested_by_stop = raw.requests_by_stop
-    data.stop_ids = raw.stop_ids
 
     -- stop on_tick updates, start listening for LTN interface
     script.on_event(events.on_stops_updated, on_stops_updated)
@@ -523,6 +507,7 @@ local function on_load()
   -- cache globals
   raw = global.raw
   data = global.data
+  archive = global.archive
 
   -- cache event IDs
   local get_ltn_event = function(event_name)
@@ -569,7 +554,6 @@ local function on_init()
   global.data.item2stop = global.data.item2stop or {}
   global.data.item2delivery = global.data.item2delivery or {}
   global.data.history_limit = HISTORY_LIMIT
-  global.data.stop_ids = global.data.stop_ids or {}
   on_load()
 end
 

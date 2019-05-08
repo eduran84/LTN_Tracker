@@ -35,6 +35,7 @@ script.on_init(function()
   end
   -- module init
   global.item_groups = {}
+  global.archive = {}
   cache_item_data(global.item_groups)
   gui.on_init()
   prc.on_init()
