@@ -58,12 +58,13 @@ end)
 script.on_event(defines.events.on_runtime_mod_setting_changed, function(event)
   local setting = event and event.setting
   if not(setting and setting:sub(1, 4) == defs.mod_prefix) then return end
-
+  local player = game.players[event.player_index]
+  local value = util.get_setting(setting, player)
   if debug_mode then
-    log2("Player", game.players[event.player_index].name, "changed setting", setting)
+    log2("Player", player.name, "changed setting", setting, "to", value)
   end
   if setting == defs.settings.debug_mode then
-    debug_mode = util.get_setting(setting)
+    debug_mode = value
     if debug_mode then
       logger.add_debug_commands()
     else
@@ -83,10 +84,4 @@ script.on_configuration_changed(function(data)
   end
   cache_item_data(global.item_groups)
   gui.on_configuration_changed(data)
-  local ltnt_data = data.mod_changes[defs.names.mod_name]
-  if ltnt_data and ltnt_data.old_version
-      and util.misc.format_version(ltnt_data.old_version) < "00.10.07" then
-    -- migration to 0.10.7
-    global.proc.underload_is_alert = not util.get_setting(defs.settings.disable_underload)
-  end
 end)

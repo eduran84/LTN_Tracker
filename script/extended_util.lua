@@ -89,8 +89,7 @@ Parameters:
 
 Return value:
   value :: string, int or bool: value of the setting
-]]
-  if settings.global[setting] then
+]]if settings.global[setting] then
     return settings.global[setting].value
   elseif settings.player[setting] then
     if not player then
