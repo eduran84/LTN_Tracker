@@ -293,4 +293,7 @@ egm.manager.define_action(
   end
 )
 
-return {build_depot_tab, update_depot_tab}
+return {
+  build = build_depot_tab,
+  update = update_depot_tab,
+}

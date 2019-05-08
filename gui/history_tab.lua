@@ -132,4 +132,7 @@ local function update_history_tab(hist_tab, ltn_data)
   end
 end
 
-return {build_history_tab, update_history_tab}
+return {
+  build = build_history_tab,
+  update = update_history_tab,
+}

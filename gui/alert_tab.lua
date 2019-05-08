@@ -174,4 +174,7 @@ local function update_alert_tab(alert_tab, ltn_data)
   end
 end
 
-return {build_alert_tab, update_alert_tab}
+return {
+  build = build_alert_tab,
+  update = update_alert_tab,
+}

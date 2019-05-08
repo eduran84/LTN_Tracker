@@ -26,10 +26,10 @@ defs.names = {
   alert_popup = mod_prefix .. "alert_popup_window",
 }
 
-defs.tabs = {
+defs.tabs = {  -- order matter
   depot = "depot_tab",
   station = "station_tab",
-  requests = "request_tab",
+  --requests = "request_tab",
   inventory = "inventory_tab",
   history = "history_tab",
   alert = "alert_tab",
@@ -74,6 +74,8 @@ defs.functions = {
 
 defs.styles = {
   shared = {
+    tab_button = egm_defs.style_names.tabbed_pane.button,
+    tab_button_red = egm_defs.style_names.tabbed_pane.button_red,
     default_button = mod_prefix .. "default_button",
     large_close_button = mod_prefix .. "large_close_button",
     slot_table_frame = mod_prefix .. "ltnt_slot_table_frame",

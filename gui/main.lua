@@ -1,8 +1,8 @@
-local defs = defs
-local tab_names = defs.tabs
-local egm = egm
-local C = C
-local mod_gui = require("mod-gui")
+------------------------------------------------------------------------------------
+-- cache variables
+------------------------------------------------------------------------------------
+local defs, egm, C = defs, egm, C
+local alert_tab_name = defs.tabs.alert
 local gui_data = {  -- cached global table data
   windows = {},
   alert_popup = {},
@@ -16,21 +16,14 @@ local gui_data = {  -- cached global table data
 gui = {}
 
 ------------------------------------------------------------------------------------
--- load ui sub-modules
+-- load sub-modules
 ------------------------------------------------------------------------------------
+local mod_gui = require("mod-gui")
 require(defs.pathes.modules.action_definitions)
-
-local build_funcs, update_funcs = {}, {}
-build_funcs[tab_names.depot], update_funcs[tab_names.depot] = unpack(require(defs.pathes.modules.depot_tab))
-local inventory_funcs = require(defs.pathes.modules.inventory_tab)
-build_funcs[tab_names.inventory] = inventory_funcs.build
-update_funcs[tab_names.inventory] = inventory_funcs.update
---build_funcs[tab_names.requests], update_funcs[tab_names.requests] = unpack(require(defs.pathes.modules.request_tab))
-local station_funcs = require(defs.pathes.modules.station_tab)
-build_funcs[tab_names.station] = station_funcs.build
-update_funcs[tab_names.station] = station_funcs.update
-build_funcs[tab_names.history], update_funcs[tab_names.history] = unpack(require(defs.pathes.modules.history_tab))
-build_funcs[tab_names.alert], update_funcs[tab_names.alert] = unpack(require(defs.pathes.modules.alert_tab))
+local tab_functions = {}
+for _, tab_name in pairs(defs.tabs) do
+  tab_functions[tab_name] = require(defs.pathes.modules[tab_name])
+end
 
 ------------------------------------------------------------------------------------
 -- gui module functions
@@ -78,12 +71,10 @@ Return value
   window.pane = egm.tabs.build(window.content, {direction = "vertical"})
 
   window.tabs = {}
-  window.tabs[tab_names.depot] = build_funcs[tab_names.depot](window)
-  window.tabs[tab_names.station] = build_funcs[tab_names.station](window)
-  --window.tabs[tab_names.requests] = build_funcs[tab_names.requests](window)
-  window.tabs[tab_names.inventory] = build_funcs[tab_names.inventory](window)
-  window.tabs[tab_names.history] =  build_funcs[tab_names.history](window)
-  window.tabs[tab_names.alert] =  build_funcs[tab_names.alert](window)
+  for tab_name, funcs in pairs(tab_functions) do
+    log2(tab_name, funcs, tab_functions)
+    window.tabs[tab_name] = tab_functions[tab_name].build(window)
+  end
   gui_data.windows[pind] = window
   return window
 end
@@ -117,10 +108,13 @@ Parameters
 ]]
   local pind = event.player_index
   local window = get(pind)
-  local tab_index = window.root.visible and window.pane.active_tab
-  if update_funcs[tab_index] then
-    update_funcs[tab_index](window.tabs[tab_index], global.data)
+  local tab_name = window.root.visible and window.pane.active_tab
+  if tab_name then
+    tab_functions[tab_name].update(window.tabs[tab_name], global.data)
     gui_data.last_refresh_tick[pind] = game.tick
+    if tab_name == alert_tab_name then
+      window.pane.buttons[alert_tab_name].style = defs.styles.shared.tab_button
+    end
   end
 end
 gui.update_tab = update_tab
@@ -137,10 +131,10 @@ Parameters
   local tick = game.tick
   if tick - gui_data.last_refresh_tick[pind] > 60 then
     local window = get(pind)
-    local tab_index = window.root.visible and window.pane.active_tab
-    if update_funcs[tab_index] then
-      update_funcs[tab_index](window.tabs[tab_index], global.data)
-      gui_data.last_refresh_tick[pind] = tick
+    local tab_name = window.root.visible and window.pane.active_tab
+    if tab_name then
+      tab_functions[tab_name].update(window.tabs[tab_name], global.data)
+      gui_data.last_refresh_tick[pind] = game.tick
     end
   end
 end
@@ -235,7 +229,7 @@ Return value
 end
 
 local function on_new_alert(event)--[[
-Opens alert pop-up for all players.
+Opens alert pop-up for all players and highlights alert tab.
 
 Parameters
   table with fields:
@@ -245,9 +239,14 @@ Parameters
     cargo :: Table: [item] = count
 ]]
   for pind in pairs(gui_data.show_alerts) do
-    if get(pind).root.visible then
-      event.player_index = pind
-      update_tab(event)
+    local window = get(pind)
+    if window.root.visible then
+      if window.pane.active_tab == alert_tab_name then
+        event.player_index = pind
+        update_tab(event)
+      else
+        window.pane.buttons[alert_tab_name].style = defs.styles.shared.tab_button_red
+      end
     else
       local alert_popup = get_alert_popup(pind)
       alert_popup.root.visible = true
@@ -257,6 +256,7 @@ Parameters
         caption = defs.errors[event.type].caption,
         tooltip = defs.errors[event.type].tooltip,
       }.style.single_line = false
+      window.pane.buttons[alert_tab_name].style = defs.styles.shared.tab_button_red
     end
   end
 end
@@ -298,7 +298,7 @@ script.on_event(defs.controls.toggle_hotkey, on_toggle_button_click)
 script.on_event(defs.controls.toggle_filter, function(event)
   local window = get(event.player_index)
   if window.root.visible and window.pane.active_tab == defs.tabs.station then
-    station_funcs.focus_filter(window)
+    tab_functions[defs.tabs.station].focus_filter(window)
   end
 end)
 script.on_event(defines.events.on_player_created, player_init)
@@ -396,7 +396,7 @@ function gui.on_settings_changed(event)
     return true
   end
   if setting == defs.settings.fade_timeout then
-    inventory_funcs.set_fadeout_time(pind)
+    tab_functions[defs.tabs.inventory].set_fadeout_time(pind)
     return true
   end
   if setting == defs.settings.station_click_action then
