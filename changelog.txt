@@ -1,4 +1,17 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.1.4
+Date: 2019-05-08
+
+  Features:
+    - Added a bar graph showing amount of provided items over the last hour (highly experimental).
+
+  Changes:
+    - Marked LTN Tracker as conflicting mod to prevent usage of both stable and beta version at the same time.
+
+  Bugfixes:
+    - too many to list
+
+---------------------------------------------------------------------------------------------------
 Version: 0.1.3
 Date: 2019-05-07
 
