@@ -1,11 +1,3 @@
-logger.settings.class_dictionary.LuaGroup = {
-  name = true,
-  type = true,
-  group = true,
-  subgroups = true,
-  order = true,
-}
-
 local function item_sort_function(a, b)
   if a.order_group ~= b.order_group then
     return a.order_group < b.order_group

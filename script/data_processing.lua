@@ -329,38 +329,41 @@ local function register_events()
   end
 end
 
-local function on_load()
-  -- cache globals
-  raw = global.raw
-  data = global.data
-  proc = global.proc
-  register_events()
+local function on_settings_changed(event)
+  local setting = event and event.setting
+  if not(setting and setting:sub(1, 4) == defs.mod_prefix) then return end
+  if setting == defs.settings.history_limit then
+    data.history_limit = util.get_setting[setting]
+    data.newest_history_index = 1
+    data.delivery_hist = {}
+  end
+  if setting == defs.settings.disable_underload then
+    proc.underload_is_alert = not util.get_setting(setting)
+  end
 end
 
-local function on_init()
+local events = {
+    [defines.events.on_runtime_mod_setting_changed] = on_settings_changed,
+  }
+
+local data_processing = {}
+
+function data_processing.on_init()
   global.raw = raw
   global.data = data
   global.proc = proc
   register_events()
 end
 
-local function on_settings_changed(event)
-  local setting = event.setting
-  if setting == defs.settings.history_limit then
-    global.data.history_limit = util.get_setting[setting]
-    global.data.newest_history_index = 1
-    global.data.delivery_hist = {}
-    return true
-  end
-  if setting == defs.settings.disable_underload then
-    global.proc.underload_is_alert = not util.get_setting(setting)
-    return true
-  end
-  return false
+function data_processing.get_events()
+  return events
 end
 
-return {
-  on_init = on_init,
-  on_load = on_load,
-  on_settings_changed = on_settings_changed,
-}
+function data_processing.on_load()
+  raw = global.raw
+  data = global.data
+  proc = global.proc
+  register_events()
+end
+
+return data_processing

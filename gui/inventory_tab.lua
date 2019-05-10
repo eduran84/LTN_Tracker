@@ -147,10 +147,10 @@ local function build_inventory_tab(window)
   return inv_tab
 end
 
-local function set_fadeout_time(pind)
+local function set_fadeout_time(inv_tab, pind)
   local setting_value = util.get_setting(defs.settings.fade_timeout, game.players[pind]) * 60 * 60
   if setting_value == 0 then setting_value = nil end
-  gui.get(pind).tabs[defs.tabs.inventory].item_tables[1].fade_timeout = setting_value
+  inv_tab.item_tables[1].fade_timeout = setting_value
 end
 
 local function update_details(inv_tab, network_id)

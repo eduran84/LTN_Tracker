@@ -13,17 +13,49 @@
 defs = require("defines")
 logger = require(defs.pathes.modules.olib_logger)
 log2 = logger.log
+print = logger.print
 C = require(defs.pathes.modules.constants)
 defines.events.on_data_updated = script.generate_event_name()
 defines.events.on_train_alert = script.generate_event_name()
 
 util = require(defs.pathes.modules.util)
+
 egm = require(defs.pathes.modules.import_egm)
-local gui = require(defs.pathes.modules.gui_main)
-local prc = require(defs.pathes.modules.data_processing)
 local cache_item_data = require(defs.pathes.modules.cache_item_data)
 
-debug_mode = util.get_setting(defs.settings.debug_mode)
+-------------------------------------------------------------------------------------
+-- settings and config
+-------------------------------------------------------------------------------------
+
+local modules = {
+  dbg = require("script/debug"),
+  gui_main = require(defs.pathes.modules.gui_main),
+  data_processing = require(defs.pathes.modules.data_processing),
+}
+
+local function register_events(modules)
+  local events = {}
+  for module_name, module in pairs(modules) do
+    if module.get_events then
+      local module_events = module.get_events()
+      for event, handler in pairs(module_events) do
+        events[event] = events[event] or {}
+        events[event][module_name] = handler
+      end
+    end
+  end
+  for event, handlers in pairs(events) do
+    if event == defines.events.on_tick then
+      error(logger.tostring("Don't use the event handler system for on_tick."))
+    end
+    local function action(event)
+      for _, handler in pairs(handlers) do
+        handler(event)
+      end
+    end
+    script.on_event(event, action)
+  end
+end
 
 script.on_init(function()
   -- check for LTN interface, just in case
@@ -33,49 +65,29 @@ script.on_init(function()
   if debug_mode then
     log2("Starting mod initialization for mod", defs.mod_name .. ".")
   end
-  -- module init
+
   global.item_groups = {}
   global.archive = {}
   cache_item_data(global.item_groups)
-  gui.on_init()
-  prc.on_init()
 
+  for _, module in pairs(modules) do
+    if module.on_init then
+      module.on_init()
+    end
+  end
+  register_events(modules)
   if debug_mode then
     log2("Initialization finished.")
   end
 end)
 
 script.on_load(function()
-  gui.on_load()
-  prc.on_load()
-  if debug_mode then
-    logger.add_debug_commands()
-  end
-end)
-
--------------------------------------------------------------------------------------
--- settings and config
--------------------------------------------------------------------------------------
-script.on_event(defines.events.on_runtime_mod_setting_changed, function(event)
-  local setting = event and event.setting
-  if not(setting and setting:sub(1, 4) == defs.mod_prefix) then return end
-  local player = game.players[event.player_index]
-  local value = util.get_setting(setting, player)
-  if debug_mode then
-    log2("Player", player.name, "changed setting", setting, "to", value)
-  end
-  if setting == defs.settings.debug_mode then
-    debug_mode = value
-    if debug_mode then
-      logger.add_debug_commands()
-    else
-      logger.remove_debug_commands()
+  for _, module in pairs(modules) do
+    if module.on_load then
+      module.on_load()
     end
-    return
   end
-  local setting_found = gui.on_settings_changed(event)
-  if setting_found then return end
-  prc.on_settings_changed(event)
+  register_events(modules)
 end)
 
 script.on_configuration_changed(function(data)
@@ -84,5 +96,9 @@ script.on_configuration_changed(function(data)
     error("LogisticTrainNetwork is required to run LTNT.")
   end
   cache_item_data(global.item_groups)
-  gui.on_configuration_changed(data)
+  for _, module in pairs(modules) do
+    if module.on_configuration_changed then
+      module.on_configuration_changed(data)
+    end
+  end
 end)

@@ -77,8 +77,6 @@ Return value
   gui_data.windows[pind] = window
   return window
 end
-gui.build = build
-
 
 local function get(pind)--[[  --> custom egm_window
 Returns the GUI for the given player if it exists. Creates it otherwise.
@@ -116,7 +114,6 @@ Parameters
     end
   end
 end
-gui.update_tab = update_tab
 
 local function update_tab_no_spam(event)--[[
 Updates the currently visible tab for the player given by event.player_index. Does
@@ -150,7 +147,7 @@ Parameters
   if new_state then
     game.players[pind].opened = get(pind).root
     game.players[pind].set_shortcut_toggled(defs.controls.shortcut, true)
-    gui.update_tab(event)
+    update_tab(event)
   else
     game.players[pind].set_shortcut_toggled(defs.controls.shortcut, false)
   end
@@ -281,7 +278,7 @@ Parameters
 
   build(pind)
 end
-gui.player_init = player_init
+--gui.player_init = player_init
 ------------------------------------------------------------------------------------
 -- event registration
 ------------------------------------------------------------------------------------
@@ -300,7 +297,7 @@ script.on_event(defs.controls.toggle_filter, function(event)
     tab_functions[defs.tabs.station].focus_filter(window)
   end
 end)
-script.on_event(defines.events.on_player_created, player_init)
+
 
 -- different sources triggering tab update
 script.on_event({
@@ -312,8 +309,7 @@ script.on_event({
 script.on_event(defs.controls.refresh_hotkey, update_tab_no_spam)
 egm.manager.define_action(defs.actions.refresh_button, update_tab_no_spam)
 
-script.on_event(defines.events.on_gui_closed,
---[[ on_gui_closed(event)
+local function on_gui_closed(event)--[[
 Closes LTNT GUI or LTNC GUI, depending on which one is open.
 
 Parameters
@@ -321,24 +317,21 @@ Parameters
     player_index :: uint
     element :: LuaGuiElement
 ]]
-  function(event)
-    -- event triggers whenever any UI element is closed, so check if it is actually the ltnt UI that is supposed to close
-    if not (event.element and event.element.valid) then return end
-    local pind = event.player_index
-    local window = get(pind)
-    if event.element.index == window.root.index then
-      if gui_data.is_ltnc_active and gui_data.is_ltnc_open[pind] then
-        gui_data.is_ltnc_open[pind] = nil
-        remote.call(defs.remote.ltnc_interface, defs.remote.ltnc_close, pind)
-        game.players[pind].opened = window.root
-        update_tab(event)
-      else
-        egm.window.hide(window)
-        game.players[pind].set_shortcut_toggled(defs.controls.shortcut, false)
-      end
+  if not (event.element and event.element.valid) then return end
+  local pind = event.player_index
+  local window = get(pind)
+  if event.element.index == window.root.index then
+    if gui_data.is_ltnc_active and gui_data.is_ltnc_open[pind] then
+      gui_data.is_ltnc_open[pind] = nil
+      remote.call(defs.remote.ltnc_interface, defs.remote.ltnc_close, pind)
+      game.players[pind].opened = window.root
+      update_tab(event)
+    else
+      egm.window.hide(window)
+      game.players[pind].set_shortcut_toggled(defs.controls.shortcut, false)
     end
   end
-)
+end
 
 script.on_event(defines.events.on_lua_shortcut,
   function(event)
@@ -359,30 +352,238 @@ script.on_event(defines.events.on_data_updated,
     end
   end
 )
+
 ------------------------------------------------------------------------------------
--- initialization and configuration (called from control.lua)
+-- gui action definitions
 ------------------------------------------------------------------------------------
-function gui.on_init()
-  global.gui_data = global.gui_data or gui_data
-  egm.manager.on_init()
-  gui_data.is_ltnc_active = game.active_mods[defs.names.ltnc] and true or false
-  for pind in pairs(game.players) do
-    player_init(pind)
+egm.manager.define_action(defs.actions.update_tab,--[[
+  Triggering elements:
+    checkbox @ station_tab
+  Event: any gui event
+  Data:  none
+]]
+  function(event, data)
+    update_tab(event)
   end
-end
+)
 
-function gui.on_load()
-  gui_data = global.gui_data
-  egm.manager.on_load()
-end
+egm.manager.define_action(defs.actions.filter_items,--[[
+  Triggering elements:
+    filter buttons @ inventory_tab
+  Event: on_gui_click
+  Data:
+    group_index :: unit: index of the selected item group
+    buttons :: array of LuaGuiElement: all filter buttons
+]]function(event, data)
+    for i, button in pairs(data.buttons) do
+      button.enabled = not (i == data.group_index)
+    end
+  end
+)
 
-function gui.on_settings_changed(event)
+egm.manager.define_action(defs.actions.show_alerts,--[[
+  Triggering elements:
+    show alerts button @ alert_popup
+  Event: on_gui_click
+  Data:
+    window :: EGM_Window object: window the button belongs to
+]]function(event, data)
+    data.window.root.visible = false
+    local main_window = get(event.player_index)
+    egm.tabs.set_active_tab(main_window.pane, defs.tabs.alert)
+    main_window.root.visible = true
+    game.players[event.player_index].opened = main_window.root
+    update_tab(event)
+  end
+)
+
+egm.manager.define_action(defs.actions.close_popup,--[[
+  Triggering elements:
+    close button @ alert_popup
+  Event: on_gui_click
+  Data:
+    window :: EGM_Window object: window the button belongs to
+]]function(event, data)
+    data.window.root.visible = false
+  end
+)
+
+local draw_circle = rendering.draw_circle
+local render_arguments = {
+  color = C.window.marker_circle_color,
+  radius = 3,
+  width = 10,
+  surface = "nauvis",
+  filled = false,
+  target = {},
+  target_offset  = {-1, -1},
+  time_to_live = 300,
+  players = {0},
+}
+egm.manager.define_action(defs.actions.station_name_clicked,--[[
+  Triggering elements:
+    most station name labels
+  Event: on_gui_click
+  Data:
+    name :: string: station name
+]]function(event, data)
+    if debug_mode then log2("station_name_clicked", event, data) end
+
+    local stop = global.data.stops[tonumber(global.data.name2id[data.name])]
+    if stop and stop.entity and stop.entity.valid then
+      local pind = event.player_index
+      local player = game.players[pind]
+      local entity = stop.entity
+      if gui_data.station_select_mode[pind] < 3  then
+        player.opened = entity
+      end
+      if gui_data.station_select_mode[pind] > 1 then
+        player.zoom_to_world({entity.position.x+40, entity.position.y+0}, 0.4)
+        render_arguments.target = entity
+        render_arguments.players = {pind}
+        draw_circle(render_arguments)
+      end
+    end
+  end
+)
+egm.manager.define_action(defs.actions.select_station_entity,--[[
+  Triggering elements:
+    some station name labels
+  Event: on_gui_click
+  Data:
+    stop_entity :: LuaEntity: station entity
+]]function(event, data)
+    if debug_mode then log2("select_station_entity", event, data) end
+    local stop_entity = data.stop_entity
+    if stop_entity and stop_entity.valid then
+      local pind = event.player_index
+      if gui_data.station_select_mode[pind] < 3  then
+        game.players[pind].opened = stop_entity
+      end
+      if gui_data.station_select_mode[pind] > 1 then
+        game.players[pind].zoom_to_world({stop_entity.position.x+40, stop_entity.position.y+0}, 0.4)
+        render_arguments.target = stop_entity
+        render_arguments.players = {pind}
+        draw_circle(render_arguments)
+      end
+    end
+  end
+)
+egm.manager.define_action(defs.actions.select_ltnc,--[[
+  Triggering elements:
+    select ltnc buttons @ station_tab
+  Event: on_gui_click
+  Data:
+    stop_entity :: LuaEntity: station entity
+    lamp_entity :: LuaEntity: LTN lamp input entity
+]]function(event, data)
+    local pind = event.player_index
+    local lamp_entity = data.lamp_entity
+    if lamp_entity.valid then
+      if remote.call("ltn-combinator", "open_ltn_combinator", pind, lamp_entity, false) then
+        gui_data.is_ltnc_open = {[pind] = true}
+      else
+        local player = game.players[pind]
+        player.surface.create_entity{
+          name = "flying-text",
+          position = player.position,
+          text = {"ltnt.no-ltnc-found-msg"},
+          color = {r=1,g=0,b=0}
+        }
+      end
+    end
+  end
+)
+egm.manager.define_action(defs.actions.select_entity,--[[
+  Triggering elements:
+    train composition label @ depot_tab
+    select train button @ alert_tab
+  Event: on_gui_click
+  Data:
+    entity :: LuaEntity
+]]function(event, data)
+    local player = game.players[event.player_index]
+    if data.entity.valid and player then
+      player.opened = data.entity
+    end
+  end
+)
+
+local function trim(s)
+  local from = s:match("^%s*()")
+  return from > #s and "" or s:match(".*%S", from)
+end
+egm.manager.define_action(defs.actions.update_filter,--[[
+  Triggering elements:
+    filter textbox @ station_tab
+  Event: on_gui_text_changed
+  Data:
+    filter :: Table with fields:
+      cache :: Table: cached results for old filter string
+      last :: string: filter string before change
+      current :: string: filter string after change
+]]function(event, data)
+    if event.name ~= defines.events.on_gui_text_changed then return end
+    local elem = event.element
+    if elem.text then
+      local input = trim(elem.text)
+      if input:len() == 0 then
+        data.filter.current = nil
+      else
+        data.filter.current = input
+      end
+    end
+    update_tab(event)
+  end
+)
+
+egm.manager.define_action(defs.actions.clear_history,--[[
+  Triggering elements:
+    delete button @ history_tab
+  Event: on_gui_click
+  Data:
+    egm_table :: EGM_SortableTable object
+]]function(event, data)
+    global.data.delivery_hist = {}
+    global.data.newest_history_index = 1
+    egm.table.clear(data.egm_table)
+  end
+)
+egm.manager.define_action(defs.actions.clear_alerts,--[[
+  Triggering elements:
+    delete all button @ alert_tab
+  Event: on_gui_click
+  Data:
+    egm_table :: EGM_SortableTable object
+]]function(event, data)
+    global.data.trains_error = {}
+    global.data.train_error_count = 1
+    egm.table.clear(data.egm_table)
+  end
+)
+egm.manager.define_action(defs.actions.clear_single_alert,--[[
+  Triggering elements:
+    delete row button @ alert_tab
+  Event: on_gui_click
+  Data:
+    egm_table :: EGM_SortableTable object
+    row_data :: Table containing information about clicked row
+]]function(event, data)
+    global.data.trains_error[data.row_data.error_id] = nil
+    egm.table.delete_row(data.egm_table, data.row_data.row_index)
+  end
+)
+
+------------------------------------------------------------------------------------
+-- initialization and configuration
+------------------------------------------------------------------------------------
+local function on_settings_changed(event)
+  local setting = event and event.setting
+  if not(setting and setting:sub(1, 4) == defs.mod_prefix) then return end
   local pind = event.player_index
-  local setting = event.setting
   if     setting == defs.settings.window_height
       or setting == defs.settings.window_location then
     build(pind)
-    return true
   end
   local player = game.players[pind]
   if setting == defs.settings.refresh_interval then
@@ -392,24 +593,45 @@ function gui.on_settings_changed(event)
     else
       gui_data.refresh_interval[pind] = nil
     end
-    return true
   end
   if setting == defs.settings.fade_timeout then
-    tab_functions[defs.tabs.inventory].set_fadeout_time(pind)
-    return true
+    tab_functions[defs.tabs.inventory].set_fadeout_time(get(pind).tabs[defs.tabs.inventory], pind)
   end
   if setting == defs.settings.station_click_action then
     gui_data.station_select_mode[pind] = tonumber(util.get_setting(setting, player))
-    return true
   end
   if setting == defs.settings.show_alerts then
     gui_data.show_alerts[pind] = util.get_setting(defs.settings.show_alerts) or nil
-    return true
   end
-  return false
 end
 
-function gui.on_configuration_changed(data)
+local events = {
+    [defines.events.on_runtime_mod_setting_changed] = on_settings_changed,
+    [defines.events.on_gui_closed] = on_gui_closed,
+    [defines.events.on_player_created] = player_init,
+  }
+
+local gui_main = {}
+
+function gui_main.on_init()
+  global.gui_data = global.gui_data or gui_data
+  egm.manager.on_init()
+  gui_data.is_ltnc_active = game.active_mods[defs.names.ltnc] and true or false
+  for pind in pairs(game.players) do
+    player_init(pind)
+  end
+end
+
+function gui_main.get_events()
+  return events
+end
+
+function gui_main.on_load()
+  gui_data = global.gui_data
+  egm.manager.on_load()
+end
+
+function gui_main.on_configuration_changed(data)
    -- handle changes to LTN-Combinator
   local reset = true  -- TODO implement proper logic for UI reset
   if data.mod_changes[defs.names.ltnc] then
@@ -432,4 +654,4 @@ function gui.on_configuration_changed(data)
   end
 end
 
-return gui
+return gui_main
