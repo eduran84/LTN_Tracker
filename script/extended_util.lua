@@ -28,7 +28,7 @@ Return value:
 end
 
 local base_1000 = math_log(1000)
-local metric_prefix = {[0] = "", [1] = "k", [2] = "M", [3] = "G", [4] = "T"}
+local metric_prefix = {[-2] = "n", [-1] = "m", [0] = "", [1] = "k", [2] = "M", [3] = "G", [4] = "T"}
 function util.format_number(x)--[[ --> string
 Formats large number N into nnn[prefix] format.
 

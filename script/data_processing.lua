@@ -63,202 +63,40 @@ after processing finishes, all global.raw tables are moved to global.data, with 
 ------------------------------------------------------------------------------------------------------------------
 
 -- additional tables in global.data --
-.delivery_hist  >> lsits finished deliveries, received from LTN's on_delivery_completed event
+.delivery_hist  >> lists finished deliveries, received from LTN's on_delivery_completed event
+]]
 
---]]
+-- local references to globals
+local raw = {}
+local proc = {
+  state = "idle",
+  underload_is_alert = util.get_setting(defs.settings.disable_underload),
+  state_data = {
+    update_depots = {},
+    update_deliveries = {},
+  }
+}
+local data = {
+  stops = {},
+  depots = {},
+  trains_error = {},
+  train_error_count = 1,
+  provided = {},
+  requested = {},
+  in_transit = {},
+  deliveries = {},
+  delivery_hist ={},
+  newest_history_index = 1,
+  name2id = {},
+  item2stop = {},
+  item2delivery = {},
+  history_limit = util.get_setting(defs.settings.history_limit),
+}
 
---local references to functions
-local pairs, next = pairs, next
-
--- local references to globals, set during on_load
-local raw, data, archive, events
-
--- constants
-local STOPS_PER_TICK = C.proc.stops_per_tick
-local DELIVERIES_PER_TICK = C.proc.deliveries_per_tick
-local TRAINS_PER_TICK = C.proc.trains_per_tick
-local HISTORY_LIMIT = util.get_setting(defs.settings.history_limit)
-
----------------------
--- DATA PROCESSING --
----------------------
--- functions here are called from data_processor, defined below
-
-local ctrl_signal_var_name_bool = C.ltn.ctrl_signal_var_name_bool
-local ctrl_signal_var_name_num = C.ltn.ctrl_signal_var_name_num
-local function get_lamp_color(stop) -- helper functions for state 1
-  return stop.lampControl.get_control_behavior().get_signal(1).signal.name
-end
-local function get_control_signals(stop)
-  local color_signal = stop.lampControl.get_control_behavior().get_signal(1)
-  local signals = {}
-  for sig_name,v in pairs(ctrl_signal_var_name_bool) do
-     signals[sig_name] = stop[v] and 1 or nil
-  end
-  for sig_name,v in pairs(ctrl_signal_var_name_num) do
-     signals[sig_name] = stop[v] > 0 and stop[v] or nil
-  end
-  return {{color_signal.signal.name,  color_signal.count}, signals}
-end
-
-local function update_stops() -- state 1
-  local stops = raw.stops
-  for stop_id, stop in pairs(stops) do
-    if stop.entity.valid and stop.lampControl.valid then
-      local name = stop.entity.backer_name
-      if stop.isDepot then
-        if raw.depots[name] then
-          local depot = raw.depots[name]
-          -- add stop to depot
-          depot.network_ids[#depot.network_ids+1] = stop.network_id
-          depot.signals[get_lamp_color(stop)] = (depot.signals[get_lamp_color(stop)] or 0) + 1
-        else
-          --create new depot
-          raw.depots[name] = {
-            parked_trains = {},
-            signals = {[get_lamp_color(stop)] = 1},
-            network_ids = {stop.network_id},
-            all_trains = stop.entity.get_train_stop_trains(),
-            n_parked = 0,
-            n_all_trains = 0,
-            cap = 0,
-            fcap = 0,
-          }
-        end
-        raw.stops[stop_id] = nil
-      else  -- non-depot stop
-        raw.name2id[name] = stop_id  -- list in name lookup table
-        stop.name = name
-        stop.signals = get_control_signals(stop)
-        stop.incoming = {}
-        stop.outgoing = {}
-      end
-    end
-  end
-end
-
-local function check_for_new_stops()
-  for stop_id in pairs(data.stops) do
-    if not raw.stops[stop_id] then
-      gui.clear_station_filter()
-      break
-    end
-  end
-end
-
-local function update_depots(raw, depot_name) -- state 3
-  local av_trains = raw.available_trains
-  local counter = 0
-  while counter < TRAINS_PER_TICK do -- for depot_name, depot in pairs(raw.depots) do
-    local depot
-    depot_name, depot = next(raw.depots, depot_name)
-    if depot then
-      for train_index, train in pairs(depot.all_trains) do
-        if train.valid then
-          depot.n_all_trains = depot.n_all_trains + 1
-          local train_id = train.id
-          if av_trains[train_id] then
-            depot.parked_trains[train_id] = av_trains[train_id]
-            depot.n_parked = depot.n_parked + 1
-            depot.cap = depot.cap + av_trains[train_id].capacity
-            depot.fcap = depot.fcap + av_trains[train_id].fluid_capacity
-          end
-        end
-      end
-    else
-      return nil
-    end -- if depot
-    counter = counter + depot.n_all_trains
-  end -- outer while
-  return depot_name
-end
-
-local function update_provided(raw) -- state 4
-  -- sort provided items by network id
-  local i2s = raw.item2stop
-  local tick = game.tick
-  for stop_id, provided in pairs(raw.provided_by_stop) do
-    local stop = raw.stops[stop_id]
-    if stop then
-      for item, count in pairs(provided) do
-        -- list stop as provider for item
-        i2s[item] = i2s[item] or {}
-        i2s[item][#i2s[item]+1] = stop_id
-        local networkID = stop.network_id
-        -- store provided amount for each network id and item
-        raw.provided[networkID] = raw.provided[networkID] or {}
-        raw.provided[networkID][item] = (raw.provided[networkID][item] or 0) + count
-        if archive[item] then
-          archive[item][tick] = (archive[item][tick] or 0) + count
-        end
-      end
-    end
-  end
-end
-
-local function update_requested(raw) -- state 5
-    -- sort requested items by network id
-  local i2s = raw.item2stop
-  local requests = raw.requests_by_stop
-  local tick = game.tick - 1
-  for stop_id, request in pairs(requests) do
-    if raw.stops[stop_id] then
-      local networkID = raw.stops[stop_id].network_id
-      for item, count in pairs(request) do
-        -- list stop as requester for item
-        i2s[item] = i2s[item] or {}
-        i2s[item][#i2s[item]+1] = stop_id
-        -- store requested amount for each network id and item
-        raw.requested[networkID] = raw.requested[networkID] or {}
-        raw.requested[networkID][item] = (raw.requested[networkID][item] or 0) - count
-        if archive[item] then
-          archive[item][tick] = (archive[item][tick] or 0) - count
-        end
-      end
-    end
-  end
-  return nil
-end
-
-local function update_in_transit(delivery_id, delivery, raw) -- helper function for state 7
-  if raw.stops[delivery.to_id] and raw.stops[delivery.from_id] then
-    local network_id = delivery.networkID or -1
-    raw.in_transit[network_id] = raw.in_transit[network_id] or {}
-    local inc = raw.stops[delivery.to_id] and raw.stops[delivery.to_id].incoming or {}
-    -- only add to outgoing if pickup is not done yet
-    local og = not delivery.pickupDone and raw.stops[delivery.from_id] and raw.stops[delivery.from_id].outgoing
-    for item, amount in pairs(delivery.shipment) do
-      raw.in_transit[network_id][item] = (raw.in_transit[network_id][item] or 0) + amount
-      raw.item2delivery[item] = raw.item2delivery[item] or {}
-      raw.item2delivery[item][#raw.item2delivery[item]+1] = delivery_id
-      inc[item] = (inc[item] or 0) + amount
-      if og then og[item] = (og[item] or 0) - amount end
-    end
-  end
-end
-
-local function add_new_deliveries(raw, delivery_id) -- state 7
-  local counter = 0
-  while counter < DELIVERIES_PER_TICK do
-    counter = counter + 1
-    local delivery
-    delivery_id, delivery = next(raw.deliveries, delivery_id)
-    if delivery then
-      delivery.from_id = raw.name2id[delivery.from]
-      delivery.to_id = raw.name2id[delivery.to]
-      -- add items to in_transit list and incoming/outgoing
-      update_in_transit(delivery_id, delivery, raw)
-    else
-      return nil
-    end
-  end
-  return delivery_id
-end
-
---------------------
--- EVENT HANDLERS --
---------------------
-local data_processor -- defined later
+------------------------------------------------------------------------------------
+-- processing LTN data
+------------------------------------------------------------------------------------
+local data_processor
 
 -- on_dispatcher_updated is always triggered right after on_stops_updated
 local function on_stops_updated(event)
@@ -272,14 +110,12 @@ local function on_dispatcher_updated(event)
   data_processor()
 end
 
--- data_processor starts running on_tick when new data arrives and stops when processing is finished
-data_processor = function(event)
-  local proc = global.proc
-  if proc.state == 0 then -- new data arrived, init processing
-    script.on_event(events.on_tick, data_processor)
+local state_handlers = require(defs.pathes.modules.state_handlers)
+function state_handlers.idle(raw, state_data)
+    script.on_event(defines.events.on_tick, data_processor)
     -- suspend LTN interface during data processing
-    script.on_event(events.on_stops_updated, nil)
-    script.on_event(events.on_dispatcher_updated, nil)
+    script.on_event(defines.events.on_stops_updated, nil)
+    script.on_event(defines.events.on_dispatcher_updated, nil)
 
     -- reset raw data
     raw.depots = {}
@@ -289,57 +125,11 @@ data_processor = function(event)
     raw.name2id = {}
     raw.item2stop = {}
     raw.item2delivery = {}
-
     -- reset state
-    -- could be condensed down to just one variable, but it's more readable this way
-    -- proc.next_stop_id = nil
-    proc.next_depot_name = nil
-    proc.next_delivery_id = nil
-
-    proc.state = 1 -- set next state
-
-  -- processing functions for each state can take multiple ticks to complete
-  -- if those functions return a value, they will be called again next tick, with that value as input
-  -- the returned value should allow the function to continue from where it stopped
-  -- they must return nil when their job is done, in which case proc.state is incremented
-
-  ---- state 6 unused ------
-  elseif proc.state == 1 then
-  -- processing stops first, information gathered here is required for other steps
-    update_stops()
-    proc.state = 2
-  elseif proc.state == 2 then
-    check_for_new_stops()
-    proc.state = 3
-  elseif proc.state == 3 then
-    -- sorting available trains by depot
-    local depot_name = update_depots(raw, proc.next_depot_name)
-    if depot_name then
-      proc.next_depot_name = depot_name
-    else
-      proc.state = 4
-    end
-
-  elseif proc.state == 4 then
-    -- sorting provided items by network id and stop
-    update_provided(raw)
-    proc.state = 5
-
-  elseif proc.state == 5 then
-    -- sorting requested items by network id and stop
-    update_requested(raw)
-    proc.state = 7
-
-  elseif proc.state == 7 then
-    -- add new deliveries and update items in transit
-    local next_delivery_id = add_new_deliveries(raw, proc.next_delivery_id)
-    if next_delivery_id then
-      proc.next_delivery_id = next_delivery_id
-    else
-      proc.state = 100
-    end
-
-  elseif proc.state == 100 then -- update finished
+    state_data = {}
+    return true
+end
+function state_handlers.finish(raw, state_data)
     -- update globals
     data.stops =  raw.stops
     data.depots = raw.depots
@@ -354,19 +144,35 @@ data_processor = function(event)
     data.requested_by_stop = raw.requests_by_stop
 
     -- stop on_tick updates, start listening for LTN interface
-    script.on_event(events.on_stops_updated, on_stops_updated)
-    script.on_event(events.on_dispatcher_updated, on_dispatcher_updated)
-    script.on_event(events.on_tick, nil)
-    script.raise_event(events.on_data_updated, {})
-
-    proc.state = 0
+    script.on_event(defines.events.on_stops_updated, on_stops_updated)
+    script.on_event(defines.events.on_dispatcher_updated, on_dispatcher_updated)
+    script.on_event(defines.events.on_tick, nil)
+    script.raise_event(defines.events.on_data_updated, {})
+    return true
+end
+local next_state = {
+  idle = "update_stops",
+  update_stops = "find_removed_stops",
+  find_removed_stops = "update_depots",
+  update_depots = "update_provided",
+  update_provided = "update_requested",
+  update_requested = "update_deliveries",
+  update_deliveries = "finish",
+  finish = "idle",
+}
+-- data_processor starts running on_tick when new data arrives and stops when processing is finished
+data_processor = function(event)
+  local finished = state_handlers[proc.state](raw, proc.state_data[proc.state])
+  if finished then
+    proc.state = next_state[proc.state]
   end
 end
 
--- delivery tracking  local get_main_loco
+------------------------------------------------------------------------------------
+-- LTN event handlers
+------------------------------------------------------------------------------------
 local get_main_loco = util.train.get_main_locomotive
-local FLUID_TOL = C.proc.fluid_tolerance
-local abs = math.abs
+local ticks_to_timestring = util.misc.ticks_to_timestring
 local function item_match(strg)
   return string.match(strg, "%w+,([%w_%-]+)")
 end
@@ -376,13 +182,12 @@ local function store_history(history)
     log2("New history record:\n", history)
   end
   history.finished = game.tick
-  history.runtime = game.tick - history.started
+  history.runtime = history.finished - history.started
   history.networkID = history.networkID and history.networkID > 2147483648 and history.networkID - 4294967296 or history.networkID -- convert from uint32 to int32
   data.delivery_hist[data.newest_history_index] = history
-  data.newest_history_index = (data.newest_history_index % HISTORY_LIMIT) + 1
+  data.newest_history_index = (data.newest_history_index % data.history_limit) + 1
 end
 
-local ticks_to_timestring = util.misc.ticks_to_timestring
 local function raise_alert(delivery, train, alert_type, actual_cargo)
   local loco = get_main_loco(train)
   delivery.to_id = delivery.to_id or data.name2id[delivery.to] or 0
@@ -397,7 +202,7 @@ local function raise_alert(delivery, train, alert_type, actual_cargo)
   if debug_mode then
     log2("Train error state detected:\n", data.trains_error[data.train_error_count])
   end
-  script.raise_event(events.on_train_alert, data.trains_error[data.train_error_count])
+  script.raise_event(defines.events.on_train_alert, data.trains_error[data.train_error_count])
   data.train_error_count = data.train_error_count + 1
 end
 
@@ -500,68 +305,49 @@ local function on_delivery_failed(event)
   store_history(delivery)
 end
 
-----------------------
--- PUBLIC FUNCTIONS --
-----------------------
+------------------------------------------------------------------------------------
+-- initialization
+------------------------------------------------------------------------------------
+local function register_events()
+  local get_ltn_event = function(event_name)
+    return remote.call(defs.remote.ltn, defs.remote[event_name])
+  end
+  defines.events.on_stops_updated = get_ltn_event("ltn_stop_update")
+  defines.events.on_dispatcher_updated = get_ltn_event("ltn_dispatcher_update")
+  defines.events.on_delivery_completed = get_ltn_event("ltn_delivery_completed")
+  defines.events.on_delivery_failed = get_ltn_event("ltn_delivery_failed")
+  defines.events.on_pickup_completed = get_ltn_event("ltn_pickup_complete")
+
+  script.on_event(defines.events.on_pickup_completed, on_pickup_completed)
+  script.on_event(defines.events.on_delivery_completed, on_delivery_completed)
+    script.on_event(defines.events.on_delivery_failed, on_delivery_failed)
+  if proc.state == "idle" then
+    script.on_event(defines.events.on_stops_updated, on_stops_updated)
+    script.on_event(defines.events.on_dispatcher_updated, on_dispatcher_updated)
+  else
+    script.on_event(defines.events.on_tick, data_processor)
+  end
+end
+
 local function on_load()
   -- cache globals
   raw = global.raw
   data = global.data
-  archive = global.archive
-
-  -- cache event IDs
-  local get_ltn_event = function(event_name)
-    return remote.call(defs.remote.ltn, defs.remote[event_name])
-  end
-  events = defines.events
-  events.on_stops_updated = get_ltn_event("ltn_stop_update")
-  events.on_dispatcher_updated = get_ltn_event("ltn_dispatcher_update")
-  events.on_delivery_completed = get_ltn_event("ltn_delivery_completed")
-  events.on_delivery_failed = get_ltn_event("ltn_delivery_failed")
-  events.on_pickup_completed = get_ltn_event("ltn_pickup_complete")
-
-  -- register for conditional events
-  if global.proc.state == 0 then
-    script.on_event(events.on_stops_updated, on_stops_updated)
-    script.on_event(events.on_dispatcher_updated, on_dispatcher_updated)
-  else
-    script.on_event(events.on_tick, data_processor)
-  end
-  script.on_event(events.on_delivery_completed, on_delivery_completed)
-  script.on_event(events.on_delivery_failed, on_delivery_failed)
-  script.on_event(events.on_pickup_completed, on_pickup_completed)
+  proc = global.proc
+  register_events()
 end
 
 local function on_init()
-  global.raw = global.raw or {}
-  global.proc = global.proc or {
-    state = 0,
-    underload_is_alert = util.get_setting(defs.settings.disable_underload),
-  }
-
-  global.data = global.data or {} -- storage for processed data, ready to be used by UI
-  global.data.stops = global.data.stops or {}
-  global.data.depots = global.data.depots or {}
-  global.data.trains_error = global.data.trains_error or {}
-  global.data.train_error_count = 1
-  global.data.provided = global.data.provided or {}
-  global.data.requested = global.data.requested or {}
-  global.data.in_transit = global.data.in_transit or {}
-  global.data.deliveries = global.data.deliveries or {}
-  global.data.delivery_hist = global.data.delivery_hist or {}
-  global.data.newest_history_index = 1
-  global.data.name2id = global.data.name2id or {}
-  global.data.item2stop = global.data.item2stop or {}
-  global.data.item2delivery = global.data.item2delivery or {}
-  global.data.history_limit = HISTORY_LIMIT
-  on_load()
+  global.raw = raw
+  global.data = data
+  global.proc = proc
+  register_events()
 end
 
 local function on_settings_changed(event)
   local setting = event.setting
   if setting == defs.settings.history_limit then
-    HISTORY_LIMIT = util.get_setting[setting]
-    global.data.history_limit = HISTORY_LIMIT
+    global.data.history_limit = util.get_setting[setting]
     global.data.newest_history_index = 1
     global.data.delivery_hist = {}
     return true

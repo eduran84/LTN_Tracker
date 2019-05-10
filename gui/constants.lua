@@ -3,7 +3,6 @@ local CONST = {}
 
 -- data_processing.lua
 CONST.proc = {
-  fluid_tolerance = 0.1,
   stops_per_tick = 20,
   deliveries_per_tick = 20,
   trains_per_tick = 30,

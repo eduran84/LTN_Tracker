@@ -178,23 +178,24 @@ defs.errors = {
 }
 
 local gui_modules = "__GUI_Modules__/"
-local optera_lib = "__OpteraLib__/"
---local LTNT = "__LTN_Tracker__."
+local optera_lib = "__OpteraLib__/script/"
 local LTNT = "__LTN_Tracker_beta__/"
+local script = LTNT .. "script/"
 local gui = LTNT .. "gui/"
 defs.pathes.modules = {
-  constants = LTNT .. "gui/constants",
-  olib_logger = optera_lib .. "script/logger",
-  olib_misc = optera_lib .. "script/misc",
-  olib_train = optera_lib .. "script/train",
+  olib_logger = optera_lib .. "logger",
+  olib_misc = optera_lib .. "misc",
+  olib_train = optera_lib .. "train",
   import_egm = gui_modules .. "import",
 
-  util = LTNT .. "script/extended_util",
-  data_processing = LTNT .. "script/data_processing",
-  cache_item_data = LTNT .. "script/functions/cache_item_data",
-  build_item_table = LTNT .. "script/functions/build_item_table",
+  util = script .. "extended_util",
+  data_processing = script .. "data_processing",
+  state_handlers = script .. "state_handlers",
+  cache_item_data = script .. "functions/cache_item_data",
+  build_item_table = script .. "functions/build_item_table",
 
   gui_main = gui .. "main",
+  constants = gui .. "constants",
   depot_tab = gui .. "depot_tab",
   inventory_tab = gui .. "inventory_tab",
   request_tab = gui .. "request_tab",
