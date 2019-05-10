@@ -30,6 +30,7 @@ local cache_item_data = require(defs.pathes.modules.cache_item_data)
 local modules = {
   dbg = require("script/debug"),
   gui_main = require(defs.pathes.modules.gui_main),
+  gui_sidebar = require(defs.pathes.modules.gui_sidebar),
   data_processing = require(defs.pathes.modules.data_processing),
 }
 

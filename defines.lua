@@ -23,6 +23,7 @@ defs.names = {
   ltn = "LogisticTrainNetwork",
   ltnc = "LTN_Combinator",
   window = mod_prefix .. "main_window",
+  sidebar = mod_prefix .. "sidebar",
   alert_popup = mod_prefix .. "alert_popup_window",
 }
 
@@ -132,6 +133,15 @@ defs.styles = {
   },
 }
 
+defs.locale = {
+  provided_requested = {"station.header-col-3"},
+  scheduled_deliveries = {"station.header-col-4"},
+  control_signals = {"station.header-col-5"},
+  n_trains = {"depot.header-col-2"},
+  capacity = {"depot.header-col-3"},
+}
+
+
 defs.controls = {
   toggle_hotkey = mod_prefix .. "toggle_hotkey",
   refresh_hotkey = mod_prefix .. "refresh_hotkey",
@@ -194,7 +204,8 @@ defs.pathes.modules = {
   cache_item_data = script .. "functions/cache_item_data",
   build_item_table = script .. "functions/build_item_table",
 
-  gui_main = gui .. "main",
+  gui_main = gui .. "main_window",
+  gui_sidebar = gui .. "sidebar_window",
   constants = gui .. "constants",
   depot_tab = gui .. "depot_tab",
   inventory_tab = gui .. "inventory_tab",
@@ -202,7 +213,6 @@ defs.pathes.modules = {
   station_tab = gui .. "station_tab",
   history_tab = gui .. "history_tab",
   alert_tab = gui .. "alert_tab",
-  action_definitions = gui .. "action_definitions",
 }
 
 defs.pathes.sprites = {

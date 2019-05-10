@@ -12,7 +12,11 @@ CONST.proc = {
 -- UI layout
 CONST.window = {
   width = 930,
-  marker_circle_color = {r = 1, g = 0, b = 0, a = 0.5}
+  marker_circle_color = {r = 1, g = 0, b = 0, a = 0.5},
+}
+
+CONST.sidebar = {
+  width = 300,
 }
 
 CONST.depot_tab = {

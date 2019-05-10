@@ -19,7 +19,6 @@ gui = {}
 -- load sub-modules
 ------------------------------------------------------------------------------------
 local mod_gui = require("mod-gui")
-require(defs.pathes.modules.action_definitions)
 local tab_functions = {}
 for _, tab_name in pairs(defs.tabs) do
   tab_functions[tab_name] = require(defs.pathes.modules[tab_name])
@@ -93,7 +92,6 @@ Return value
     return build(pind)
   end
 end
-gui.get = get
 
 local function update_tab(event)--[[
 Updates the currently visible tab for the player given by event.player_index. Does
@@ -278,7 +276,6 @@ Parameters
 
   build(pind)
 end
---gui.player_init = player_init
 ------------------------------------------------------------------------------------
 -- event registration
 ------------------------------------------------------------------------------------
