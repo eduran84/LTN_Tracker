@@ -185,8 +185,6 @@ script.on_nth_tick(1800, function(event)
   end
   global.statistics[event.tick - one_hour] = nil
   global.temp_stats = {}
-  --print("Stats:", global.statistics)
-  log2("Stats:", global.statistics)
 end)
 
 ------------------------------------------------------------------------------------

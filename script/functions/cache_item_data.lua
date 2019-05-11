@@ -58,6 +58,7 @@ return
         group_index[group.name] = index
         item_groups[group_count] = {
           name = group.name,
+          localised_name = group.localised_name,
           sprite = group.type .. "/" .. group.name,
           order = group.order,
           item_data = {},

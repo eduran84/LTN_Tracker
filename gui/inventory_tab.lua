@@ -67,6 +67,7 @@ local function build_inventory_tab(window)
       action = defs.actions.show_item_details,
       super = inv_tab,
       fade_timeout = fade_time,
+      buttons_per_row = 9,
     }
   )
   inv_tab.item_tables[2] = egm.item_table.build(
@@ -79,6 +80,7 @@ local function build_inventory_tab(window)
       color = "red",
       action = defs.actions.show_item_details,
       super = inv_tab,
+      buttons_per_row = 9,
     }
   )
   inv_tab.item_tables[3] = egm.item_table.build(
@@ -90,6 +92,7 @@ local function build_inventory_tab(window)
       row_count = 2,
       action = defs.actions.show_item_details,
       super = inv_tab,
+      buttons_per_row = 9,
     }
   )
   -- details pane
