@@ -80,7 +80,8 @@ script.on_init(function()
   end
 
   global.item_groups = {}
-  global.archive = {}
+  global.statistics = {}
+  global.temp_stats = {}
   cache_item_data(global.item_groups)
 
   for _, module in pairs(modules) do

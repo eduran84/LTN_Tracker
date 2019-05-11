@@ -28,3 +28,7 @@ global.gui_sidebar = {
   windows = {},
   currently_opened = {},
 }
+
+global.temp_stats = {}
+global.statistics = {}
+global.archive = nil

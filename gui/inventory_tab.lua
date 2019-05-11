@@ -157,9 +157,11 @@ local function update_details(inv_tab, network_id)
   local item = inv_tab.selected_item
   if not item then return end
   local data = global.data
-  if global.archive[item] then
-    egm.bar_graph.set_height(inv_tab.bar_graph, global.archive[item])
+  local item_count = {}
+  for tick, item_list in pairs(global.statistics) do
+    item_count[tick] = item_list[item] or 0
   end
+  egm.bar_graph.set_height(inv_tab.bar_graph, item_count)
   -- set item name and icon
   local details_frame = inv_tab.details_frame
   details_frame.root.children[1].children[1].caption = {

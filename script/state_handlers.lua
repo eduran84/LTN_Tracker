@@ -97,8 +97,8 @@ end
 function state_handlers.update_provided(raw)
   -- sort provided items by network id
   local i2s = raw.item2stop
-  local tick = game.tick
-  local archive = global.archive
+  local stats = {}
+  global.temp_stats[game.tick] = stats
   for stop_id, provided in pairs(raw.provided_by_stop) do
     local stop = raw.stops[stop_id]
     if stop then
@@ -110,9 +110,7 @@ function state_handlers.update_provided(raw)
         -- store provided amount for each network id and item
         raw.provided[networkID] = raw.provided[networkID] or {}
         raw.provided[networkID][item] = (raw.provided[networkID][item] or 0) + count
-        if archive[item] then
-          archive[item][tick] = (archive[item][tick] or 0) + count
-        end
+        stats[item] = (stats[item] or 0) + count
       end
     end
   end
@@ -122,8 +120,7 @@ end
 function state_handlers.update_requested(raw)
     -- sort requested items by network id
   local i2s = raw.item2stop
-  local archive = global.archive
-  local tick = game.tick - 1
+  local stats = global.temp_stats[game.tick - 1]
   for stop_id, request in pairs(raw.requests_by_stop) do
     if raw.stops[stop_id] then
       local networkID = raw.stops[stop_id].network_id
@@ -134,15 +131,14 @@ function state_handlers.update_requested(raw)
         -- store requested amount for each network id and item
         raw.requested[networkID] = raw.requested[networkID] or {}
         raw.requested[networkID][item] = (raw.requested[networkID][item] or 0) - count
-        if archive[item] then
-          archive[item][tick] = (archive[item][tick] or 0) - count
-        end
+        stats[item] = (stats[item] or 0) - count
       end
     end
   end
   return true
 end
 
+local deliveries_per_tick = C.proc.deliveries_per_tick
 local function update_in_transit(delivery_id, delivery, raw)
   if raw.stops[delivery.to_id] and raw.stops[delivery.from_id] then
     local network_id = delivery.networkID or -1
@@ -159,7 +155,6 @@ local function update_in_transit(delivery_id, delivery, raw)
     end
   end
 end
-local deliveries_per_tick = C.proc.deliveries_per_tick
 function state_handlers.update_deliveries(raw, state_data)
   local delivery_id = state_data.delivery_id
   local counter = 0

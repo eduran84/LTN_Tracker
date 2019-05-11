@@ -160,13 +160,34 @@ local next_state = {
   update_deliveries = "finish",
   finish = "idle",
 }
--- data_processor starts running on_tick when new data arrives and stops when processing is finished
-data_processor = function(event)
+
+function data_processor(event)
   local finished = state_handlers[proc.state](raw, proc.state_data[proc.state])
   if finished then
     proc.state = next_state[proc.state]
   end
 end
+
+local one_hour = 60*60*60
+script.on_nth_tick(1800, function(event)
+  local temp = global.temp_stats
+  local total_count = {}
+  global.statistics[event.tick] = total_count
+  local number_of_ticks = {}
+  for tick, item_list in pairs(temp) do
+    for item, count in pairs(item_list) do
+      total_count[item] = (total_count[item] or 0) + count
+      number_of_ticks[item] = (number_of_ticks[item] or 0) + 1
+    end
+  end
+  for item, count in pairs(total_count) do
+    total_count[item] = count / number_of_ticks[item]
+  end
+  global.statistics[event.tick - one_hour] = nil
+  global.temp_stats = {}
+  --print("Stats:", global.statistics)
+  log2("Stats:", global.statistics)
+end)
 
 ------------------------------------------------------------------------------------
 -- LTN event handlers

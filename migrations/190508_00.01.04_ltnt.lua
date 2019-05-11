@@ -1,1 +1,0 @@
-global.archive = global.archive or {}
