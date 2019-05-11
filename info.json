@@ -1,6 +1,6 @@
 {
 "name": "LTN_Tracker_beta",
-"version": "0.1.4",
+"version": "0.1.5",
 "title": "LTN Tracker 1.0 - beta test",
 "author": "eduran",
 "contact": "https://forums.factorio.com/memberlist.php?mode=viewprofile&u=1699",
@@ -11,7 +11,7 @@
     "base >= 0.17.34",
     "LogisticTrainNetwork >= 1.10.8",
     "OpteraLib >= 0.1.7",
-    "GUI_Modules >= 0.0.5",
+    "GUI_Modules >= 0.0.7",
     "! LTN_Tracker"
   ]
 }

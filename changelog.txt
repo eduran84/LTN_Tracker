@@ -1,4 +1,15 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.1.5
+Date: 2019-05-11
+
+  Features:
+    - Added sidebar window with additional information about selected LTN stops.
+    - Added sidebar window with additional information about selected trains.
+
+  Changes:
+    - LTNT main window can no longer be positioned on the left side to make space for an additional sidebar window.
+    - Filter icons on inventory tab panes now work for any number of filter categories.
+---------------------------------------------------------------------------------------------------
 Version: 0.1.4
 Date: 2019-05-08
 
@@ -10,7 +21,6 @@ Date: 2019-05-08
 
   Bugfixes:
     - too many to list
-
 ---------------------------------------------------------------------------------------------------
 Version: 0.1.3
 Date: 2019-05-07

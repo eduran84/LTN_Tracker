@@ -38,7 +38,7 @@ Return value
   local frame_flow
   local player = game.players[pind]
   local height = util.get_setting(defs.settings.window_height, player)
-  if util.get_setting(defs.settings.window_location, player) == "left" then
+  if false then  --util.get_setting(defs.settings.window_location, player) == "left" then
     frame_flow = mod_gui.get_frame_flow(player)
     height = height < 710 and height or 710
   else
