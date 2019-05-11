@@ -34,18 +34,21 @@ class_dict.LuaGroup = {
   order = true,
 }
 
-if defs.DEVELOPER_MODE then
-  debug_mode = true
+debug_mode = util.get_setting(defs.settings.debug_mode)
+if debug_mode then
   logger.add_debug_commands()
-  logger.settings.max_depth = 6
-  class_dict.LuaTrain.LuaTrain.station = true
 else
   debug_mode = util.get_setting(defs.settings.debug_mode)
 end
 
 local function on_settings_changed(event)
-  if event.setting and event.setting == defs.names.settings.debug_mode then
-    debug_mode = settings.global[defs.names.settings.debug_mode].value
+  if event.setting and event.setting == defs.settings.debug_mode then
+    debug_mode = settings.global[defs.settings.debug_mode].value
+    if debug_mode then
+      logger.add_debug_commands()
+    else
+      logger.remove_debug_commands()
+    end
   end
 end
 
@@ -54,14 +57,6 @@ local events = {
   }
 
 local dbg = {}
-
-function dbg.on_init()
-  if defs.DEVELOPER_MODE then
-    debug_mode = true
-  else
-    debug_mode = util.get_setting(defs.settings.debug_mode)
-  end
-end
 
 function dbg.get_events()
   return events

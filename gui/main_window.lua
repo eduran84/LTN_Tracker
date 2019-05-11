@@ -45,11 +45,11 @@ Return value
     frame_flow = player.gui.center
   end
   -- wipe every gui component before main window is created
-  local old_window = frame_flow[defs.names.alert_popup]
+  local old_window = mod_gui.get_frame_flow(player)[defs.names.alert_popup]
   if old_window and old_window.valid then
     old_window.destroy()
   end
-  old_window = frame_flow[defs.names.sidebar]
+  old_window = mod_gui.get_frame_flow(player)[defs.names.sidebar]
   if old_window and old_window.valid then
     old_window.destroy()
   end
@@ -196,7 +196,7 @@ Return value
       type = "sprite-button",
       style = defs.styles.shared.large_close_button,
       sprite = "utility/go_to_arrow",
-      tooltip = {"alert.open-button"},
+      tooltip = {"alert.open-button-tt"},
     },
     {action = defs.actions.show_alerts, window = alert_popup}
   )
@@ -204,7 +204,7 @@ Return value
       type = "sprite-button",
       style = defs.styles.shared.large_close_button,
       sprite = "utility/close_black",
-      tooltip = {"alert.close-button"},
+      tooltip = {"alert.close-button-tt"},
     },
     {action = defs.actions.close_popup, window = alert_popup}
   )
