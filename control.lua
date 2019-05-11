@@ -26,6 +26,11 @@ local cache_item_data = require(defs.pathes.modules.cache_item_data)
 -------------------------------------------------------------------------------------
 -- settings and config
 -------------------------------------------------------------------------------------
+local event_blacklist = {
+  [defines.events.on_gui_click] = true,
+  [defines.events.on_gui_text_changed] = true,
+  [defines.events.on_tick] = true,
+}
 
 local modules = {
   dbg = require("script/debug"),
@@ -46,8 +51,8 @@ local function register_events(modules)
     end
   end
   for event, handlers in pairs(events) do
-    if event == defines.events.on_tick then
-      error(logger.tostring("Don't use the event handler system for on_tick."))
+    if event_blacklist[event] then
+      error(logger.tostring("Event is blacklisted for use with general event handler."))
     end
     local function action(event)
       for _, handler in pairs(handlers) do
@@ -57,6 +62,13 @@ local function register_events(modules)
     script.on_event(event, action)
   end
 end
+
+script.on_event({  -- gui interactions handling is done by egm manager module
+    defines.events.on_gui_click,
+    defines.events.on_gui_text_changed,
+  },
+  egm.manager.on_gui_input
+)
 
 script.on_init(function()
   -- check for LTN interface, just in case

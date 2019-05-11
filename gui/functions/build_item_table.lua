@@ -1,7 +1,19 @@
-
 -- display a shipment of items as icons
 local shared_styles = defs.styles.shared
 local pairs = pairs
+local elements = {
+  outer_frame = {type = "frame", style = shared_styles.slot_table_frame},
+  pane = C.elements.no_frame_scroll_pane,
+  table = {type = "table", column_count = 0, style = "slot_table"},
+  icon = {
+    type = "sprite-button",
+    sprite = "",
+    number = 0,
+    enabled = false,
+    style = shared_styles.green_button,
+  },
+}
+
 return
   function(args)
   --required arguments: parent, columns (without any of provided / requested / signals an empty frame is produced)
@@ -9,14 +21,15 @@ return
 
   local column_count = args.columns
   -- outer frame
-  local frame =  args.parent.add{type = "frame", style = shared_styles.slot_table_frame}
+  local frame = args.parent.add(elements.outer_frame)
   if args.max_rows then
     frame.style.maximal_height = args.max_rows * 36 + 18
     frame.style.width = column_count * 38 + 18
-    frame = frame.add{type = "scroll-pane", style = shared_styles.no_frame_scroll_pane}
+    frame = frame.add(elements.pane)
   end
   -- table for item sprites
-	local tble = frame.add{type = "table", column_count = column_count, style = "slot_table"}
+  elements.table.column_count = column_count
+	local tble = frame.add(elements.table)
   local enabled
 	if args.enabled then
     enabled = args.enabled
@@ -28,14 +41,10 @@ return
   -- add items to table
   local get_item_sprite = util.get_item_sprite
   local tbl_add = tble.add
-  local button_args = {
-    type = "sprite-button",
-    sprite = "",
-    number = 0,
-    enabled = enabled,
-    style = shared_styles.green_button,
-  }
+  local button_args = elements.icon
+  button_args.enabled = enabled
 	if args.provided then
+    button_args.style = shared_styles.green_button
 		for item, amount in pairs(args.provided) do
       button_args.sprite = get_item_sprite(item)
       button_args.number = amount

@@ -5,11 +5,8 @@ local styles = defs.styles.depot_tab
 
 local DEPOT_CONST = C.depot_tab
 local column_count_table_right = 3
-local network_id_sprite = "virtual-signal/" .. C.ltn.NETWORKID
 
 local build_item_table = util.gui.build_item_table
-local util_train = util.train
-local format = string.format
 
 egm.stored_functions[defs.functions.depot_row_constructor] = function(egm_table, data)
   local parent = egm_table.content
@@ -72,82 +69,6 @@ end
 
 egm.stored_functions[defs.functions.depot_sort .. 1] = function(a, b) return a.composition < b.composition end
 egm.stored_functions[defs.functions.depot_sort .. 2] = function(a, b) return a.col_2_sort_rank < b.col_2_sort_rank end
-local format_number = util.format_number
-local function build_depot_button(parent, depot_name, depot_data)
-  local bt = parent.add{
-    type = "button",
-    style = styles.depot_selector,
-  }
-  local flow = bt.add{
-    type = "flow",
-    direction = "vertical",
-    ignored_by_interaction = true,
-  }
-  -- first row: depot name
-  local label = flow.add{
-    type = "label",
-    caption = depot_name,
-    style = styles.depot_label,
-    ignored_by_interaction = true,
-  }
-
-  -- second row: number of trains and capacity
-  local subflow = flow.add{type = "flow"}
-  label = subflow.add{
-    type = "label",
-    style = styles.cap_left_1,
-    caption = {"depot.header-col-2"},
-    tooltip = {"depot.header-col-2-tt"},
-    ignored_by_interaction = true,
-  }
-
-  label = subflow.add{
-    type = "label",
-    style = styles.cap_left_2,
-    caption = depot_data.n_parked .. "/" .. depot_data.n_all_trains,
-    ignored_by_interaction = true,
-  }
-
-  label = subflow.add{
-    type = "label",
-    style = styles.cap_left_1,
-    caption = {"depot.header-col-3"},
-    tooltip = {"depot.header-col-3-tt"},
-    ignored_by_interaction = true,
-  }
-  label = subflow.add{
-    type = "label",
-    style = styles.cap_left_2,
-    caption =  format("%s stacks + %s fluid", format_number(depot_data.cap),  format_number(depot_data.fcap)),
-    ignored_by_interaction = true,
-  }
-  label.style.width = DEPOT_CONST.col_width_left[5]
-  -- third row: network id and depot state
-  subflow = flow.add{type = "flow", ignored_by_interaction = true,}
-  build_item_table{
-    parent = subflow,
-    columns = 4,
-    signals = depot_data.signals,
-    enabled = false,
-  }
-  local elem = subflow.add{type = "frame", style = defs.styles.shared.slot_table_frame, ignored_by_interaction = true,}
-  elem.style.maximal_height = 44
-  elem = elem.add{type = "table", column_count = 4, style = "slot_table"}
-  local hash = {}
-  for _, id in pairs(depot_data.network_ids) do
-    if not hash[id] then
-      elem.add{
-        type = "sprite-button",
-        sprite = network_id_sprite,
-        number = id,
-        enabled = false,
-        style = defs.styles.shared.gray_button,
-      }
-      hash[id] = true
-    end
-  end
-  return bt
-end
 
 local function build_depot_tab(window)
   local tab_index = defs.tabs.depot
@@ -271,6 +192,7 @@ local function update_depot_tab(depot_tab, ltn_data)
   local pane_left = depot_tab.pane_left
   egm.manager.unregister(pane_left)
   pane_left.clear()
+  local build_depot_button = util.gui.build_depot_button
   for depot_name, depot_data in pairs(ltn_data.depots) do
     local button = build_depot_button(pane_left, depot_name, depot_data)
     egm.manager.register(

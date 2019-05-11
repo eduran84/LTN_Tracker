@@ -180,7 +180,7 @@ local function get_stops(station_tab, ltn_data)
         for word in filter_lower:gmatch("%S+") do
           if not find(name2lowercase[stop_data.name], word, 1, true) then match = false end
         end
-        if match then station_tab.filter.cache[stop_id] = stop_data end
+        if match then station_tab.filter.cache[stop_id] = true end
       end
       station_tab.filter.last = station_tab.filter.current
     end
@@ -202,7 +202,9 @@ local function update_station_tab(station_tab, ltn_data)
   else
     testfun = bit32.btest
   end
-  for stop_id, stop_data in pairs(get_stops(station_tab, ltn_data)) do
+  for stop_id in pairs(get_stops(station_tab, ltn_data)) do
+    local stop_data = ltn_data.stops[stop_id]
+    if stop_data then
       egm.table.add_row_data(station_table, {
         signal_col_count = signal_col_count,
         testfun = testfun,
@@ -210,6 +212,7 @@ local function update_station_tab(station_tab, ltn_data)
         stop_id = stop_id,
         stop_data = stop_data,
       })
+    end
   end
   egm.table.sort_rows(station_table)
 end

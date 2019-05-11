@@ -43,6 +43,7 @@ defs.actions = {
   close_popup = "close_alert_popup",
 
   show_depot_details = "show_depot_details",
+  send_to_depot = "send_to_depot",
 
   show_item_details = "show_item_details",
   filter_items = "filter_items",
@@ -140,7 +141,6 @@ defs.locale = {
   n_trains = {"depot.header-col-2"},
   capacity = {"depot.header-col-3"},
 }
-
 
 defs.controls = {
   toggle_hotkey = mod_prefix .. "toggle_hotkey",

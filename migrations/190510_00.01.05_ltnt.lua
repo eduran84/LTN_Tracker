@@ -26,4 +26,5 @@ global.data = {
 
 global.gui_sidebar = {
   windows = {},
+  currently_opened = {},
 }

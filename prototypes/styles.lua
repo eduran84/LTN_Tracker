@@ -109,9 +109,11 @@ default[defs.styles.station_tab.station_label] = {
   minimal_width = C.station_tab.col_width[1],
   single_line = false,
 }
-local names = defs.styles.inventory_tab
 
-
+------------------------------------------------------------------------------------
+-- inventory tab
+------------------------------------------------------------------------------------
+names = defs.styles.inventory_tab
 default[names.stops_col_1] = {
   type = "label_style",
   parent = "hoverable_bold_label",
@@ -142,12 +144,10 @@ default[names.del_col_3] = {
 default[names.summary_number] = {
   type = "label_style",
 	parent = "bold_label",
-  font = "ltnt_font_default",
 	horizontal_align = "right",
 	width = C.inventory_tab.summary_number_width,
 }
 
-local gs = default.tool_button.clicked_graphical_set
 default[names.filter_button] = {
   type = "button_style",
 	parent = "tool_button",

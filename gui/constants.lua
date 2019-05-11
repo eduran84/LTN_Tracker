@@ -1,8 +1,32 @@
--- constant definitions
-local CONST = {}
+-- gui constant definitions
+local C = {}
+
+C.elements = {
+  flow_vertical_container = {
+    type = "flow",
+    style = defs.styles.vertical_container,
+    direction = "vertical"
+  },
+  flow_horizontal_container = {
+    type = "flow",
+    style = defs.styles.horizontal_container,
+    direction = "horizontal"
+  },
+  no_frame_scroll_pane = {
+    type = "scroll-pane",
+    style = defs.styles.shared.no_frame_scroll_pane,
+    horizontal_scroll_policy = "never",
+    vertical_scroll_policy = "auto-and-reserve-space",
+  },
+}
+
+C.colors = {
+  heading_default = {r = 1, g = 0.902, b = 0.752},
+  red = {r = 1, g = 0, b = 0},
+}
 
 -- data_processing.lua
-CONST.proc = {
+C.proc = {
   stops_per_tick = 20,
   deliveries_per_tick = 20,
   trains_per_tick = 30,
@@ -10,16 +34,18 @@ CONST.proc = {
 }
 
 -- UI layout
-CONST.window = {
+C.window = {
   width = 930,
   marker_circle_color = {r = 1, g = 0, b = 0, a = 0.5},
 }
 
-CONST.sidebar = {
-  width = 300,
+C.sidebar = {
+  width = 281,
+  label_width = 120,
+  mini_width = 25,
 }
 
-CONST.depot_tab = {
+C.depot_tab = {
   pane_width_left = 355,
 	col_width_left = {325, 55, 50, 52, 180},
 
@@ -29,14 +55,14 @@ CONST.depot_tab = {
   color_dict = {{r=0,g=1,b=0}, {r=1,g=0,b=0}, {r=1,g=1,b=1}},
 }
 
-CONST.station_tab = {
+C.station_tab = {
   n_columns = 6,
   col_width = {190, 50, 37*5+23, 37*4+23, 37*6+23, 1},
   item_table_col_count = {5, 4, 5},
   item_table_max_rows = {4, 4, 2},
 }
 
-CONST.inventory_tab = {
+C.inventory_tab = {
   item_table_column_count = 13,
   item_table_width = 504,
   details_item_tb_col_count = 9,
@@ -46,20 +72,19 @@ CONST.inventory_tab = {
   details_tb_col_width_deliveries = {160, 25, 160}
 }
 
-CONST.history_tab = {
+C.history_tab = {
   column_width = {200, 200, 50, 80, 90, 210},
 	n_columns = 6,
   n_cols_shipment = 6,
 }
 
-CONST.alert_tab = {
+C.alert_tab = {
   n_columns = 6,
 	col_width = {160, 165, 75, 160, 245},
 }
 
 -- LTN definitions, copied from LTN's control.lua
 local ltn = {
-
   ISDEPOT = "ltn-depot",
   NETWORKID = "ltn-network-id",
   MINTRAINLENGTH = "ltn-min-train-length",
@@ -74,7 +99,6 @@ local ltn = {
   PROVIDED_PRIORITY = "ltn-provider-priority",
   LOCKEDSLOTS = "ltn-locked-slots",
 }
-
 ltn.ctrl_signal_var_name_bool = {
   [ltn.ISDEPOT] = "isDepot",
   [ltn.NOWARN] = "noWarnings",
@@ -104,5 +128,5 @@ ltn.error_string_lookup = {
   [1] = {"error.stop-disabled"},
   [2] = {"error.stop-duplicate"},
 }
-CONST.ltn = ltn
-return CONST
+C.ltn = ltn
+return C

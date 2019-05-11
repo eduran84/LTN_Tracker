@@ -15,10 +15,4 @@ data:extend({
     border = true,
     border_color = {0, 0, 0},
   },
-  {
-    type = "font",
-    name = "ltnt_font_default",
-    from = "default",
-    size = 14
-  },
 })

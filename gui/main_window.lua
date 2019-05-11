@@ -44,10 +44,18 @@ Return value
   else
     frame_flow = player.gui.center
   end
-
-  local preexisting_window = frame_flow[defs.names.window]
-  if preexisting_window and preexisting_window.valid then
-    preexisting_window.destroy()
+  -- wipe every gui component before main window is created
+  local old_window = frame_flow[defs.names.alert_popup]
+  if old_window and old_window.valid then
+    old_window.destroy()
+  end
+  old_window = frame_flow[defs.names.sidebar]
+  if old_window and old_window.valid then
+    old_window.destroy()
+  end
+  old_window = frame_flow[defs.names.window]
+  if old_window and old_window.valid then
+    old_window.destroy()
   end
   egm.manager.delete_player_data(pind)
 
@@ -222,6 +230,9 @@ Return value
   end
 end
 
+------------------------------------------------------------------------------------
+-- event handlers
+------------------------------------------------------------------------------------
 local function on_new_alert(event)--[[
 Opens alert pop-up for all players and highlights alert tab.
 
@@ -255,38 +266,6 @@ Parameters
   end
 end
 
-local function player_init(event)--[[
-Initializes global table for given player and builds GUI.
-
-Parameters
-  player_index :: uint
-]]
-  local pind = event.player_index
-  local player = game.players[pind]
-  if debug_mode then log2("Building UI for player", player.name) end
-  -- set UI state globals
-  gui_data.show_alerts[pind] = util.get_setting(defs.settings.show_alerts, player)  or nil
-  gui_data.last_refresh_tick[pind] = 0
-  local refresh_interval = util.get_setting(defs.settings.refresh_interval, player)
-  if refresh_interval > 0 then
-    gui_data.refresh_interval[pind] = refresh_interval * 60
-  else
-    gui_data.refresh_interval[pind] = nil
-  end
-  gui_data.station_select_mode[pind] = tonumber(util.get_setting(defs.settings.station_click_action, player))
-
-  build(pind)
-end
-------------------------------------------------------------------------------------
--- event registration
-------------------------------------------------------------------------------------
-script.on_event({  -- gui interactions handling is done by egm manager module
-    defines.events.on_gui_click,
-    defines.events.on_gui_text_changed,
-  },
-  egm.manager.on_gui_input
-)
-
 script.on_event(defines.events.on_train_alert, on_new_alert)
 script.on_event(defs.controls.toggle_hotkey, on_toggle_button_click)
 script.on_event(defs.controls.toggle_filter, function(event)
@@ -296,6 +275,15 @@ script.on_event(defs.controls.toggle_filter, function(event)
   end
 end)
 
+local function on_data_updated(event)
+  local tick = game.tick
+  for pind, interval in pairs(gui_data.refresh_interval) do
+    if tick - gui_data.last_refresh_tick[pind] > interval  then
+      gui_data.last_refresh_tick[pind] = tick
+      update_tab({player_index = pind})
+    end
+  end
+end
 
 -- different sources triggering tab update
 script.on_event({
@@ -339,18 +327,28 @@ script.on_event(defines.events.on_lua_shortcut,
   end
 )
 
-script.on_event(defines.events.on_data_updated,
-  function(event)
-    local tick = game.tick
-    for pind, interval in pairs(gui_data.refresh_interval) do
-      if tick - gui_data.last_refresh_tick[pind] > interval  then
-        gui_data.last_refresh_tick[pind] = tick
-        update_tab({player_index = pind})
-      end
-    end
-  end
-)
+local function player_init(event)--[[
+Initializes global table for given player and builds GUI.
 
+Parameters
+  player_index :: uint
+]]
+  local pind = event.player_index
+  local player = game.players[pind]
+  if debug_mode then log2("Building UI for player", player.name) end
+  -- set UI state globals
+  gui_data.show_alerts[pind] = util.get_setting(defs.settings.show_alerts, player)  or nil
+  gui_data.last_refresh_tick[pind] = 0
+  local refresh_interval = util.get_setting(defs.settings.refresh_interval, player)
+  if refresh_interval > 0 then
+    gui_data.refresh_interval[pind] = refresh_interval * 60
+  else
+    gui_data.refresh_interval[pind] = nil
+  end
+  gui_data.station_select_mode[pind] = tonumber(util.get_setting(defs.settings.station_click_action, player))
+
+  build(pind)
+end
 ------------------------------------------------------------------------------------
 -- gui action definitions
 ------------------------------------------------------------------------------------
@@ -607,6 +605,7 @@ local events = {
     [defines.events.on_runtime_mod_setting_changed] = on_settings_changed,
     [defines.events.on_gui_closed] = on_gui_closed,
     [defines.events.on_player_created] = player_init,
+    [defines.events.on_data_updated] = on_data_updated,
   }
 
 local gui_main = {}
