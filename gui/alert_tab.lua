@@ -2,7 +2,7 @@ local defs = defs
 local egm = egm
 local C = C
 local styles = defs.styles.alert_tab
-local build_item_table = util.build_item_table
+local build_item_table = util.gui.build_item_table
 local error_defs = defs.errors
 
 egm.stored_functions[defs.functions.alert_sort .. 1] = function(a, b) return a.error_data.delivery.depot < b.error_data.delivery.depot end

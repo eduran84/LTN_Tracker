@@ -202,7 +202,6 @@ defs.pathes.modules = {
   data_processing = script .. "data_processing",
   state_handlers = script .. "state_handlers",
   cache_item_data = script .. "functions/cache_item_data",
-  build_item_table = script .. "functions/build_item_table",
 
   gui_main = gui .. "main_window",
   gui_sidebar = gui .. "sidebar_window",
@@ -213,6 +212,9 @@ defs.pathes.modules = {
   station_tab = gui .. "station_tab",
   history_tab = gui .. "history_tab",
   alert_tab = gui .. "alert_tab",
+
+  build_item_table = gui .. "functions/build_item_table",
+  build_depot_button = gui .. "functions/build_depot_button",
 }
 
 defs.pathes.sprites = {

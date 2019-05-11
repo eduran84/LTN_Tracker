@@ -5,7 +5,7 @@ local styles = defs.styles.inventory_tab
 
 local tonumber, match, btest, gsub = tonumber, string.match, bit32.btest, string.gsub
 local get_items_in_network = util.get_items_in_network
-local build_item_table = util.build_item_table
+local build_item_table = util.gui.build_item_table
 
 local COL_COUNT =  C.inventory_tab.details_item_tb_col_count
 

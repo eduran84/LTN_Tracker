@@ -4,7 +4,7 @@ local C = C
 
 local MAX_ROWS = C.station_tab.item_table_max_rows
 local COL_COUNTS = C.station_tab.item_table_col_count
-local build_item_table = util.build_item_table
+local build_item_table = util.gui.build_item_table
 
 local color_order = {["signal-red"] = 0, ["signal-pink"] = 3, ["signal-blue"] = 4, ["signal-yellow"] = 4.1, ["signal-green"] = 10000}
 egm.stored_functions[defs.functions.station_sort .. 1] = function(a, b)

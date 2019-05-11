@@ -7,7 +7,7 @@ local DEPOT_CONST = C.depot_tab
 local column_count_table_right = 3
 local network_id_sprite = "virtual-signal/" .. C.ltn.NETWORKID
 
-local build_item_table = util.build_item_table
+local build_item_table = util.gui.build_item_table
 local util_train = util.train
 local format = string.format
 

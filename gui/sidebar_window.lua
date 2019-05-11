@@ -3,7 +3,7 @@ local egm = egm
 local C = C
 
 local mod_gui = require("mod-gui")
-local build_item_table = util.build_item_table
+local build_item_table = util.gui.build_item_table
 local format = string.format
 local format_number = util.format_number
 
@@ -233,12 +233,13 @@ end
 ------------------------------------------------------------------------------------
 -- initialization and configuration
 ------------------------------------------------------------------------------------
-local function player_init(pind)--[[
+local function player_init(event)--[[
 Initializes global table for given player and builds sidebar GUI.
 
 Parameters
   player_index :: uint
 ]]
+  local pind = event.player_index
   local player = game.players[pind]
   if debug_mode then log2("Building sidebar UI for player", player.name) end
   -- set UI state globals
@@ -256,7 +257,7 @@ local gui_sidebar = {}
 function gui_sidebar.on_init()
   global.gui_sidebar = global.gui_sidebar or gui_data
   for pind in pairs(game.players) do
-    player_init(pind)
+    player_init({player_index = pind})
   end
 end
 

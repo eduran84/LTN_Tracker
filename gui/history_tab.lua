@@ -5,7 +5,7 @@ local n_cols_shipment = C.history_tab.n_cols_shipment
 local styles = defs.styles.hist_tab
 
 local ticks_to_timestring = util.misc.ticks_to_timestring
-local build_item_table = util.build_item_table
+local build_item_table = util.gui.build_item_table
 egm.stored_functions[defs.functions.hist_row_constructor] = function(egm_table, data)
   local parent = egm_table.content
   local delivery = data.delivery

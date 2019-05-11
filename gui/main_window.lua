@@ -255,12 +255,13 @@ Parameters
   end
 end
 
-local function player_init(pind)--[[
+local function player_init(event)--[[
 Initializes global table for given player and builds GUI.
 
 Parameters
   player_index :: uint
 ]]
+  local pind = event.player_index
   local player = game.players[pind]
   if debug_mode then log2("Building UI for player", player.name) end
   -- set UI state globals
@@ -615,7 +616,7 @@ function gui_main.on_init()
   egm.manager.on_init()
   gui_data.is_ltnc_active = game.active_mods[defs.names.ltnc] and true or false
   for pind in pairs(game.players) do
-    player_init(pind)
+    player_init({player_index = pind})
   end
 end
 

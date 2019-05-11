@@ -1,7 +1,9 @@
 local util = require("util")
 util.misc =  require(defs.pathes.modules.olib_misc)
 util.train = require(defs.pathes.modules.olib_train)
-util.build_item_table = require(defs.pathes.modules.build_item_table)
+util.gui = {}
+util.gui.build_item_table = require(defs.pathes.modules.build_item_table)
+util.gui.build_depot_button = require(defs.pathes.modules.build_depot_button)
 
 local match, format = string.match, string.format
 local floor, math_log = math.floor, math.log
