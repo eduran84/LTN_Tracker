@@ -114,7 +114,7 @@ local function on_dispatcher_updated(event)
 end
 
 local state_handlers = require(defs.pathes.modules.state_handlers)
-function state_handlers.idle(raw, state_data)
+function state_handlers.idle(raw)
     script.on_event(defines.events.on_tick, data_processor)
     -- suspend LTN interface during data processing
     script.on_event(defines.events.on_stops_updated, nil)
@@ -128,8 +128,9 @@ function state_handlers.idle(raw, state_data)
     raw.name2id = {}
     raw.item2stop = {}
     raw.item2delivery = {}
-    -- reset state
-    state_data = {}
+    -- reset state data
+    proc.state_data.update_depots = {}
+    proc.state_data.update_deliveries = {}
     return true
 end
 function state_handlers.finish(raw, state_data)
@@ -167,6 +168,8 @@ local next_state = {
 
 function data_processor(event)
   local finished = state_handlers[proc.state](raw, proc.state_data[proc.state])
+  if proc.state == "update_depots" then
+  end
   if finished then
     proc.state = next_state[proc.state]
   end

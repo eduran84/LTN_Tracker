@@ -196,6 +196,7 @@ function state_handlers.update_stats(raw, state_data)
   end
   global.statistics[timestamp - one_hour] = nil
   global.temp_stats = {}
+  return true
 end
 
 return state_handlers
