@@ -175,4 +175,27 @@ function state_handlers.update_deliveries(raw, state_data)
   return false
 end
 
+local one_hour = 60*60*60
+local update_interval = 30*60  -- 30 seconds
+function state_handlers.update_stats(raw, state_data)
+  local tick = game.tick
+  if state_data.last_update + update_interval > tick then return end
+  local timestamp = tick - tick % update_interval
+  local temp = global.temp_stats
+  local total_count = {}
+  global.statistics[timestamp] = total_count
+  local number_of_ticks = {}
+  for tick, item_list in pairs(temp) do
+    for item, count in pairs(item_list) do
+      total_count[item] = (total_count[item] or 0) + count
+      number_of_ticks[item] = (number_of_ticks[item] or 0) + 1
+    end
+  end
+  for item, count in pairs(total_count) do
+    total_count[item] = count / number_of_ticks[item]
+  end
+  global.statistics[timestamp - one_hour] = nil
+  global.temp_stats = {}
+end
+
 return state_handlers

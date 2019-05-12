@@ -74,6 +74,9 @@ local proc = {
   state_data = {
     update_depots = {},
     update_deliveries = {},
+    update_stats = {
+      last_update = 0
+    },
   }
 }
 local data = {
@@ -157,7 +160,8 @@ local next_state = {
   update_depots = "update_provided",
   update_provided = "update_requested",
   update_requested = "update_deliveries",
-  update_deliveries = "finish",
+  update_deliveries = "update_stats",
+  update_stats = "finish",
   finish = "idle",
 }
 
@@ -167,25 +171,6 @@ function data_processor(event)
     proc.state = next_state[proc.state]
   end
 end
-
-local one_hour = 60*60*60
-script.on_nth_tick(1800, function(event)
-  local temp = global.temp_stats
-  local total_count = {}
-  global.statistics[event.tick] = total_count
-  local number_of_ticks = {}
-  for tick, item_list in pairs(temp) do
-    for item, count in pairs(item_list) do
-      total_count[item] = (total_count[item] or 0) + count
-      number_of_ticks[item] = (number_of_ticks[item] or 0) + 1
-    end
-  end
-  for item, count in pairs(total_count) do
-    total_count[item] = count / number_of_ticks[item]
-  end
-  global.statistics[event.tick - one_hour] = nil
-  global.temp_stats = {}
-end)
 
 ------------------------------------------------------------------------------------
 -- LTN event handlers
