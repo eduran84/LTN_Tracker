@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.1.6
+Date: 2019-05-12
+
+  Bugfixes:
+    - Fixed crash that could occur semingly at random.
+    - Fixed that on large bases depots and deliveries were not updates properly.
+---------------------------------------------------------------------------------------------------
 Version: 0.1.5
 Date: 2019-05-11
 
