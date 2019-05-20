@@ -6,6 +6,7 @@ local styles = defs.styles.inventory_tab
 local tonumber, match, btest, gsub = tonumber, string.match, bit32.btest, string.gsub
 local get_items_in_network = util.get_items_in_network
 local build_item_table = util.gui.build_item_table
+local bar_graph = require(defs.pathes.modules.bar_graph)
 
 local COL_COUNT =  C.inventory_tab.details_item_tb_col_count
 
@@ -109,7 +110,7 @@ local function build_inventory_tab(window)
   details_frame.icon = button
   -- summary at the top of the pane
 
-  inv_tab.bar_graph = egm.bar_graph.build(details_frame.content)
+  inv_tab.bar_graph = bar_graph.build(details_frame.content)
   local summary = details_frame.content.add{type = "table", column_count = 2, style = "slot_table"}
   width = C.inventory_tab.details_width - C.inventory_tab.summary_number_width - 25
   details_frame.summary = summary
@@ -160,11 +161,8 @@ local function update_details(inv_tab, network_id)
   local item = inv_tab.selected_item
   if not item then return end
   local data = global.data
-  local item_count = {}
-  for tick, item_list in pairs(global.statistics) do
-    item_count[tick] = item_list[item] or 0
-  end
-  egm.bar_graph.set_height(inv_tab.bar_graph, item_count)
+
+  bar_graph.update(inv_tab.bar_graph, item)
   -- set item name and icon
   local details_frame = inv_tab.details_frame
   details_frame.root.children[1].children[1].caption = {

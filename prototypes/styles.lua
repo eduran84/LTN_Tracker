@@ -215,3 +215,49 @@ default[at_styles.label_col_4] = {
   single_line = false,
   width = C.alert_tab.col_width[4],
 }
+
+------------------------------------------------------------------------------------
+-- stats tab
+------------------------------------------------------------------------------------
+
+local st_styles = defs.styles.stats_tab
+default[st_styles.graph_area] = {
+  type = "frame_style",
+  parent = defs.styles.shared.no_padding_frame,
+  flow_style = {
+    type = "flow_style",
+    vertical_spacing = 0,
+    padding = 0,
+    horizontal_spacing = 0,
+  },
+  vertical_flow_style = {
+    type = "vertical_flow_style",
+    parent = defs.styles.shared.vertical_container,
+    vertical_spacing = 0,
+  },
+  horizontal_flow_style = {
+    type = "horizontal_flow_style",
+    parent = defs.styles.shared.horizontal_container,
+    vertical_align = "bottom",
+  },
+  graphical_set = {
+    base = {},
+    shadow = default_glow({0.7, 0.7, 0.7}, 0.5),
+  },
+}
+default[st_styles.graph_box_green] = {
+  type = "frame_style",
+  parent = defs.styles.shared.no_padding_frame,
+  graphical_set = {
+    base = {center = {position = {439, 56}, size = {1, 1}}},
+    shadow = default_dirt,
+  }
+}
+default[st_styles.graph_box_red] = {
+  type = "frame_style",
+  parent = defs.styles.shared.no_padding_frame,
+  graphical_set = {
+    base = {center = {position = {388, 56}, size = {1, 1}}},
+    shadow = default_dirt,
+  }
+}

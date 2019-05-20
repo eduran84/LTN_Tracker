@@ -82,7 +82,7 @@ local function build_depot_tab(window)
   depot_tab.root = flow
   local frame_left = flow.add{
     type = "frame",
-    style = defs.styles.depot_tab.no_padding_frame,
+    style = defs.styles.shared.no_padding_frame,
     caption = {"depot.frame-caption-left"},
     direction = "vertical",
   }
@@ -98,7 +98,7 @@ local function build_depot_tab(window)
 
   local frame_right = flow.add{
     type = "frame",
-    style = defs.styles.depot_tab.no_padding_frame,
+    style = defs.styles.shared.no_padding_frame,
     caption = {"depot.frame-caption-right", ""},
     direction = "vertical",
   }

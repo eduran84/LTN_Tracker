@@ -21,6 +21,7 @@ local gui_type_dict = {
 }
 local class_dict = logger.settings.class_dictionary
 class_dict.LuaGuiElement.index = true
+class_dict.LuaGuiElement.item = true
 
 local LuaEntity = class_dict.LuaEntity
 LuaEntity.position = nil

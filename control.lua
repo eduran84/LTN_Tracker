@@ -66,6 +66,7 @@ end
 script.on_event({  -- gui interactions handling is done by egm manager module
     defines.events.on_gui_click,
     defines.events.on_gui_text_changed,
+    defines.events.on_gui_elem_changed,
   },
   egm.manager.on_gui_input
 )

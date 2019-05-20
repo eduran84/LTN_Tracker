@@ -27,13 +27,14 @@ defs.names = {
   alert_popup = mod_prefix .. "alert_popup_window",
 }
 
-defs.tabs = {  -- order matter
+defs.tabs = {  -- order matters
   depot = "depot_tab",
   station = "station_tab",
   --requests = "request_tab",
   inventory = "inventory_tab",
   history = "history_tab",
   alert = "alert_tab",
+  statistics = "statistics_tab",
 }
 
 defs.actions = {
@@ -54,6 +55,8 @@ defs.actions = {
 
   clear_alerts = "clear_alert_table",
   clear_single_alert = "clear_single_alert",
+
+  set_stats_item = "set_stats_item",
 
   station_name_clicked = "station_name_clicked",
   select_station_entity = "select_station",
@@ -79,6 +82,7 @@ defs.styles = {
     tab_button = egm_defs.style_names.tabbed_pane.button,
     tab_button_red = egm_defs.style_names.tabbed_pane.button_red,
     default_button = mod_prefix .. "default_button",
+    no_padding_frame = egm_defs.style_names.shared.no_padding_frame,
     large_close_button = mod_prefix .. "large_close_button",
     slot_table_frame = mod_prefix .. "ltnt_slot_table_frame",
     no_frame_scroll_pane = mod_prefix .. "bare_scroll_pane",
@@ -90,7 +94,6 @@ defs.styles = {
     gray_button = egm_defs.style_names.item_table.gray_button,
   },
   depot_tab = {
-    no_padding_frame = egm_defs.style_names.shared.no_padding_frame,
     depot_selector = mod_prefix .. "depot_selector",
     depot_label = mod_prefix .. "depot_name_label",
     cap_left_1 = mod_prefix .. "bt_caption_1",
@@ -127,6 +130,11 @@ defs.styles = {
     label_col_2_hover = mod_prefix .. "lb_alert_col2_hover",
     label_col_3 = mod_prefix .. "lb_alert_col3",
     label_col_4 = mod_prefix .. "lb_alert_col4",
+  },
+  stats_tab = {
+    graph_area = "graph_area_frame",
+    graph_box_green = "graph_box_green",
+    graph_box_red = "graph_box_red",
   },
   alert_notice = {
     frame = egm_defs.style_names.frame.outer_frame_red_transparent,
@@ -212,9 +220,11 @@ defs.pathes.modules = {
   station_tab = gui .. "station_tab",
   history_tab = gui .. "history_tab",
   alert_tab = gui .. "alert_tab",
+  statistics_tab = gui .. "stats_tab",
 
   build_item_table = gui .. "functions/build_item_table",
   build_depot_button = gui .. "functions/build_depot_button",
+  bar_graph = gui .. "functions/bar_graph",
 }
 
 defs.pathes.sprites = {
