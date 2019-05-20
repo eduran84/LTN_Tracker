@@ -13,12 +13,12 @@ local function signal_to_item(signal_id)
   end
 end
 
-local function calculate_bar_heights(bar_graph_obj, item)
+local function calculate_bar_heights(bar_graph_obj, item, T0)
   local item_stats = {}
   for tick, item_list in pairs(bar_graph_obj.statistics) do
     item_stats[tick] = item_list[item] or 0
   end
-  local T0 = 1*60*60*60  -- 1 hour
+  T0 = T0 or 60*60*60  -- 1 hour
   local T = T0 / bar_graph_obj.bar_count
   local counts_per_time, N, times, avg_counts = {}, {}, {}, {}
   local current_tick = game.tick
@@ -29,6 +29,7 @@ local function calculate_bar_heights(bar_graph_obj, item)
     N[index] = (N[index] or 0) + 1
     counts_per_time[index] = (counts_per_time[index] or 0) + count
   end
+  log2(N)
   local max, min = 0, 0
   local offset = floor((current_tick/T0 - 1) * bar_graph_obj.bar_count)
   for i = 1, bar_graph_obj.bar_count do
@@ -41,9 +42,18 @@ local function calculate_bar_heights(bar_graph_obj, item)
   return avg_counts, max, min
 end
 
-function bar_graph.update(bar_graph_obj, item)
+function bar_graph.update(bar_graph_obj, item, duration)
   item = item or signal_to_item(bar_graph_obj.selector.elem_value)
-  local counts_over_time, max, min = calculate_bar_heights(bar_graph_obj, item)
+  if duration then
+    bar_graph_obj.duration = duration
+    local min_h = -math.floor(duration / 60 / 60 / 60 * 10) / 10
+    bar_graph_obj.x_labels.left.caption = min_h .. " hours"
+    min_h = -math.floor(duration / 60 / 60 / 60 / 2 * 10) / 10
+    bar_graph_obj.x_labels.center.caption = min_h .. " hours"
+  else
+    duration = bar_graph_obj.duration
+  end
+  local counts_over_time, max, min = calculate_bar_heights(bar_graph_obj, item, duration)
   bar_graph_obj.y_labels.top.caption = util.format_number(max)
   bar_graph_obj.y_labels.bottom.caption = util.format_number(min)
 
@@ -70,6 +80,7 @@ function bar_graph.build(parent, args)
   local height = args.height or 70
   local bar_count = args.bar_count or 30
   local bar_width = math.floor(width / bar_count)
+  local duration = args.duration or 60 * 60 * 60
 
   local outer_frame = parent.add{
     type = "frame",
@@ -147,15 +158,21 @@ function bar_graph.build(parent, args)
   flow_x_axis.style.width = width
 
   width = math.floor(width /3)
-  local label = flow_x_axis.add{type = "label", caption  = "-1 hour"}
+  local min_h = -math.floor(duration / 60 / 60 / 60 * 10) / 10
+  local label = flow_x_axis.add{type = "label", caption  = min_h .. " hours"}
   label.style.width = width
   label.style.horizontal_align = "left"
-  label = flow_x_axis.add{type = "label", caption  = "-30 min"}
+  local x_labels = {left = label}
+
+  min_h = -math.floor(duration / 60 / 60 / 60 / 2 * 10) / 10
+  label = flow_x_axis.add{type = "label", caption  = min_h .. " hours"}
   label.style.width = width
+  x_labels.center = label
   label.style.horizontal_align = "center"
   label = flow_x_axis.add{type = "label", caption  = "now"}
   label.style.width = width
   label.style.horizontal_align = "right"
+  x_labels.right = label
 
   local flow_y_axis = content.add{
     type = "flow",
@@ -187,8 +204,10 @@ function bar_graph.build(parent, args)
   bar_graph_obj.bars_top = bars_top
   bar_graph_obj.bars_bottom = bars_bottom
   bar_graph_obj.bar_count = bar_count
+  bar_graph_obj.duration = duration
   bar_graph_obj.height = height
   bar_graph_obj.y_labels = y_labels
+  bar_graph_obj.x_labels = x_labels
   bar_graph_obj.statistics = args.statistics or global.statistics
   return bar_graph_obj
 end

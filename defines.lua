@@ -57,6 +57,7 @@ defs.actions = {
   clear_single_alert = "clear_single_alert",
 
   set_stats_item = "set_stats_item",
+  set_stats_time = "set_stats_time",
 
   station_name_clicked = "station_name_clicked",
   select_station_entity = "select_station",
