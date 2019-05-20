@@ -1,5 +1,16 @@
 default = data.raw["gui-style"].default
 
+local function default_glow(tint_value, scale_value)  -- because some moronic mods out there overwrite this function...
+  return
+  {
+    position = {200, 128},
+    corner_size = 8,
+    tint = tint_value,
+    scale = scale_value,
+    draw_type = "outer"
+  }
+end
+
 ------------------------------------------------------------------------------------
 -- shared
 ------------------------------------------------------------------------------------

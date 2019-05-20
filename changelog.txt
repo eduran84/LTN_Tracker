@@ -1,10 +1,15 @@
 ---------------------------------------------------------------------------------------------------
 Version: 0.1.6
-Date: 2019-05-12
+Date: 2019-05-20
+  Features:
+    - Statistics tab:
+      * shows graphs of available amount of items over time
+      * up to six items can be plotted at the same time
+      * time frames of one hour, ten hours and 50 hours are available
 
   Bugfixes:
-    - Fixed crash that could occur semingly at random.
-    - Fixed that on large bases depots and deliveries were not updates properly.
+    - Fixed crash that could occur seemingly at random.
+    - Fixed that on large bases depots and deliveries were not updated properly.
 ---------------------------------------------------------------------------------------------------
 Version: 0.1.5
 Date: 2019-05-11
