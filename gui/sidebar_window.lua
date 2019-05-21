@@ -272,16 +272,13 @@ local function show_train_information(pind, train)
     pane.visible = true
     pane.clear()
     local build_depot_button = util.gui.build_depot_button
-    local button_data = {
-      action = defs.actions.send_to_depot,
-      train = train,
-      depot_name = "",
-    }
     for depot_name, depot_data in pairs(global.data.depots) do
-      button_data.depot_name = depot_name
       egm.manager.register(
-        build_depot_button(pane, depot_name, depot_data, 269),
-        button_data
+        build_depot_button(pane, depot_name, depot_data, 269), {
+          action = defs.actions.send_to_depot,
+          train = train,
+          depot_name = depot_name,
+        }
       )
     end
   end
