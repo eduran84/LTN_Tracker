@@ -196,6 +196,9 @@ defs.errors = {
   },
 }
 
+defs.signals = {
+  network_id = "virtual-signal/ltn-network-id",
+}
 local gui_modules = "__GUI_Modules__/"
 local optera_lib = "__OpteraLib__/script/"
 local LTNT = "__LTN_Tracker_beta__/"

@@ -56,9 +56,9 @@ C.depot_tab = {
 }
 
 C.station_tab = {
-  n_columns = 6,
-  col_width = {190, 50, 37*5+23, 37*4+23, 37*6+23, 1},
-  item_table_col_count = {5, 4, 5},
+  n_columns = 7,
+  col_width = {190, 38, 50, 37*5+23, 37*4+23, 37*6+23, 1},
+  item_table_col_count = {5, 4, 4},
   item_table_max_rows = {4, 4, 2},
 }
 

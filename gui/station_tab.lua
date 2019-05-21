@@ -11,6 +11,9 @@ egm.stored_functions[defs.functions.station_sort .. 1] = function(a, b)
   return a.stop_data.name < b.stop_data.name
 end
 egm.stored_functions[defs.functions.station_sort .. 2] = function(a, b)
+  return a.stop_data.network_id < b.stop_data.network_id
+end
+egm.stored_functions[defs.functions.station_sort .. 3] = function(a, b)
   local rank_a = color_order[a.stop_data.signals[1][1]] + a.stop_data.signals[1][2]
   local rank_b = color_order[b.stop_data.signals[1][1]] + b.stop_data.signals[1][2]
   return rank_a < rank_b
@@ -38,7 +41,15 @@ egm.stored_functions[defs.functions.station_row_constructor] = function(egm_tabl
         stop_entity = stopdata.entity,
       }
     )
-    -- second column: status
+    -- second column: network id
+    parent.add{
+      type = "sprite-button",
+      sprite = defs.signals.network_id,
+      number = stopdata.network_id,
+      enabled = false,
+      style = defs.styles.shared.gray_button,
+    }.style.width = 36
+    -- third column: status
     parent.add{
       type = "sprite-button",
       sprite = "virtual-signal/"..stopdata.signals[1][1],
@@ -46,7 +57,7 @@ egm.stored_functions[defs.functions.station_row_constructor] = function(egm_tabl
       enabled = false,
       style = defs.styles.shared.gray_button,
     }.style.width = 50
-    -- third column: provided and requested items
+    -- fourth column: provided and requested items
     build_item_table{
       parent = parent,
       provided = global.data.provided_by_stop[stop_id],
@@ -55,7 +66,7 @@ egm.stored_functions[defs.functions.station_row_constructor] = function(egm_tabl
       enabled = false,
       max_rows = MAX_ROWS[1],
     }
-    -- fourth column: current deliveries
+    -- fifth column: current deliveries
     build_item_table{
       parent = parent,
       provided = stopdata.incoming,
@@ -64,7 +75,7 @@ egm.stored_functions[defs.functions.station_row_constructor] = function(egm_tabl
       max_rows = MAX_ROWS[2],
       enabled = false,
     }
-    -- fifth column: control signals
+    -- sixth column: control signals
     build_item_table{
       parent = parent,
       signals = stopdata.signals[2],
