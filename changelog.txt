@@ -4,6 +4,8 @@ Date: 2019-05-
 
   Bugfixes:
     - Fixed trains being send to wrong depot when using train info panel (#28).
+    - Fixed that station signals did not update properly.
+    - Fixed that "Disable alerts for underloaded trains" setting was inverted when enabling LTNT for the first time.
 ---------------------------------------------------------------------------------------------------
 Version: 0.1.6
 Date: 2019-05-20

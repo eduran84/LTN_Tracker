@@ -1,7 +1,7 @@
 global.raw = {}
 global.proc = {
   state = "idle",
-  underload_is_alert = util.get_setting(defs.settings.disable_underload),
+  underload_is_alert = not util.get_setting(defs.settings.disable_underload),
   state_data = {
     update_depots = {},
     update_deliveries = {},

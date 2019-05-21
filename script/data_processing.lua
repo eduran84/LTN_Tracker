@@ -374,4 +374,13 @@ function data_processing.on_load()
   register_events()
 end
 
+function data_processing.on_configuration_changed()
+  if data.mod_changes[defs.names.mod_name] and data.mod_changes[defs.names.mod_name].old_version then
+    local old_version = util.format_version(data.mod_changes[defs.names.mod_name].old_version)
+    if old_version <= "00.01.06" then
+      global.proc.underload_is_alert = not util.get_setting(defs.settings.disable_underload)
+    end
+  end
+end
+
 return data_processing
