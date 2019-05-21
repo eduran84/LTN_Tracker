@@ -160,7 +160,7 @@ local function build_station_tab(window)
   )
   for i = 1, C.station_tab.n_columns do
     egm.table.add_column_header(table, {
-        sortable = i == 1 or i == 2,
+        sortable = i == 1 or i == 2 or  i == 3,
         width = C.station_tab.col_width[i],
         caption = {"station.header-col-"..i},
         tooltip = {"station.header-col-"..i.."-tt"},

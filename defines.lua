@@ -144,9 +144,9 @@ defs.styles = {
 }
 
 defs.locale = {
-  provided_requested = {"station.header-col-3"},
-  scheduled_deliveries = {"station.header-col-4"},
-  control_signals = {"station.header-col-5"},
+  provided_requested = {"station.header-col-4"},
+  scheduled_deliveries = {"station.header-col-5"},
+  control_signals = {"station.header-col-6"},
   n_trains = {"depot.header-col-2"},
   capacity = {"depot.header-col-3"},
 }
