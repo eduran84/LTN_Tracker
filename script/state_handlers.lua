@@ -211,7 +211,6 @@ function state_handlers.update_stats(raw, state_data)
         total_count[item] = (total_count[item] or 0) + count
         number_of_ticks[item] = (number_of_ticks[item] or 0) + 1
         if item == "item,steel-plate" then
-          write(time, "/ count =", count, "\n")
         end
       end
       global.statistics[time] = nil
@@ -227,7 +226,6 @@ function state_handlers.update_stats(raw, state_data)
     total_count, number_of_ticks = {}, {}
     for time, item_list in pairs(global.statistics) do
       if time > old_timestamp then
-        write("total_count:", total_count["item,steel-plate"], "\n")
         break
       end
       for item, count in pairs(item_list) do
