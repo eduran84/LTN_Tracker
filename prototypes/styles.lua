@@ -232,6 +232,11 @@ default[at_styles.label_col_4] = {
 ------------------------------------------------------------------------------------
 
 local st_styles = defs.styles.stats_tab
+default[st_styles.time_button] = {
+  type = "button_style",
+  disabled_font_color = default["button"].selected_font_color,
+  disabled_graphical_set = default["button"].selected_graphical_set,
+}
 default[st_styles.graph_area] = {
   type = "frame_style",
   parent = defs.styles.shared.no_padding_frame,

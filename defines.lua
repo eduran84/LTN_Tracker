@@ -133,9 +133,10 @@ defs.styles = {
     label_col_4 = mod_prefix .. "lb_alert_col4",
   },
   stats_tab = {
-    graph_area = "graph_area_frame",
-    graph_box_green = "graph_box_green",
-    graph_box_red = "graph_box_red",
+    graph_area = mod_prefix .. "graph_area_frame",
+    graph_box_green = mod_prefix .. "graph_box_green",
+    graph_box_red = mod_prefix .. "graph_box_red",
+    time_button = mod_prefix .. "time_button",
   },
   alert_notice = {
     frame = egm_defs.style_names.frame.outer_frame_red_transparent,
