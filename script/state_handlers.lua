@@ -176,14 +176,11 @@ function state_handlers.update_deliveries(raw, state_data)
 end
 
 local hours_1 = 60*60*60
-local hours_10 = 10 * hours_1
-local hours_50 = 50 * hours_1
-local minutes_15 = 15*60*60
-local minutes_75 = 5 * minutes_15
+local hours_5 = 5 * hours_1
+local hours_25 = 5 * hours_5
+local minutes_7_5 = 7.5*60*60
+local minutes_37_5 = 5 * minutes_7_5
 local update_interval = 90*60  -- 90 seconds
-local function write(...)
-  --logger.write_file("stats", ...)
-end
 
 function state_handlers.update_stats(raw, state_data)
   local tick = game.tick
@@ -192,7 +189,6 @@ function state_handlers.update_stats(raw, state_data)
   state_data.last_update = timestamp
   local temp = global.temp_stats
 
-  write("time: ", util.misc.ticks_to_timestring(timestamp) , " (", timestamp, ")\n")
   local total_count, number_of_ticks = {}, {}
   global.statistics[timestamp] = total_count
   for tick, item_list in pairs(temp) do
@@ -204,14 +200,11 @@ function state_handlers.update_stats(raw, state_data)
   for item, count in pairs(total_count) do
     total_count[item] = count / number_of_ticks[item]
   end
-  write("steel count:", total_count["item,steel-plate"], "\n")
-  if timestamp % minutes_15 == 0 then
+  if timestamp % minutes_7_5 == 0 then
     local old_timestamp = timestamp - hours_1
-    write("15 minute update for timestamp:", util.misc.ticks_to_timestring(old_timestamp) , " (", old_timestamp, ")\n")
     total_count, number_of_ticks = {}, {}
     for time, item_list in pairs(global.statistics) do
       if time > old_timestamp then
-        write("total_count:", total_count["item,steel-plate"], "\n")
         break
       end
       for item, count in pairs(item_list) do
@@ -226,13 +219,11 @@ function state_handlers.update_stats(raw, state_data)
     for item, count in pairs(total_count) do
       total_count[item] = count / number_of_ticks[item]
     end
-    write("avg_count:", total_count["item,steel-plate"], "\n")
     global.statistics[old_timestamp] = total_count
   end
 
-  if timestamp % minutes_75 == 0 then
-    local old_timestamp = timestamp - hours_10
-    write("75 minute update for timestamp:", util.misc.ticks_to_timestring(old_timestamp) , " (", old_timestamp, ")\n")
+  if timestamp % minutes_37_5 == 0 then
+    local old_timestamp = timestamp - hours_5
     total_count, number_of_ticks = {}, {}
     for time, item_list in pairs(global.statistics) do
       if time > old_timestamp then
@@ -242,18 +233,14 @@ function state_handlers.update_stats(raw, state_data)
       for item, count in pairs(item_list) do
         total_count[item] = (total_count[item] or 0) + count
         number_of_ticks[item] = (number_of_ticks[item] or 0) + 1
-        if item == "item,steel-plate" then
-          write(time, "/ count =", count, "\n")
-        end
       end
       global.statistics[time] = nil
     end
     for item, count in pairs(total_count) do
       total_count[item] = count / number_of_ticks[item]
     end
-    write("avg_count:", total_count["item,steel-plate"], "\n")
     global.statistics[old_timestamp] = total_count
-    global.statistics[timestamp - hours_50] = nil
+    global.statistics[timestamp - hours_25] = nil
   end
   global.temp_stats = {}
   return true

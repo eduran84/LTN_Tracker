@@ -15,12 +15,12 @@ local function build_stats_tab(window)
   local button_flow = flow.add{type = "flow", direction = "horizontal"}
   local buttons = {
     button_flow.add{type = "button", caption = "1h", enabled = false, style = defs.styles.stats_tab.time_button},
-    button_flow.add{type = "button", caption = "10h", style = defs.styles.stats_tab.time_button},
-    button_flow.add{type = "button", caption = "50h", style = defs.styles.stats_tab.time_button},
+    button_flow.add{type = "button", caption = "5h", style = defs.styles.stats_tab.time_button},
+    button_flow.add{type = "button", caption = "25h", style = defs.styles.stats_tab.time_button},
   }
   egm.manager.register(buttons[1], {action = defs.actions.set_stats_time, super = stats_tab, duration  = 1})
-  egm.manager.register(buttons[2], {action = defs.actions.set_stats_time, super = stats_tab, duration  = 10})
-  egm.manager.register(buttons[3], {action = defs.actions.set_stats_time, super = stats_tab, duration  = 50})
+  egm.manager.register(buttons[2], {action = defs.actions.set_stats_time, super = stats_tab, duration  = 5})
+  egm.manager.register(buttons[3], {action = defs.actions.set_stats_time, super = stats_tab, duration  = 25})
 
   local graph_table = flow.add{type = "table", column_count = 2}
 
@@ -32,7 +32,7 @@ local function build_stats_tab(window)
       bar_count = 40,
       show_selector = true,
       statistics = global.statistics,
-      duration = 10 * 60 * 60 * 60,
+      duration = 1 * 60 * 60 * 60,
     })
   end
   stats_tab.root = flow

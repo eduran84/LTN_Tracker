@@ -4,6 +4,8 @@ Date: 2019-05-21
 
   Changes:
     - Added network ID column to station tab, instead of displaying it as part of control signals (#27).
+    - Changed available time frames for graphs on statisitcs tab to 1h/5h/25h from 1h/10h/50h.
+
   Bugfixes:
     - Fixed trains being send to wrong depot when using train info panel (#28).
     - Fixed that station signals did not update properly.
