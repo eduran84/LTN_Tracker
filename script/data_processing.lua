@@ -167,6 +167,7 @@ local next_state = {
 }
 
 function data_processor(event)
+  log2(event, proc)
   local finished = state_handlers[proc.state](raw, proc.state_data[proc.state])
   if proc.state == "update_depots" then
   end

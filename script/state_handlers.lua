@@ -187,7 +187,7 @@ end
 
 function state_handlers.update_stats(raw, state_data)
   local tick = game.tick
-  if state_data.last_update + update_interval >= tick then return end
+  if state_data.last_update + update_interval >= tick then return true end
   local timestamp = tick - tick % update_interval
   state_data.last_update = timestamp
   local temp = global.temp_stats
