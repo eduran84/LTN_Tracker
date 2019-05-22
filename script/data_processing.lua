@@ -114,7 +114,7 @@ local function on_dispatcher_updated(event)
 end
 
 local state_handlers = require(defs.pathes.modules.state_handlers)
-function state_handlers.idle(raw)
+function state_handlers.idle()
     script.on_event(defines.events.on_tick, data_processor)
     -- suspend LTN interface during data processing
     script.on_event(defines.events.on_stops_updated, nil)
@@ -167,7 +167,6 @@ local next_state = {
 }
 
 function data_processor(event)
-  log2(event, proc)
   local finished = state_handlers[proc.state](raw, proc.state_data[proc.state])
   if proc.state == "update_depots" then
   end
@@ -328,7 +327,7 @@ local function register_events()
 
   script.on_event(defines.events.on_pickup_completed, on_pickup_completed)
   script.on_event(defines.events.on_delivery_completed, on_delivery_completed)
-    script.on_event(defines.events.on_delivery_failed, on_delivery_failed)
+  script.on_event(defines.events.on_delivery_failed, on_delivery_failed)
   if proc.state == "idle" then
     script.on_event(defines.events.on_stops_updated, on_stops_updated)
     script.on_event(defines.events.on_dispatcher_updated, on_dispatcher_updated)

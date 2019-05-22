@@ -35,7 +35,7 @@ class_dict.LuaGroup = {
   order = true,
 }
 
-debug_mode = util.get_setting(defs.settings.debug_mode)
+debug_mode = true --util.get_setting(defs.settings.debug_mode)
 if debug_mode then
   logger.add_debug_commands()
 else
