@@ -29,7 +29,6 @@ local function calculate_bar_heights(bar_graph_obj, item, T0)
     N[index] = (N[index] or 0) + 1
     counts_per_time[index] = (counts_per_time[index] or 0) + count
   end
-  log2(N)
   local max, min = 0, 0
   local offset = floor((current_tick/T0 - 1) * bar_graph_obj.bar_count)
   for i = 1, bar_graph_obj.bar_count do

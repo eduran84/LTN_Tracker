@@ -94,7 +94,6 @@ script.on_init(function()
   if debug_mode then
     log2("Initialization finished.")
   end
-  log2("after on_init:", global)
 end)
 
 script.on_load(function()
@@ -117,5 +116,4 @@ script.on_configuration_changed(function(data)
       module.on_configuration_changed(data)
     end
   end
-  log2("after on_configuration_changed:", global)
 end)
