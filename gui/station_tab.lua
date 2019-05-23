@@ -84,7 +84,7 @@ egm.stored_functions[defs.functions.station_row_constructor] = function(egm_tabl
       enabled = false,
     }
     -- LTNC button
-    if data.signal_col_count < 6 then
+    if data.signal_col_count < 5 then
       local button = parent.add{
         type = "sprite-button",
         style = defs.styles.shared.default_button,
