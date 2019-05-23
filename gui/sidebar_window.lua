@@ -129,6 +129,24 @@ local function show_station_information(pind, stop_id, stop_data)
   flow.clear()
 
   window.root.caption = "Station information"
+  local icon_flow = flow.add{type = "flow", direction = "horizontal"}
+
+  icon_flow.add{
+    type = "sprite-button",
+    sprite = defs.signals.network_id,
+    number = stop_data.network_id,
+    enabled = false,
+    style = defs.styles.shared.gray_button,
+  }.style.width = 36
+  -- third column: status
+  icon_flow.add{
+    type = "sprite-button",
+    sprite = "virtual-signal/"..stop_data.signals[1][1],
+    number = stop_data.signals[1][2],
+    enabled = false,
+    style = defs.styles.shared.gray_button,
+    }.style.width = 50
+
   local label_params = {
     type = "label",
     style = "heading_2_label",
