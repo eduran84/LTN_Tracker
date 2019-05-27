@@ -178,9 +178,33 @@ end
 local hours_1 = 60*60*60
 local hours_5 = 5 * hours_1
 local hours_25 = 5 * hours_5
-local minutes_7_5 = 7.5*60*60
+local minutes_1_5 = 1.5*60*60
+local minutes_7_5 = 5 * minutes_1_5
 local minutes_37_5 = 5 * minutes_7_5
 local update_interval = 90*60  -- 90 seconds
+local function merge_old_data(current_time, time_ago, interval)
+  local total_count, number_of_ticks = {}, {}
+  local old_timestamp = current_time - time_ago
+  if not global.statistics[old_timestamp] then return end
+  for i = -4, 0 do
+    local time = old_timestamp + i * interval
+    local item_list = global.statistics[time]
+    if item_list then
+      for item, count in pairs(item_list) do
+        total_count[item] = (total_count[item] or 0) + count
+        number_of_ticks[item] = (number_of_ticks[item] or 0) + 1
+      end
+    end
+    if i == 0 then
+      for item, count in pairs(total_count) do
+        total_count[item] = count / number_of_ticks[item]
+        global.statistics[time] = total_count
+      end
+    else
+      global.statistics[time] = nil
+    end
+  end
+end
 
 function state_handlers.update_stats(raw, state_data)
   local tick = game.tick
@@ -201,44 +225,10 @@ function state_handlers.update_stats(raw, state_data)
     total_count[item] = count / number_of_ticks[item]
   end
   if timestamp % minutes_7_5 == 0 then
-    local old_timestamp = timestamp - hours_1
-    total_count, number_of_ticks = {}, {}
-    for time, item_list in pairs(global.statistics) do
-      if time > old_timestamp then
-        break
-      end
-      for item, count in pairs(item_list) do
-        total_count[item] = (total_count[item] or 0) + count
-        number_of_ticks[item] = (number_of_ticks[item] or 0) + 1
-        if item == "item,steel-plate" then
-        end
-      end
-      global.statistics[time] = nil
-    end
-    for item, count in pairs(total_count) do
-      total_count[item] = count / number_of_ticks[item]
-    end
-    global.statistics[old_timestamp] = total_count
+    merge_old_data(timestamp, hours_1, minutes_1_5)
   end
-
   if timestamp % minutes_37_5 == 0 then
-    local old_timestamp = timestamp - hours_5
-    total_count, number_of_ticks = {}, {}
-    for time, item_list in pairs(global.statistics) do
-      if time > old_timestamp then
-        break
-      end
-      for item, count in pairs(item_list) do
-        total_count[item] = (total_count[item] or 0) + count
-        number_of_ticks[item] = (number_of_ticks[item] or 0) + 1
-      end
-      global.statistics[time] = nil
-    end
-    for item, count in pairs(total_count) do
-      total_count[item] = count / number_of_ticks[item]
-    end
-    global.statistics[old_timestamp] = total_count
-    global.statistics[timestamp - hours_25] = nil
+    merge_old_data(timestamp, hours_5, minutes_7_5)
   end
   global.temp_stats = {}
   return true

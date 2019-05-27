@@ -115,44 +115,44 @@ end
 
 local state_handlers = require(defs.pathes.modules.state_handlers)
 function state_handlers.idle()
-    script.on_event(defines.events.on_tick, data_processor)
-    -- suspend LTN interface during data processing
-    script.on_event(defines.events.on_stops_updated, nil)
-    script.on_event(defines.events.on_dispatcher_updated, nil)
+  script.on_event(defines.events.on_tick, data_processor)
+  -- suspend LTN interface during data processing
+  script.on_event(defines.events.on_stops_updated, nil)
+  script.on_event(defines.events.on_dispatcher_updated, nil)
 
-    -- reset raw data
-    raw.depots = {}
-    raw.provided = {}
-    raw.requested = {}
-    raw.in_transit = {}
-    raw.name2id = {}
-    raw.item2stop = {}
-    raw.item2delivery = {}
-    -- reset state data
-    proc.state_data.update_depots = {}
-    proc.state_data.update_deliveries = {}
-    return true
+  -- reset raw data
+  raw.depots = {}
+  raw.provided = {}
+  raw.requested = {}
+  raw.in_transit = {}
+  raw.name2id = {}
+  raw.item2stop = {}
+  raw.item2delivery = {}
+  -- reset state data
+  proc.state_data.update_depots = {}
+  proc.state_data.update_deliveries = {}
+  return true
 end
 function state_handlers.finish(raw, state_data)
-    -- update globals
-    data.stops =  raw.stops
-    data.depots = raw.depots
-    data.provided =  raw.provided
-    data.requested = raw.requested
-    data.in_transit = raw.in_transit
-    data.deliveries = raw.deliveries
-    data.name2id =  raw.name2id
-    data.item2stop =  raw.item2stop
-    data.item2delivery = raw.item2delivery
-    data.provided_by_stop = raw.provided_by_stop
-    data.requested_by_stop = raw.requests_by_stop
+  -- update globals
+  data.stops =  raw.stops
+  data.depots = raw.depots
+  data.provided =  raw.provided
+  data.requested = raw.requested
+  data.in_transit = raw.in_transit
+  data.deliveries = raw.deliveries
+  data.name2id =  raw.name2id
+  data.item2stop =  raw.item2stop
+  data.item2delivery = raw.item2delivery
+  data.provided_by_stop = raw.provided_by_stop
+  data.requested_by_stop = raw.requests_by_stop
 
-    -- stop on_tick updates, start listening for LTN interface
-    script.on_event(defines.events.on_stops_updated, on_stops_updated)
-    script.on_event(defines.events.on_dispatcher_updated, on_dispatcher_updated)
-    script.on_event(defines.events.on_tick, nil)
-    script.raise_event(defines.events.on_data_updated, {})
-    return true
+  -- stop on_tick updates, start listening for LTN interface
+  script.on_event(defines.events.on_stops_updated, on_stops_updated)
+  script.on_event(defines.events.on_dispatcher_updated, on_dispatcher_updated)
+  script.on_event(defines.events.on_tick, nil)
+  script.raise_event(defines.events.on_data_updated, {})
+  return true
 end
 local next_state = {
   idle = "update_stops",

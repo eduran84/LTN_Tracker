@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.1.11
+Date: 2019-05-26
+
+  Bugfixes:
+    - Fixed that network ID filter did not always work properly.
+    - Fixed that statistics tab only displayed last hour for all time settings.
+---------------------------------------------------------------------------------------------------
 Version: 0.1.10
 Date: 2019-05-23
 
