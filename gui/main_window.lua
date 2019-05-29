@@ -18,7 +18,6 @@ gui = {}
 ------------------------------------------------------------------------------------
 -- load sub-modules
 ------------------------------------------------------------------------------------
-local mod_gui = require("mod-gui")
 local tab_functions = {}
 for _, tab_name in pairs(defs.tabs) do
   tab_functions[tab_name] = require(defs.pathes.modules[tab_name])
@@ -35,19 +34,19 @@ Parameters:
 Return value
   the LTNT main window
 ]]
-
   local player = game.players[pind]
   local height = util.get_setting(defs.settings.window_height, player)
-  local frame_flow = player.gui.center
+  local frame_flow = player.gui.left
   -- wipe every gui component before main window is created
-  local old_window = mod_gui.get_frame_flow(player)[defs.names.alert_popup]
+  local old_window = frame_flow[defs.names.alert_popup]
   if old_window and old_window.valid then
     old_window.destroy()
   end
-  old_window = mod_gui.get_frame_flow(player)[defs.names.sidebar]
+  old_window = frame_flow[defs.names.sidebar]
   if old_window and old_window.valid then
     old_window.destroy()
   end
+  frame_flow = player.gui.center
   old_window = frame_flow[defs.names.window]
   if old_window and old_window.valid then
     old_window.destroy()
@@ -173,7 +172,7 @@ Parameters:
 Return value
   the alert popup window
 ]]
-  local frame_flow = mod_gui.get_frame_flow(game.players[pind])
+  local frame_flow = game.players[pind].gui.left
   local preexisting_window = frame_flow[defs.names.alert_popup]
   if preexisting_window and preexisting_window.valid then
     egm.manager.unregister(preexisting_window)
@@ -635,10 +634,25 @@ function gui_main.on_configuration_changed(data)
     end
   end
   -- handles changes to LTNT
-  local mod_data = data.mod_changes[defs.names.mod_name]
+  local mod_data = data.mod_changes[mod_name]
   if mod_data and mod_data.old_version then
-    local old_version = util.format_version(mod_data.old_version)
+    local old_version = util.misc.format_version(mod_data.old_version)
     if old_version < "00.02.00" then
+      -- remove old gui elements
+      for pind, player in pairs(game.players) do
+        local flow = player.gui.left.mod_gui_frame_flow
+        if flow then
+          if flow[defs.names.sidebar] and flow[defs.names.sidebar].valid then
+            flow[defs.names.sidebar].destroy()
+          end
+          if flow[defs.names.alert_popup] and flow[defs.names.alert_popup].valid then
+            flow[defs.names.alert_popup].destroy()
+          end
+          if flow[defs.names.window] and flow[defs.names.window].valid then
+            flow[defs.names.window].destroy()
+          end
+        end
+      end
       reset = true
     end
   end

@@ -9,7 +9,6 @@ defs.mod_prefix = "ltnt"
 local mod_prefix = defs.mod_prefix .. "_"
 defs.settings = {
   debug_mode = mod_prefix .. "debug_level",
-  window_location = mod_prefix .. "window_location",
   window_height = mod_prefix .. "window_height",
   show_alerts = mod_prefix .. "show_alert_popups",
   refresh_interval = mod_prefix .. "refresh_interval",

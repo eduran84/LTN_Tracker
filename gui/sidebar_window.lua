@@ -2,7 +2,6 @@ local defs = defs
 local egm = egm
 local C = C
 
-local mod_gui = require("mod-gui")
 local build_item_table = util.gui.build_item_table
 local format = string.format
 local format_number = util.format_number
@@ -23,7 +22,7 @@ Parameters:
 Return value
   the sidebar window
 ]]
-  local frame_flow = mod_gui.get_frame_flow(game.players[pind])
+  local frame_flow = game.players[pind].gui.left
 
   local preexisting_window = frame_flow[defs.names.sidebar]
   if preexisting_window and preexisting_window.valid then

@@ -27,15 +27,6 @@ data:extend({
 		maximum_value = 60,
     order = "c",
 	},
-  --[[
-	{
-		name = names.window_location,
-    setting_type = "runtime-per-user",
-		type = "string-setting",
-    default_value = "center",
-    allowed_values = {"left", "center"},
-    order = "d",
-	},--]]
 	{
 		name = names.window_height,
 		setting_type = "runtime-per-user",
