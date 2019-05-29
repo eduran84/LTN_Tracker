@@ -35,15 +35,10 @@ Parameters:
 Return value
   the LTNT main window
 ]]
-  local frame_flow
+
   local player = game.players[pind]
   local height = util.get_setting(defs.settings.window_height, player)
-  if false then  --util.get_setting(defs.settings.window_location, player) == "left" then
-    frame_flow = mod_gui.get_frame_flow(player)
-    height = height < 710 and height or 710
-  else
-    frame_flow = player.gui.center
-  end
+  local frame_flow = player.gui.center
   -- wipe every gui component before main window is created
   local old_window = mod_gui.get_frame_flow(player)[defs.names.alert_popup]
   if old_window and old_window.valid then

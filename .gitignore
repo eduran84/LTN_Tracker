@@ -1,5 +1,7 @@
+.gitignore
 *.zip
 *.py
 .git
 .vscode/tasks.json
 LTN_interface.txt
+GUI_Modules/
