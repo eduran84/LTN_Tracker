@@ -625,7 +625,7 @@ end
 
 function gui_main.on_configuration_changed(data)
    -- handle changes to LTN-Combinator
-  local reset = true  -- TODO implement proper logic for UI reset
+  local reset = false
   if data.mod_changes[defs.names.ltnc] then
     local was_active = gui_data.is_ltnc_active
     local is_active = game.active_mods[defs.names.ltnc] and true or false
@@ -635,8 +635,12 @@ function gui_main.on_configuration_changed(data)
     end
   end
   -- handles changes to LTNT
-  if data.mod_changes[defs.names.mod_name] and data.mod_changes[defs.names.mod_name].old_version then
-    reset = true
+  local mod_data = data.mod_changes[defs.names.mod_name]
+  if mod_data and mod_data.old_version then
+    local old_version = util.format_version(mod_data.old_version)
+    if old_version < "00.02.00" then
+      reset = true
+    end
   end
   if reset then
     gui.clear_station_filter()

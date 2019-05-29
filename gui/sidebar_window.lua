@@ -10,6 +10,7 @@ local format_number = util.format_number
 local gui_data = {
   windows = {},
   currently_opened = {},
+  elements = {},
 }
 ------------------------------------------------------------------------------------
 -- sidebar functions
