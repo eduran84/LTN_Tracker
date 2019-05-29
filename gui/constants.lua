@@ -4,14 +4,15 @@ local C = {}
 C.elements = {
   flow_vertical_container = {
     type = "flow",
-    style = defs.styles.vertical_container,
+    style = defs.styles.shared.vertical_container,
     direction = "vertical"
   },
   flow_horizontal_container = {
     type = "flow",
-    style = defs.styles.horizontal_container,
+    style = defs.styles.shared.horizontal_container,
     direction = "horizontal"
   },
+  flow_default = {type = "flow"},
   no_frame_scroll_pane = {
     type = "scroll-pane",
     style = defs.styles.shared.no_frame_scroll_pane,
