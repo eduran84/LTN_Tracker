@@ -1,6 +1,8 @@
 ---------------------------------------------------------------------------------------------------
 Version: 0.1.11
-Date: 2019-05-26
+Date: 2019-05-30
+  Features:
+    - Added additional information about open requests to inventory tab details.
 
   Bugfixes:
     - Fixed that network ID filter did not always work properly.
@@ -43,6 +45,7 @@ Date: 2019-05-21
 ---------------------------------------------------------------------------------------------------
 Version: 0.1.6
 Date: 2019-05-20
+
   Features:
     - Statistics tab:
       * shows graphs of available amount of items over time

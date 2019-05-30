@@ -5,6 +5,7 @@ local styles = defs.styles.inventory_tab
 
 local tonumber, match, btest, gsub = tonumber, string.match, bit32.btest, string.gsub
 local get_items_in_network = util.get_items_in_network
+local get_item_in_network = util.get_item_in_network
 local build_item_table = util.gui.build_item_table
 local bar_graph = require(defs.pathes.modules.bar_graph)
 
@@ -95,8 +96,8 @@ local function build_inventory_tab(window)
   })
   button.enabled = false
   details_frame.icon = button
-  -- summary at the top of the pane
 
+  -- summary at the top of the pane
   inv_tab.bar_graph = bar_graph.build(details_frame.content)
   local summary = details_frame.content.add{type = "table", column_count = 2, style = "slot_table"}
   width = C.inventory_tab.details_width - C.inventory_tab.summary_number_width - 25
@@ -152,6 +153,58 @@ local elements = {
     caption = "",
     style = styles.stops_col_2,
   },
+  label_req_1 = {
+    type = "label",
+    caption = {"inventory.req_station"},
+    style = "heading_3_label_yellow",
+  },
+  label_req_2 = {
+    type = "label",
+    caption = "",
+    style = "bold_label",
+  },
+  label_req_3 = {
+    type = "label",
+    caption = "State:",
+    style = "heading_3_label_yellow",
+  },
+  label_req_4 = {
+    type = "label",
+    caption = "",
+    style = "bold_red_label",
+  },
+  icon_req_1 = {
+    type = "sprite-button",
+    sprite = "",
+    number = 0,
+    style = defs.styles.shared.gray_button,
+    tooltip = {"inventory.amt_requested"},
+    enabled = false,
+  },
+  icon_req_2 = {
+    type = "sprite-button",
+    sprite = "virtual-signal/" .. C.ltn.NETWORKID,
+    number = -1,
+    style = defs.styles.shared.gray_button,
+    tooltip = {"inventory.id_icon_tt"},
+    enabled = false,
+  },
+  icon_req_3 = {
+    type = "sprite-button",
+    sprite = "virtual-signal/" .. C.ltn.MINTRAINLENGTH,
+    number = 0,
+    style = defs.styles.shared.gray_button,
+    tooltip = {"inventory.min_length_icon_tt"},
+    enabled = false,
+  },
+  icon_req_4 = {
+    type = "sprite-button",
+    sprite = "virtual-signal/" .. C.ltn.MAXTRAINLENGTH,
+    number = 0,
+    style = defs.styles.shared.gray_button,
+    tooltip = {"inventory.max_length_icon_tt"},
+    enabled = false,
+  },
   label_del_col1 = {
     type = "label",
     caption = "",
@@ -176,6 +229,7 @@ local elements = {
   },
 }
 
+
 local function update_details(inv_tab, network_id)
   local item = inv_tab.selected_item
   if not item then return end
@@ -188,13 +242,14 @@ local function update_details(inv_tab, network_id)
     "inventory.detail-caption",
     util.get_item_name(item),
   }
-  details_frame.icon.sprite = util.get_item_sprite(item)
+  local sprite = util.get_item_sprite(item)
+  details_frame.icon.sprite = sprite
   -- update totals
   local chd = details_frame.summary.children
   local format_number = util.format_number
-  chd[2].caption = format_number(get_items_in_network(data.provided, network_id)[item])
-  chd[4].caption = format_number(get_items_in_network(data.requested, network_id)[item])
-  chd[6].caption = format_number(get_items_in_network(data.in_transit, network_id)[item])
+  chd[2].caption = format_number(get_item_in_network(data.provided, network_id, item))
+  chd[4].caption = format_number(get_item_in_network(data.requested, network_id, item))
+  chd[6].caption = format_number(get_item_in_network(data.in_transit, network_id, item))
 
 
   local requesting_stops = {}
@@ -242,50 +297,48 @@ local function update_details(inv_tab, network_id)
   details_frame.stop_header.visible = show_header
 
  -- update request table
+  local available = (get_item_in_network(data.provided, -1, item) > 0)
   tble = details_frame.request_table
   egm.manager.unregister(tble)
   tble.clear()
   table_add = tble.add
   show_header = false
   for stop_id, stop in pairs(requesting_stops) do
-    local outer_flow = table_add(flow_params)
-    elements.label_stop_col1.caption = stop.name
-    local label = outer_flow.add(elements.label_stop_col1)
-    egm.manager.register(
-      label, {
-        action = defs.actions.select_station_entity,
-        stop_entity = stop.entity,
-      }
-    )
-    outer_flow.add{
-      type = "sprite-button",
-      sprite = util.get_item_sprite(item),
-      number = data.requested_by_stop[stop_id][item],
-      style = defs.styles.shared.gray_button,
-      enabled = false,
+    local frame = table_add{
+      type = "frame",
+      style = defs.styles.shared.no_padding_frame,
+      direction = "vertical",
     }
-    outer_flow = table_add(flow_params)
-    outer_flow.add{
-      type = "sprite-button",
-      sprite = "virtual-signal/" .. C.ltn.NETWORKID,
-      number = stop.network_id,
-      style = defs.styles.shared.gray_button,
-      enabled = false,
-    }
-    outer_flow.add{
-      type = "sprite-button",
-      sprite = "virtual-signal/" .. C.ltn.MINTRAINLENGTH,
-      number = stop[C.ltn.ctrl_signal_var_name_num[C.ltn.MINTRAINLENGTH]],
-      style = defs.styles.shared.gray_button,
-      enabled = false,
-    }
-    outer_flow.add{
-      type = "sprite-button",
-      sprite = "virtual-signal/" .. C.ltn.MAXTRAINLENGTH,
-      number = stop[C.ltn.ctrl_signal_var_name_num[C.ltn.MAXTRAINLENGTH]],
-      style = defs.styles.shared.gray_button,
-      enabled = false,
-    }
+    frame.style.horizontally_stretchable = true
+    local outer_flow = frame.add(flow_params)
+    elements.icon_req_1.sprite = sprite
+    elements.icon_req_1.number = data.requested_by_stop[stop_id][item]
+    outer_flow.add(elements.icon_req_1)
+
+    outer_flow.add(elements.label_req_1)
+    elements.label_req_2.caption = stop.name
+    outer_flow.add(elements.label_req_2)
+
+    outer_flow = frame.add(flow_params)
+    outer_flow.add(elements.label_req_3)
+    if available then
+      if get_item_in_network(data.provided, stop.network_id, item) > 0 then
+        elements.label_req_4.caption = "No suitable train found."
+      else
+        elements.label_req_4.caption = "Item not available in network."
+      end
+    else
+      elements.label_req_4.caption = "Item not available."
+    end
+    outer_flow.add(elements.label_req_4)
+
+    outer_flow = frame.add(flow_params)
+    elements.icon_req_2.number = stop.network_id
+    outer_flow.add(elements.icon_req_2)
+    elements.icon_req_3.number = stop[C.ltn.ctrl_signal_var_name_num[C.ltn.MINTRAINLENGTH]]
+    outer_flow.add(elements.icon_req_3)
+    elements.icon_req_4.number = stop[C.ltn.ctrl_signal_var_name_num[C.ltn.MAXTRAINLENGTH]]
+    outer_flow.add(elements.icon_req_4)
     show_header = true
   end
   details_frame.request_header.visible = show_header

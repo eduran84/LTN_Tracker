@@ -136,7 +136,6 @@ default[names.stops_col_2] = {
   parent = names.stops_col_1,
   width = C.inventory_tab.details_tb_col_width_stations[2],
 }
-
 default[names.del_col_1] = {
   type = "label_style",
   parent = names.stops_col_1,

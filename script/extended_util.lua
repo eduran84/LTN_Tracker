@@ -7,6 +7,7 @@ util.gui.build_depot_button = require(defs.pathes.modules.build_depot_button)
 
 local match, format = string.match, string.format
 local floor, math_log = math.floor, math.log
+local btest = bit32.btest
 
 function util.get_items_in_network(items_by_network, network_id)--[[
 Extracts number of items provided in a certain network from list items_by_network.
@@ -18,7 +19,6 @@ Parameters:
 Return value:
   items_in_network :: LtnItemList
 ]]local new_item_list = {}
-  local btest = bit32.btest
 	for items_network_id, item_list in pairs(items_by_network) do
 		if btest(network_id, items_network_id) then
 			for item, count in pairs(item_list) do
@@ -27,6 +27,26 @@ Return value:
 		end
   end
 	return new_item_list
+end
+
+function util.get_item_in_network(items_by_network, network_id, item)--[[
+Extracts amount of one item provided in a certain network from list items_by_network.
+
+Parameters:
+  items_by_network :: dictionary int -> LtnItemList
+  network id :: int: the selected network ID
+  item :: string
+
+Return value:
+  item_count :: int: the amount of item available
+]]
+  local item_count = 0
+	for items_network_id, item_list in pairs(items_by_network) do
+		if btest(network_id, items_network_id) then
+      item_count = (item_list[item] or 0) + item_count
+		end
+  end
+	return item_count
 end
 
 local base_1000 = math_log(1000)

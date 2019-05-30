@@ -70,7 +70,7 @@ C.inventory_tab = {
   details_width = 390,
   summary_number_width = 90,
   details_tb_col_width_stations = {300, 45},
-  details_tb_col_width_deliveries = {160, 25, 160}
+  details_tb_col_width_deliveries = {160, 25, 160},
 }
 
 C.history_tab = {
