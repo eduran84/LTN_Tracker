@@ -158,8 +158,7 @@ local function update_stops(stop_id) -- state 1
 end
 
 local function check_for_new_stops()
-  if not data.stop_ids then log2(data) end
-  for _, stop_id in pairs(data.stop_ids) do
+  for _, stop_id in pairs(data.stop_ids or {}) do
     if not raw.stops[stop_id] then
       ui.clear_station_filter()
       break
