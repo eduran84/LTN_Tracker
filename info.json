@@ -1,17 +1,16 @@
 {
-"name": "LTN_Tracker_beta",
-"version": "0.1.11",
-"title": "LTN Tracker 1.0 - beta test",
+"name": "LTN_Tracker",
+"version": "1.0.0",
+"title": "LTN Tracker",
 "author": "eduran",
 "contact": "https://forums.factorio.com/memberlist.php?mode=viewprofile&u=1699",
 "homepage": "https://forums.factorio.com/viewtopic.php?f=214&t=64842&p=427965#p427965",
-"description": "THIS IS A PRE-RELEASE TEST VERSION. \nA GUI for LTN. Displays information about LTN stops, available items and trains controlled by LTN.",
-"factorio_version": "0.17",
+"description": "A GUI for LTN. Displays information about LTN stops, available items and trains controlled by LTN.",
+"factorio_version": "0.18",
 "dependencies": [
-    "base >= 0.17.34",
-    "LogisticTrainNetwork >= 1.10.8",
-    "OpteraLib >= 0.1.7",
-    "GUI_Modules >= 0.0.9",
-    "! LTN_Tracker"
+    "base >= 0.18.0",
+    "LogisticTrainNetwork >= 1.12.0",
+    "OpteraLib >= 0.2.0",
+    "GUI_Modules >= 0.1.0"
   ]
 }

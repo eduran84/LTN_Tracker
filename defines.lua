@@ -201,7 +201,7 @@ defs.signals = {
 }
 local gui_modules = "__GUI_Modules__/"
 local optera_lib = "__OpteraLib__/script/"
-local LTNT = "__LTN_Tracker_beta__/"
+local LTNT = "__LTN_Tracker__/"
 local script = LTNT .. "script/"
 local gui = LTNT .. "gui/"
 defs.pathes.modules = {

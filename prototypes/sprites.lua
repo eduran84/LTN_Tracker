@@ -2,7 +2,7 @@ data:extend({
   {
     type = "sprite",
     name = "ltnt_sprite_enter",
-    filename = "__core__/graphics/icons/expand-dark.png",
+    filename = "__core__/graphics/icons/mip/expand-dark.png",
     priority = "high",
     width = 32,
     height = 32,
