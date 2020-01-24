@@ -11,7 +11,7 @@ data:extend({
   {
     type = "custom-input",
     name = defs.controls.toggle_hotkey,
-    key_sequence = "CONTROL + SHIFT + E",
+    key_sequence = "CONTROL + L",
     consuming = "none",
   },
   {
