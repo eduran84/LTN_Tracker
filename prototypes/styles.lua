@@ -1,6 +1,6 @@
 default = data.raw["gui-style"].default
 
-local function default_glow(tint_value, scale_value)  -- because some moronic mods out there overwrite this function...
+local function default_glow(tint_value, scale_value)  -- because some mods out there overwrite this function...
   return
   {
     position = {200, 128},
@@ -47,7 +47,23 @@ default[shared_styles.slot_table_frame] = {
   vertically_stretchable = "off",
 	horizontally_stretchable = "off",
 }
-
+default[shared_styles.inset_frame] = {
+  type = "frame_style",
+  parent = shared_styles.slot_table_frame,
+  padding = 4,
+  minimal_height = nil,
+  graphical_set = {
+    base = {
+      corner_size = 8,
+      draw_type = "outer",
+      position = {
+        17,
+        0
+      }
+    },
+    shadow = nil
+  },
+}
 ------------------------------------------------------------------------------------
 -- alert popup
 ------------------------------------------------------------------------------------

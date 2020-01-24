@@ -183,9 +183,9 @@ local minutes_7_5 = 5 * minutes_1_5
 local minutes_37_5 = 5 * minutes_7_5
 local update_interval = 90*60  -- 90 seconds
 local function merge_old_data(current_time, time_ago, interval)
-  local total_count, number_of_ticks = {}, {}
   local old_timestamp = current_time - time_ago
   if not global.statistics[old_timestamp] then return end
+  local total_count, number_of_ticks = {}, {}
   for i = -4, 0 do
     local time = old_timestamp + i * interval
     local item_list = global.statistics[time]
@@ -212,17 +212,16 @@ function state_handlers.update_stats(raw, state_data)
   local timestamp = tick - tick % update_interval
   state_data.last_update = timestamp
   local temp = global.temp_stats
-
-  local total_count, number_of_ticks = {}, {}
+  local total_count, number_of_ticks = {}, 0
   global.statistics[timestamp] = total_count
   for tick, item_list in pairs(temp) do
+    number_of_ticks = number_of_ticks + 1
     for item, count in pairs(item_list) do
       total_count[item] = (total_count[item] or 0) + count
-      number_of_ticks[item] = (number_of_ticks[item] or 0) + 1
     end
   end
   for item, count in pairs(total_count) do
-    total_count[item] = count / number_of_ticks[item]
+    total_count[item] = count / number_of_ticks
   end
   if timestamp % minutes_7_5 == 0 then
     merge_old_data(timestamp, hours_1, minutes_1_5)

@@ -622,10 +622,10 @@ function gui_main.on_load()
   egm.manager.on_load()
 end
 
-function gui_main.on_configuration_changed(data)
+function gui_main.on_configuration_changed(event)
    -- handle changes to LTN-Combinator
   local reset = false
-  if data.mod_changes[defs.names.ltnc] then
+  if event.mod_changes[defs.names.ltnc] then
     local was_active = gui_data.is_ltnc_active
     local is_active = game.active_mods[defs.names.ltnc] and true or false
     if is_active ~= was_active then
@@ -634,10 +634,10 @@ function gui_main.on_configuration_changed(data)
     end
   end
   -- handles changes to LTNT
-  local mod_data = data.mod_changes[mod_name]
+  local mod_data = event.mod_changes[defs.mod_name]
   if mod_data and mod_data.old_version then
     local old_version = util.misc.format_version(mod_data.old_version)
-    if old_version < "00.02.00" then
+    if old_version < "01.00.00" then
       -- remove old gui elements
       for pind, player in pairs(game.players) do
         local flow = player.gui.left.mod_gui_frame_flow

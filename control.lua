@@ -1,4 +1,4 @@
--- code inspired by Optera's LTN and LTN Content Reader
+﻿-- code inspired by Optera's LTN and LTN Content Reader
 -- LTN is required to run this mod (obviously, since its a UI to display data collected by LTN)
 -- https://mods.factorio.com/mod/LogisticTrainNetwork
 

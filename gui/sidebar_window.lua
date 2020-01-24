@@ -203,23 +203,22 @@ local function show_depot_information(pind, depot_name, depot_data)
   subflow = flow.add{type = "flow"}
   label_params.style = defs.styles.depot_tab.cap_left_1
   label_params.caption = defs.locale.capacity
-  subflow.add(label_params)
+  subflow.add(label_params).style.font_color = {r = 1, g = 1, b = 1}
 
   label_params.style = defs.styles.depot_tab.cap_left_2
   label_params.caption = format("%s stacks + %s fluid", format_number(depot_data.cap),  format_number(depot_data.fcap))
   local label = subflow.add(label_params)
   label.style.width = C.depot_tab.col_width_left[5]
 
-  subflow = flow.add{type = "flow"}
+  local subframe = flow.add(C.elements.no_padding_frame)
+  subframe.style.top_margin = 5
   build_item_table{
-    parent = subflow,
+    parent = subframe,
     columns = 4,
     signals = depot_data.signals,
     enabled = false,
   }
-  local elem = subflow.add{type = "frame", style = defs.styles.shared.slot_table_frame}
-  elem.style.maximal_height = 44
-  elem = elem.add{type = "table", column_count = 4, style = "slot_table"}
+  local elem = subframe.add{type = "table", column_count = 4, style = "slot_table"}
   local hash = {}
   local id_sprite = "virtual-signal/" .. C.ltn.NETWORKID
   for _, id in pairs(depot_data.network_ids) do

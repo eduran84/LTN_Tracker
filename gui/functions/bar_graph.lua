@@ -14,25 +14,22 @@ local function signal_to_item(signal_id)
 end
 
 local function calculate_bar_heights(bar_graph_obj, item, T0)
-  local item_stats = {}
-  for tick, item_list in pairs(bar_graph_obj.statistics) do
-    item_stats[tick] = item_list[item] or 0
-  end
+  -- statistics :: table: [tick::int] -> [item::string] -> count::int
   T0 = T0 or 60*60*60  -- 1 hour
   local T = T0 / bar_graph_obj.bar_count
-  local counts_per_time, N, times, avg_counts = {}, {}, {}, {}
+  local counts_per_time, N, avg_counts = {}, {}, {}, {}
   local current_tick = game.tick
   local floor = math.floor
-  for t, count in pairs(item_stats) do
-    local index = floor(t/T)
-    times[index] = true
+
+  for tick, item_list in pairs(bar_graph_obj.statistics) do
+    local index = floor(tick/T)
     N[index] = (N[index] or 0) + 1
-    counts_per_time[index] = (counts_per_time[index] or 0) + count
+    counts_per_time[index] = (counts_per_time[index] or 0) + (item_list[item] or 0)
   end
   local max, min = 0, 0
-  local offset = floor((current_tick/T0 - 1) * bar_graph_obj.bar_count)
+  local offset = floor((current_tick/T0 -1 )* bar_graph_obj.bar_count) - 1
   for i = 1, bar_graph_obj.bar_count do
-    if times[i+offset] then
+    if counts_per_time[i+offset] then
       avg_counts[i] = counts_per_time[i + offset] / N[i + offset]
       max = avg_counts[i] > max and avg_counts[i] or max
       min = avg_counts[i] < min and avg_counts[i] or min
@@ -84,7 +81,7 @@ function bar_graph.build(parent, args)
   local outer_frame = parent.add{
     type = "frame",
     direction = "vertical",
-    style = styles.shared.no_padding_frame
+    style = args.frame_style or styles.shared.no_padding_frame
   }
   local title_flow = outer_frame.add{
     type = "flow",

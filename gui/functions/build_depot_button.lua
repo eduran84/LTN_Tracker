@@ -73,16 +73,14 @@ function (parent, depot_name, depot_data, reduced_width)
   end
 
   -- third row: network id and depot state
-  subflow = flow.add(elements.ignored_horizontal_flow)
+  subflow = flow.add(C.elements.no_padding_frame)
   util.gui.build_item_table{
     parent = subflow,
     columns = 4,
     signals = depot_data.signals,
     enabled = false,
   }
-  local elem = subflow.add(elements.table_frame)
-  elem.style.maximal_height = 44
-  elem = elem.add(elements.icon_table)
+  local elem = subflow.add(elements.icon_table)
   local hash = {}
   for _, id in pairs(depot_data.network_ids) do
     if not hash[id] then

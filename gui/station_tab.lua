@@ -158,6 +158,7 @@ local function build_station_tab(window)
     {column_count = C.station_tab.n_columns},
     defs.functions.station_row_constructor
   )
+  table.content.style.vertical_spacing = 8
   for i = 1, C.station_tab.n_columns do
     egm.table.add_column_header(table, {
         sortable = i == 1 or i == 2 or  i == 3,

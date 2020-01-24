@@ -83,6 +83,7 @@ defs.styles = {
     tab_button_red = egm_defs.style_names.tabbed_pane.button_red,
     default_button = mod_prefix .. "default_button",
     no_padding_frame = egm_defs.style_names.shared.no_padding_frame,
+    inset_frame = mod_prefix .. "deep_frame",
     large_close_button = mod_prefix .. "large_close_button",
     slot_table_frame = mod_prefix .. "ltnt_slot_table_frame",
     no_frame_scroll_pane = mod_prefix .. "bare_scroll_pane",

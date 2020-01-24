@@ -3,6 +3,7 @@ local shared_styles = defs.styles.shared
 local pairs = pairs
 local elements = {
   outer_frame = {type = "frame", style = shared_styles.slot_table_frame},
+  outer_flow = {type = "flow", style = shared_styles.vertical_container, direction = "vertical"},
   pane = C.elements.no_frame_scroll_pane,
   table = {type = "table", column_count = 0, style = "slot_table"},
   icon = {
@@ -21,10 +22,10 @@ return
 
   local column_count = args.columns
   -- outer frame
-  local frame = args.parent.add(elements.outer_frame)
+  local frame = args.parent.add(elements.outer_flow)
   if args.max_rows then
     frame.style.maximal_height = args.max_rows * 36 + 18
-    frame.style.width = column_count * 38 + 18
+    frame.style.width = column_count * 38 + 12
     frame = frame.add(elements.pane)
   end
   -- table for item sprites

@@ -12,6 +12,11 @@ C.elements = {
     style = defs.styles.shared.horizontal_container,
     direction = "horizontal"
   },
+  no_padding_frame = {
+    type = "frame",
+    style = defs.styles.shared.no_padding_frame,
+    direction = "horizontal",
+  },
   flow_default = {type = "flow"},
   no_frame_scroll_pane = {
     type = "scroll-pane",
@@ -64,7 +69,9 @@ C.station_tab = {
 }
 
 C.inventory_tab = {
+  item_table_row_count = {3, 2, 2},
   item_table_column_count = 13,
+  item_table_filter_count = 9,
   item_table_width = 504,
   details_item_tb_col_count = 9,
   details_width = 390,

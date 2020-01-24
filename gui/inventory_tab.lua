@@ -12,6 +12,9 @@ local bar_graph = require(defs.pathes.modules.bar_graph)
 local COL_COUNT =  C.inventory_tab.details_item_tb_col_count
 
 local function build_inventory_tab(window)
+  -- constants
+  local details_vertical_spacing = 8
+
   local tab_index = defs.tabs.inventory
   local flow = egm.tabs.add_tab(
     window.pane,
@@ -44,19 +47,18 @@ local function build_inventory_tab(window)
 
   local fade_time = util.get_setting(defs.settings.station_click_action, game.players[window.player_index]) * 60 * 60
   if fade_time == 0 then fade_time = nil end
-  local width = C.inventory_tab.item_table_width
   inv_tab.item_tables[1] = egm.item_table.build(
     left_pane, {
       caption = {"inventory.provide-caption"},
       item_list = {},
-      width = width,
+      width = C.inventory_tab.item_table_width,
       column_count = C.inventory_tab.item_table_column_count,
-      row_count = 3,
+      row_count = C.inventory_tab.item_table_row_count[1],
       color = "green",
       action = defs.actions.show_item_details,
       super = inv_tab,
       fade_timeout = fade_time,
-      buttons_per_row = 9,
+      buttons_per_row = C.inventory_tab.item_table_filter_count,
     }
   )
   inv_tab.item_tables[2] = egm.item_table.build(
@@ -64,12 +66,12 @@ local function build_inventory_tab(window)
       caption = {"inventory.request-caption"},
       item_list = {},
       column_count = C.inventory_tab.item_table_column_count,
-      width = width,
-      row_count = 2,
+      width = C.inventory_tab.item_table_width,
+      row_count = C.inventory_tab.item_table_row_count[2],
       color = "red",
       action = defs.actions.show_item_details,
       super = inv_tab,
-      buttons_per_row = 9,
+      buttons_per_row = C.inventory_tab.item_table_filter_count,
     }
   )
   inv_tab.item_tables[3] = egm.item_table.build(
@@ -77,19 +79,19 @@ local function build_inventory_tab(window)
       caption = {"inventory.transit-caption"},
       item_list = {},
       column_count = C.inventory_tab.item_table_column_count,
-      width = width,
-      row_count = 2,
+      width = C.inventory_tab.item_table_width,
+      row_count = C.inventory_tab.item_table_row_count[3],
       action = defs.actions.show_item_details,
       super = inv_tab,
-      buttons_per_row = 9,
+      buttons_per_row = C.inventory_tab.item_table_filter_count,
     }
   )
   -- details pane
   local details_frame = egm.window.build(flow, {
     caption = {"inventory.detail-caption", ""},
-    --width = TOTAL_WIDTH,
     direction = "vertical",
   })
+  details_frame.root.style.vertically_stretchable = true
   local button = egm.window.add_button(details_frame, {
     type = "sprite-button",
     sprite = "item-group/intermediate-products",
@@ -98,38 +100,47 @@ local function build_inventory_tab(window)
   details_frame.icon = button
 
   -- summary at the top of the pane
-  inv_tab.bar_graph = bar_graph.build(details_frame.content)
   local summary = details_frame.content.add{type = "table", column_count = 2, style = "slot_table"}
-  width = C.inventory_tab.details_width - C.inventory_tab.summary_number_width - 25
+  local width = C.inventory_tab.details_width - C.inventory_tab.summary_number_width - 25
   details_frame.summary = summary
   label = summary.add{type = "label", caption = {"inventory.detail-prov"}, style = "bold_label"}
   label.style.width = width
-
   summary.add{type = "label", caption = "0", style = styles.summary_number}.style.width = 90
   label = summary.add{type = "label", caption = {"inventory.detail-req"}, style = "bold_label"}
   label.style.width = width
   summary.add{type = "label", caption = "0", style = styles.summary_number}.style.width = 90
   label = summary.add{type = "label", caption = {"inventory.detail-tr"}, style = "bold_label"}
   label.style.width = width
+  label.style.bottom_margin = 6
   summary.add{type = "label", caption = "0", style = styles.summary_number}.style.width = 90
-
-  local spacer_flow = details_frame.content.add(C.elements.flow_default)
-  spacer_flow.style.height = 10
+  inv_tab.bar_graph = bar_graph.build(details_frame.content, {
+    frame_style = defs.styles.shared.inset_frame,
+    bar_count = 30,
+    statistics = global.statistics,
+    duration = 1 * 60 * 60 * 60,
+  })
+  inv_tab.bar_graph.root.style.left_margin = 4
 
   local pane = details_frame.content.add(C.elements.no_frame_scroll_pane)
+  pane.style.top_margin = 6
+
+  details_frame.request_header = pane.add{type = "label", style = "heading_2_label", caption = {"inventory.req_header"}}
+  details_frame.request_header.visible = false
+  details_frame.request_table = pane.add(C.elements.flow_vertical_container)
+  details_frame.request_table.style.vertical_spacing = details_vertical_spacing
 
   details_frame.stop_header = pane.add{type = "label", style = "heading_2_label", caption = {"inventory.stop_header_p"}}
+  details_frame.stop_header.visible = false
   details_frame.stop_table = pane.add(C.elements.flow_vertical_container)
+  details_frame.stop_table.style.vertical_spacing = details_vertical_spacing
   label = details_frame.stop_table.add{type = "label", caption = {"inventory.detail_label"}}
   label.style.single_line = false
   label.style.width = C.inventory_tab.details_width - 45
 
-  details_frame.request_header = pane.add{type = "label", style = "heading_2_label", caption = {"inventory.req_header"}}
-  details_frame.request_table = pane.add(C.elements.flow_vertical_container)
-
   details_frame.delivery_header = pane.add{type = "label", style = "heading_2_label", caption = {"inventory.del_header"}}
+  details_frame.delivery_header.visible = false
   details_frame.delivery_table = pane.add(C.elements.flow_vertical_container)
-
+  details_frame.delivery_table.style.vertical_spacing = details_vertical_spacing
 
   inv_tab.details_frame = details_frame
 
@@ -143,6 +154,11 @@ local function set_fadeout_time(inv_tab, pind)
 end
 
 local elements = {
+  entry_frame = {
+    type = "frame",
+    style = defs.styles.shared.inset_frame,
+    direction = "vertical",
+  },
   label_stop_col1 = {
     type = "label",
     caption = "",
@@ -229,7 +245,6 @@ local elements = {
   },
 }
 
-
 local function update_details(inv_tab, network_id)
   local item = inv_tab.selected_item
   if not item then return end
@@ -266,9 +281,11 @@ local function update_details(inv_tab, network_id)
 		for _,stop_id in pairs(data.item2stop[item]) do
       local stop = data.stops[stop_id]
       if btest(stop.network_id, network_id) then
-        local outer_flow = table_add(flow_params)
+        local frame = table_add(elements.entry_frame)
+        frame.style.left_margin = 4
+        local flow = frame.add(flow_params)
         elements.label_stop_col1.caption = stop.name
-        local label = outer_flow.add(elements.label_stop_col1)
+        local label = flow.add(elements.label_stop_col1)
         egm.manager.register(
           label, {
             action = defs.actions.select_station_entity,
@@ -276,14 +293,14 @@ local function update_details(inv_tab, network_id)
           }
         )
         elements.label_stop_col2.caption = "ID: " .. stop.network_id
-        label = outer_flow.add(elements.label_stop_col2)
+        label = flow.add(elements.label_stop_col2)
         egm.manager.register(
           label, {
             action = defs.actions.select_station_entity,
             stop_entity = stop.entity,
           }
         )
-        elements.item_table.parent = table_add(flow_params)
+        elements.item_table.parent = frame
         elements.item_table.provided = data.provided_by_stop[stop_id]
         elements.item_table.requested = data.requested_by_stop[stop_id]
         if data.requested_by_stop[stop_id] and data.requested_by_stop[stop_id][item] then
@@ -304,11 +321,29 @@ local function update_details(inv_tab, network_id)
   table_add = tble.add
   show_header = false
   for stop_id, stop in pairs(requesting_stops) do
-    local frame = table_add{
-      type = "frame",
-      style = defs.styles.shared.no_padding_frame,
-      direction = "vertical",
-    }
+    if available then
+      elements.icon_req_1.style = defs.styles.shared.gray_button
+      if get_item_in_network(data.provided, stop.network_id, item) > 0 then
+        elements.icon_req_2.style = defs.styles.shared.gray_button
+        elements.icon_req_3.style = defs.styles.shared.red_button
+        elements.icon_req_4.style = defs.styles.shared.red_button
+        elements.label_req_4.caption = "No suitable train found."
+      else
+        elements.icon_req_2.style = defs.styles.shared.red_button
+        elements.icon_req_3.style = defs.styles.shared.gray_button
+        elements.icon_req_4.style = defs.styles.shared.gray_button
+        elements.label_req_4.caption = "Item not available in network."
+      end
+    else
+      elements.icon_req_1.style = defs.styles.shared.red_button
+      elements.icon_req_2.style = defs.styles.shared.gray_button
+      elements.icon_req_3.style = defs.styles.shared.gray_button
+      elements.icon_req_4.style = defs.styles.shared.gray_button
+      elements.label_req_4.caption = "Item not available."
+    end
+
+    local frame = table_add(elements.entry_frame)
+    frame.style.left_margin = 4
     frame.style.horizontally_stretchable = true
     local outer_flow = frame.add(flow_params)
     elements.icon_req_1.sprite = sprite
@@ -321,15 +356,6 @@ local function update_details(inv_tab, network_id)
 
     outer_flow = frame.add(flow_params)
     outer_flow.add(elements.label_req_3)
-    if available then
-      if get_item_in_network(data.provided, stop.network_id, item) > 0 then
-        elements.label_req_4.caption = "No suitable train found."
-      else
-        elements.label_req_4.caption = "Item not available in network."
-      end
-    else
-      elements.label_req_4.caption = "Item not available."
-    end
     outer_flow.add(elements.label_req_4)
 
     outer_flow = frame.add(flow_params)
@@ -353,7 +379,9 @@ local function update_details(inv_tab, network_id)
 		for _, delivery_id in pairs(data.item2delivery[item]) do
       local delivery = data.deliveries[delivery_id]
       if btest(delivery.networkID or -1, network_id) then
-        local flow = table_add(flow_params)
+        local frame = table_add(elements.entry_frame)
+        frame.style.left_margin = 4
+        local flow = frame.add(flow_params)
         flow.style.vertical_align = "center"
 
         elements.label_del_col1.caption = delivery.from
@@ -373,7 +401,7 @@ local function update_details(inv_tab, network_id)
             name = delivery.to,
           }
         )
-        elements.item_table.parent = table_add(flow_params)
+        elements.item_table.parent = frame
         elements.item_table.provided = delivery.shipment
         elements.item_table.requested = nil
         build_item_table(elements.item_table)
