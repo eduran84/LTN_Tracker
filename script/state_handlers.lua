@@ -15,7 +15,11 @@ local function get_control_signals(stop)
   end
   return {{color_signal.signal.name,  color_signal.count}, signals}
 end
+
 function state_handlers.update_stops(raw)
+  if not raw.stops then
+    return false
+  end
   for stop_id, stop in pairs(raw.stops) do
     if stop.entity.valid and stop.lampControl.valid then
       local name = stop.entity.backer_name
