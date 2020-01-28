@@ -2,7 +2,7 @@ data:extend({
   {
     type = "sprite",
     name = "ltnt_sprite_refresh",
-    filename = "__core__/graphics/icons/refresh.png",
+    filename = "__core__/graphics/icons/mip/refresh.png",
     priority = "high",
     width = 32,
     height = 32,
@@ -11,7 +11,7 @@ data:extend({
   {
     type = "sprite",
     name = "ltnt_sprite_delete",
-    filename = "__core__/graphics/icons/trash.png",
+    filename = "__core__/graphics/icons/mip/trash.png",
     priority = "high",
     width = 32,
     height = 32,
@@ -20,7 +20,7 @@ data:extend({
   {
     type = "sprite",
     name = "ltnt_sprite_enter",
-    filename = "__core__/graphics/icons/expand-dark.png",
+    filename = "__core__/graphics/icons/mip/expand-dark.png",
     priority = "high",
     width = 32,
     height = 32,
@@ -29,7 +29,7 @@ data:extend({
   {
     type = "sprite",
     name = "ltnt_sprite_search",
-    filename = "__core__/graphics/icons/search.png",
+    filename = "__core__/graphics/icons/mip/search.png",
     priority = "high",
     width = 32,
     height = 32,
@@ -55,7 +55,7 @@ data:extend({
   {
     type = "sprite",
     name = "ltnt_warning_sign_sprite",
-    filename = "__core__/graphics/warning-icon.png",
+    filename = "__core__/graphics/icons/alerts/warning-icon.png",
     priority = "high",
     width = 64,
     height = 64,
