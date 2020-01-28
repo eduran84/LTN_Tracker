@@ -55,7 +55,7 @@ data:extend({
   {
     type = "sprite",
     name = "ltnt_warning_sign_sprite",
-    filename = "__core__/graphics/icons/alers/warning-icon.png",
+    filename = "__core__/graphics/icons/alerts/warning-icon.png",
     priority = "high",
     width = 64,
     height = 64,
